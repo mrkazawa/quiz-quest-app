@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth.js';
 
 const TeacherLogin = () => {
   const [password, setPassword] = useState('');
@@ -7,6 +8,7 @@ const TeacherLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +33,9 @@ const TeacherLogin = () => {
       const data = await response.json();
 
       if (data.success) {
-        // Store teacher session
-        localStorage.setItem('isTeacher', 'true');
-        localStorage.setItem('teacherId', Date.now().toString());
+        // Store teacher session using auth context
+        const teacherId = Date.now().toString();
+        login(teacherId);
         navigate('/teacher/dashboard');
       } else {
         setError(data.message || 'Incorrect password. Please try again.');

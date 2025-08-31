@@ -1,7 +1,38 @@
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth.js';
+
 const TeacherDashboard = () => {
+  const { isAuthenticated, teacherId, logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/teacher/login');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/teacher/login');
+  };
+
+  if (!isAuthenticated) {
+    return <div>Redirecting...</div>;
+  }
+
   return (
     <div className="teacher-dashboard">
-      <h1>Teacher Dashboard</h1>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1>Teacher Dashboard</h1>
+        <div>
+          <span className="me-3">Welcome, Teacher {teacherId}</span>
+          <button className="btn btn-outline-secondary" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </div>
+      
       <p>This will be the main teacher interface (Phase 1b)</p>
       
       {/* Placeholder content */}
