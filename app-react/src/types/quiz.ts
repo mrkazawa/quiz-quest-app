@@ -9,10 +9,11 @@ export interface Question {
 }
 
 export interface QuizSet {
-  id: string;
+  id: string; // The quiz identifier used for room creation
   name: string;
   description?: string;
   questions: Question[];
+  questionCount: number; // Computed property for display
 }
 
 export interface Player {

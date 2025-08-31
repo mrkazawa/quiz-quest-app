@@ -21,8 +21,16 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [teacherId, setTeacherId] = useState<string | null>(null);
+  // Initialize with localStorage values if available
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const storedAuth = localStorage.getItem('isTeacher');
+    const storedTeacherId = localStorage.getItem('teacherId');
+    return storedAuth === 'true' && !!storedTeacherId;
+  });
+  
+  const [teacherId, setTeacherId] = useState<string | null>(() => {
+    return localStorage.getItem('teacherId');
+  });
 
   // Check authentication status on mount
   useEffect(() => {

@@ -86,7 +86,7 @@ const TeacherLogin = () => {
                       type={showPassword ? 'text' : 'password'}
                       className={`form-control ${error ? 'is-invalid' : ''}`}
                       id="teacherPassword"
-                      placeholder="Enter password"
+                      placeholder="Enter password (default: quizmaster123)"
                       value={password}
                       onChange={handlePasswordChange}
                       disabled={isLoading}

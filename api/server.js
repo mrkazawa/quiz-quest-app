@@ -5,6 +5,7 @@ const socketIO = require("socket.io");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const session = require("express-session");
+const cors = require("cors");
 
 // Load environment variables
 dotenv.config();
@@ -12,10 +13,34 @@ dotenv.config();
 // Initialize express app and create HTTP server
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173", 
+      "http://127.0.0.1:5173",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+    allowedHeaders: ["Content-Type"]
+  }
+});
 
 // Middleware for parsing JSON
 app.use(express.json());
+
+// CORS middleware for cross-origin requests
+app.use(cors({
+  origin: [
+    "http://localhost:5173", 
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+  ],
+  credentials: true,
+  allowedHeaders: ["Content-Type"]
+}));
 
 // Set up session middleware
 const sessionMiddleware = session({
@@ -120,12 +145,14 @@ io.on("connection", (socket) => {
 
   // Teacher creates a quiz room
   socket.on("create_room", (data) => {
+    console.log('Received create_room event:', data);
     const { quizId, teacherId } = data;
 
     // Find the question set with the given ID
     const questionSet = questionSets[quizId];
 
     if (!questionSet) {
+      console.log('Quiz not found:', quizId);
       socket.emit("room_error", "Quiz not found");
       return;
     }
@@ -313,7 +340,9 @@ io.on("connection", (socket) => {
   });
 
   // Teacher starts the quiz
-  socket.on("start_quiz", (roomId) => {
+  socket.on("start_quiz", (data) => {
+    const { roomId } = data;
+    
     if (!rooms[roomId] || rooms[roomId].hostId !== socket.id) {
       socket.emit("start_error", "Not authorized to start quiz");
       return;
@@ -538,6 +567,80 @@ io.on("connection", (socket) => {
 
     // Remove the socket from the room
     socket.leave(roomId);
+  });
+
+  // Teacher gets room info (for waiting room)
+  socket.on("get_room_info", (data) => {
+    console.log('Received get_room_info event:', data, 'from socket:', socket.id);
+    const { roomId } = data;
+
+    if (!rooms[roomId]) {
+      console.log('Room not found:', roomId, 'Available rooms:', Object.keys(rooms));
+      socket.emit("room_error", "Room not found");
+      return;
+    }
+
+    const room = rooms[roomId];
+    console.log('Room found. Host ID:', room.hostId, 'Current socket:', socket.id);
+    
+    // If the host socket ID is different (page refresh scenario), update it
+    if (room.hostId !== socket.id) {
+      console.log(`Updating host ID from ${room.hostId} to ${socket.id} for room ${roomId}`);
+      room.hostId = socket.id;
+      socket.join(roomId); // Ensure the new socket is in the room
+    }
+    
+    // Allow any authenticated teacher to get room info (not just the host)
+    // This handles cases where the teacher refreshes and gets a new socket ID
+    const quizSet = questionSets[room.quizId];
+    
+    console.log(`Sending room info for ${roomId}:`, {
+      quizName: quizSet ? quizSet.name : room.quizId,
+      studentCount: Object.keys(room.players).length
+    });
+    
+    // Send room info with current students
+    socket.emit("room_info", {
+      roomId: roomId,
+      quizName: quizSet ? quizSet.name : room.quizId,
+      students: Object.values(room.players).map(player => ({
+        socketId: player.socketId,
+        studentId: player.studentId,
+        name: player.name,
+        joinedAt: Date.now() // Could track actual join time
+      }))
+    });
+
+    console.log(`Room info sent for room ${roomId}`);
+  });
+
+  // Teacher deletes a room
+  socket.on("delete_room", (data) => {
+    const { roomId } = data;
+
+    if (!rooms[roomId]) {
+      socket.emit("room_error", "Room not found");
+      return;
+    }
+
+    // Verify this teacher is the host
+    if (rooms[roomId].hostId !== socket.id) {
+      socket.emit("room_error", "Not authorized to delete this room");
+      return;
+    }
+
+    // Notify all players in the room
+    io.to(roomId).emit("room_deleted", { message: "Room was deleted by teacher" });
+
+    // Clear any active timers
+    if (rooms[roomId].timer) {
+      clearTimeout(rooms[roomId].timer);
+      rooms[roomId].timer = null;
+    }
+
+    // Delete the room
+    delete rooms[roomId];
+    console.log(`Room ${roomId} was deleted by teacher`);
   });
 
   // Teacher joins an existing room

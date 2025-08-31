@@ -23,16 +23,25 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Initialize socket connection
-    socket.current = io() as TypedSocket;
+    // Initialize socket connection to the API server
+    socket.current = io('http://localhost:3000', {
+      withCredentials: true,
+      transports: ['websocket', 'polling']
+    }) as TypedSocket;
 
     socket.current.on('connect', () => {
       console.log('Socket connected:', socket.current?.id);
+      console.log('Socket transport:', socket.current?.io.engine.transport.name);
       setIsConnected(true);
     });
 
     socket.current.on('disconnect', () => {
       console.log('Socket disconnected');
+      setIsConnected(false);
+    });
+
+    socket.current.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
       setIsConnected(false);
     });
 

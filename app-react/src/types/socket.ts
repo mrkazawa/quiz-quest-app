@@ -1,5 +1,13 @@
 import type { QuestionResults } from './quiz.ts';
 
+// Student info for room management
+export interface StudentInfo {
+  socketId: string;
+  studentId: string;
+  name: string;
+  joinedAt: number;
+}
+
 // Player summary for socket events
 export interface PlayerSummary {
   id: string;
@@ -12,6 +20,10 @@ export interface PlayerSummary {
 export interface ServerToClientEvents {
   room_created: (data: { roomId: string; quizId: string }) => void;
   room_error: (message: string) => void;
+  room_info: (data: { roomId: string; quizName: string; students: StudentInfo[] }) => void;
+  student_joined: (data: { socketId: string; studentId: string; name: string; joinedAt: number }) => void;
+  student_left: (data: { socketId: string }) => void;
+  room_deleted: () => void;
   joined_room: (data: { roomId: string; questionId?: number; isActive: boolean }) => void;
   join_error: (message: string) => void;
   player_joined: (data: { playerId: string; playerName: string; studentId: string; players: PlayerSummary[] }) => void;
@@ -32,7 +44,9 @@ export interface ClientToServerEvents {
   join_room: (data: { roomId: string; playerName: string; studentId: string }) => void;
   leave_room: (roomId: string, deleteRoom?: boolean) => void;
   join_teacher_room: (data: { roomId: string; teacherId: string }) => void;
-  start_quiz: (roomId: string) => void;
+  get_room_info: (data: { roomId: string }) => void;
+  delete_room: (data: { roomId: string }) => void;
+  start_quiz: (data: { roomId: string }) => void;
   submit_answer: (data: { roomId: string; answerId: number }) => void;
   next_question: (roomId: string) => void;
 }
