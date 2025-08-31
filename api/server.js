@@ -243,6 +243,12 @@ io.on("connection", (socket) => {
       roomId,
       questionId: rooms[roomId].questionId,
       isActive: rooms[roomId].isActive,
+      players: Object.values(rooms[roomId].players).map((p) => ({
+        id: p.socketId,
+        name: p.name,
+        studentId: p.studentId,
+        score: p.score,
+      })),
     });
 
     // If quiz is active, send current question and player state to this student only

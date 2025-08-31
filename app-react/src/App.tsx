@@ -6,6 +6,7 @@ import TeacherLogin from './pages/TeacherLogin.tsx';
 import TeacherDashboard from './pages/TeacherDashboard.tsx';
 import TeacherWaitingRoom from './pages/TeacherWaitingRoom.tsx';
 import StudentJoin from './pages/StudentJoin.tsx';
+import StudentWaitingRoom from './pages/StudentWaitingRoom.tsx';
 import './styles.css'; // Use original styles
 import './App.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -26,6 +27,7 @@ function App() {
             <Route path="/teacher/room/:roomId/waiting" element={<TeacherWaitingRoom />} />              {/* Student Routes */}
               <Route path="/student/join" element={<StudentJoin />} />
               <Route path="/student/join/:roomId" element={<StudentJoin />} />
+              <Route path="/student/room/:roomId/waiting" element={<StudentWaitingRoom />} />
               
               {/* Quiz Routes - will add these in next iteration */}
               {/* <Route path="/teacher/quiz/:roomId/*" element={<TeacherQuizRoom />} /> */}

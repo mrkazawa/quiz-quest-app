@@ -24,7 +24,7 @@ export interface ServerToClientEvents {
   student_joined: (data: { socketId: string; studentId: string; name: string; joinedAt: number }) => void;
   student_left: (data: { socketId: string }) => void;
   room_deleted: () => void;
-  joined_room: (data: { roomId: string; questionId?: number; isActive: boolean }) => void;
+  joined_room: (data: { roomId: string; questionId?: number; isActive: boolean; players: PlayerSummary[] }) => void;
   join_error: (message: string) => void;
   player_joined: (data: { playerId: string; playerName: string; studentId: string; players: PlayerSummary[] }) => void;
   player_left: (data: { playerId: string; players: PlayerSummary[] }) => void;

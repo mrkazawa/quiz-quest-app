@@ -78,14 +78,28 @@ const TeacherWaitingRoom = () => {
       setLoading(false);
     };
 
-    const handleStudentJoined = (data: StudentInfo) => {
-      console.log('Student joined:', data);
-      setStudents(prev => [...prev, data]);
+    const handlePlayerJoined = (data: { playerId: string; playerName: string; studentId: string; players: Array<{ id: string; name: string; studentId: string; score: number }> }) => {
+      console.log('Player joined:', data);
+      // Convert players to StudentInfo format
+      const studentList = data.players.map(player => ({
+        socketId: player.id,
+        studentId: player.studentId,
+        name: player.name,
+        joinedAt: Date.now()
+      }));
+      setStudents(studentList);
     };
 
-    const handleStudentLeft = (data: { socketId: string }) => {
-      console.log('Student left:', data);
-      setStudents(prev => prev.filter(s => s.socketId !== data.socketId));
+    const handlePlayerLeft = (data: { playerId: string; players: Array<{ id: string; name: string; studentId: string; score: number }> }) => {
+      console.log('Player left:', data);
+      // Convert players to StudentInfo format
+      const studentList = data.players.map(player => ({
+        socketId: player.id,
+        studentId: player.studentId,
+        name: player.name,
+        joinedAt: Date.now()
+      }));
+      setStudents(studentList);
     };
 
     const handleRoomDeleted = () => {
@@ -100,15 +114,15 @@ const TeacherWaitingRoom = () => {
     };
 
     socket.on('room_info', handleRoomInfo);
-    socket.on('student_joined', handleStudentJoined);
-    socket.on('student_left', handleStudentLeft);
+    socket.on('player_joined', handlePlayerJoined);
+    socket.on('player_left', handlePlayerLeft);
     socket.on('room_deleted', handleRoomDeleted);
     socket.on('room_error', handleRoomError);
 
     return () => {
       socket.off('room_info', handleRoomInfo);
-      socket.off('student_joined', handleStudentJoined);
-      socket.off('student_left', handleStudentLeft);
+      socket.off('player_joined', handlePlayerJoined);
+      socket.off('player_left', handlePlayerLeft);
       socket.off('room_deleted', handleRoomDeleted);
       socket.off('room_error', handleRoomError);
     };
@@ -304,24 +318,15 @@ const TeacherWaitingRoom = () => {
                   <p className="text-muted">Share the Room ID or URL with your students</p>
                 </div>
               ) : (
-                <div className="row">
-                  {students.map((student, index) => (
-                    <div key={student.socketId} className="col-md-6 col-lg-4 mb-3">
-                      <div className="card border-success">
-                        <div className="card-body text-center">
-                          <div className="mb-2">
-                            <i className="bi bi-person-circle display-6 text-success"></i>
-                          </div>
-                          <h6 className="card-title mb-1">{student.name}</h6>
-                          <small className="text-muted">ID: {student.studentId}</small>
-                          <div className="mt-2">
-                            <span className="badge bg-success">
-                              #{index + 1} Joined
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                <div className="d-flex flex-wrap gap-2 justify-content-center">
+                  {students.map((student) => (
+                    <span 
+                      key={student.socketId}
+                      className="badge bg-light text-dark border border-primary fs-6 px-3 py-2"
+                      style={{ fontWeight: 500, whiteSpace: 'nowrap' }}
+                    >
+                      {student.name}
+                    </span>
                   ))}
                 </div>
               )}

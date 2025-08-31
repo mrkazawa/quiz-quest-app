@@ -1,14 +1,72 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useSocket } from '../hooks/useSocket.js';
+
+interface PlayerInfo {
+  id: string;
+  name: string;
+  studentId: string;
+  score: number;
+}
+
+interface JoinedRoomData {
+  roomId: string;
+  questionId?: number;
+  isActive: boolean;
+  players: PlayerInfo[];
+}
 
 const StudentJoin = () => {
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
+  const { socket } = useSocket();
+  const navigate = useNavigate();
   
   const [playerName, setPlayerName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [roomId, setRoomId] = useState(urlRoomId || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Socket event listeners
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleJoinedRoom = (data: JoinedRoomData) => {
+      console.log('Successfully joined room:', data);
+      setIsLoading(false);
+      
+      // Store student info in localStorage for refresh scenarios
+      localStorage.setItem('studentInfo', JSON.stringify({
+        playerName: playerName.trim(),
+        studentId: studentId.trim(),
+        roomId: data.roomId
+      }));
+      
+      // Navigate to student waiting room or quiz room based on quiz status
+      if (data.isActive) {
+        navigate(`/student/room/${data.roomId}/quiz`);
+      } else {
+        // Pass initial players data to waiting room
+        navigate(`/student/room/${data.roomId}/waiting`, {
+          state: { initialPlayers: data.players }
+        });
+      }
+    };
+
+    const handleJoinError = (message: string) => {
+      console.error('Join error:', message);
+      setError(message);
+      setIsLoading(false);
+    };
+
+    socket.on('joined_room', handleJoinedRoom);
+    socket.on('join_error', handleJoinError);
+
+    return () => {
+      socket.off('joined_room', handleJoinedRoom);
+      socket.off('join_error', handleJoinError);
+    };
+  }, [socket, navigate, playerName, studentId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,15 +80,26 @@ const StudentJoin = () => {
       return;
     }
 
-    // TODO: Implement socket connection and room joining logic
-    console.log('Joining room:', { playerName, studentId, roomId });
-    
-    // For now, just simulate success
-    setTimeout(() => {
+    if (!socket) {
+      setError('Connection not available. Please refresh the page.');
       setIsLoading(false);
-      // Will navigate to waiting room in next iteration
-      console.log('Would navigate to:', `/student/room/${roomId}/waiting`);
-    }, 1000);
+      return;
+    }
+
+    if (!socket.connected) {
+      setError('Not connected to server. Please refresh the page.');
+      setIsLoading(false);
+      return;
+    }
+
+    console.log('Attempting to join room:', { playerName: playerName.trim(), studentId: studentId.trim(), roomId: roomId.trim() });
+    
+    // Emit join room event
+    socket.emit('join_room', {
+      roomId: roomId.trim(),
+      playerName: playerName.trim(),
+      studentId: studentId.trim()
+    });
   };
 
   return (
