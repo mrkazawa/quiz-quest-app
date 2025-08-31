@@ -113,11 +113,17 @@ const TeacherWaitingRoom = () => {
       setLoading(false);
     };
 
+    const handleQuizStarted = (data: { roomId: string }) => {
+      console.log('Quiz started:', data);
+      navigate(`/teacher/room/${roomId}/quiz`);
+    };
+
     socket.on('room_info', handleRoomInfo);
     socket.on('player_joined', handlePlayerJoined);
     socket.on('player_left', handlePlayerLeft);
     socket.on('room_deleted', handleRoomDeleted);
     socket.on('room_error', handleRoomError);
+    socket.on('quiz_started', handleQuizStarted);
 
     return () => {
       socket.off('room_info', handleRoomInfo);
@@ -125,6 +131,7 @@ const TeacherWaitingRoom = () => {
       socket.off('player_left', handlePlayerLeft);
       socket.off('room_deleted', handleRoomDeleted);
       socket.off('room_error', handleRoomError);
+      socket.off('quiz_started', handleQuizStarted);
     };
   }, [socket, roomId, navigate, isAuthenticated]);
 
