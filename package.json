@@ -5,7 +5,11 @@
   "main": "api/server.js",
   "scripts": {
     "start": "node api/server.js",
-    "dev": "nodemon api/server.js"
+    "dev": "nodemon api/server.js",
+    "dev:client": "cd app-react && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:client\"",
+    "build:client": "cd app-react && npm run build",
+    "install:client": "cd app-react && npm install"
   },
   "keywords": [
     "quiz",
@@ -23,6 +27,7 @@
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "nodemon": "^3.0.1"
   }
 }

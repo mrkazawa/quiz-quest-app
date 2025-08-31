@@ -1,0 +1,8 @@
+/* Quiz Quest React App - Additional Styles */
+/* The main styles are in styles.css (copied from original app) */
+
+.App {
+  min-height: 100vh;
+}
+
+/* Any React-specific overrides can go here */
