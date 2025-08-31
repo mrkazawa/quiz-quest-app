@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - TEACHER_PASSWORD=admin     # change your password here
+    volumes:
+      - ./questions:/app/questions
+      - ./api:/app/api
+      - ./app:/app/app
+    restart: unless-stopped
