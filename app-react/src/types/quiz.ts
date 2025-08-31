@@ -45,6 +45,8 @@ export interface Room {
 
 export interface QuestionResults {
   questionId: number;
+  question?: string; // Add question text (optional for backward compatibility)
+  options?: string[]; // Add options array (optional for backward compatibility)
   correctAnswer: number;
   currentQuestionIndex: number;
   totalQuestions: number;

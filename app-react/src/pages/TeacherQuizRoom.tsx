@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket.js';
 import { useAuth } from '../hooks/useAuth.js';
 import type { QuestionResults } from '../types/quiz.ts';
@@ -15,10 +15,11 @@ interface QuestionData {
 }
 
 const TeacherQuizRoom = () => {
-  const { roomId } = useParams<{ roomId: string }>();
+  const { roomId, questionId } = useParams<{ roomId: string; questionId?: string }>();
   const { socket } = useSocket();
   const { teacherId, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
@@ -27,7 +28,21 @@ const TeacherQuizRoom = () => {
   const [error, setError] = useState<string | null>(null);
   const [quizEnded, setQuizEnded] = useState(false);
 
-  console.log('TeacherQuizRoom render:', { roomId, socket: !!socket, currentQuestion: !!currentQuestion });
+  // Get current route state
+  const isQuestionRoute = location.pathname.includes('/question/');
+  const isResultRoute = location.pathname.includes('/result/');
+  const isFinalRoute = location.pathname.includes('/final');
+
+  console.log('TeacherQuizRoom render:', { 
+    roomId, 
+    questionId, 
+    route: location.pathname, 
+    isQuestionRoute, 
+    isResultRoute, 
+    isFinalRoute,
+    socket: !!socket, 
+    currentQuestion: !!currentQuestion 
+  });
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -43,6 +58,55 @@ const TeacherQuizRoom = () => {
       return;
     }
 
+    // Handle URL state for refresh scenarios
+    if (isResultRoute && questionId) {
+      console.log('Result route detected on refresh, setting up result view...');
+      
+      // Try to load question results from localStorage
+      const storedResults = localStorage.getItem(`questionResults_${roomId}_${questionId}`);
+      if (storedResults) {
+        try {
+          const parsedResults = JSON.parse(storedResults);
+          console.log('Loaded question results from localStorage:', parsedResults);
+          setQuestionResults(parsedResults);
+        } catch (e) {
+          console.error('Failed to parse stored question results:', e);
+        }
+      }
+      
+      if (!storedResults) {
+        // On result page refresh without stored data, create minimal state
+        setQuestionResults({
+          questionId: parseInt(questionId),
+          correctAnswer: 0, // Unknown on refresh
+          currentQuestionIndex: 0, // Unknown on refresh
+          totalQuestions: 0, // Unknown on refresh
+          playerAnswers: [] // Empty on refresh
+        });
+      }
+      setLoading(false);
+    } else if (isQuestionRoute && questionId) {
+      console.log('Question route detected on refresh, setting up question view...');
+      // On question page refresh, create mock question data
+      setCurrentQuestion({
+        questionId: parseInt(questionId),
+        question: 'Question content unavailable after refresh',
+        options: ['Refresh detected - please use Next Question to continue'],
+        timeLimit: 0,
+        remainingTime: 0,
+        currentQuestionIndex: 0,
+        totalQuestions: 0
+      });
+      setTimeRemaining(0);
+      setLoading(false);
+    } else if (isFinalRoute) {
+      console.log('Final route detected on refresh...');
+      setLoading(false);
+      setQuizEnded(true);
+    } else {
+      console.log('Unknown route state, staying in loading...');
+    }
+
     const setupEventListeners = () => {
       // Handle new question started
       const handleNewQuestion = (data: QuestionData) => {
@@ -51,6 +115,9 @@ const TeacherQuizRoom = () => {
         setTimeRemaining(data.remainingTime || data.timeLimit);
         setQuestionResults(null);
         setLoading(false);
+        
+        // Navigate to question route
+        navigate(`/teacher/room/${roomId}/question/${data.questionId}`);
       };
 
       // Handle student answer submissions
@@ -64,6 +131,12 @@ const TeacherQuizRoom = () => {
         console.log('Question ended with results:', data);
         setQuestionResults(data);
         setTimeRemaining(0);
+        
+        // Store results in localStorage for refresh persistence
+        localStorage.setItem(`questionResults_${roomId}_${data.questionId}`, JSON.stringify(data));
+        
+        // Navigate to result route
+        navigate(`/teacher/room/${roomId}/result/${data.questionId}`);
       };
 
       // Handle player joining during quiz
@@ -80,7 +153,9 @@ const TeacherQuizRoom = () => {
       const handleQuizCompleted = (data: { message?: string; historyId?: string }) => {
         console.log('Quiz completed:', data);
         setQuizEnded(true);
-        // Could show final results or redirect
+        
+        // Navigate to final results
+        navigate(`/teacher/room/${roomId}/final`);
       };
 
       // Handle room errors
@@ -142,7 +217,7 @@ const TeacherQuizRoom = () => {
       rejoinTeacherRoom();
       return setupEventListeners();
     }
-  }, [socket, roomId, teacherId, isAuthenticated, navigate]);
+  }, [socket, roomId, teacherId, isAuthenticated, navigate, questionId, isQuestionRoute, isResultRoute, isFinalRoute]);
 
   // Timer countdown effect
   useEffect(() => {
@@ -206,6 +281,172 @@ const TeacherQuizRoom = () => {
              !socket.connected ? 'Connecting to quiz room...' : 
              'Loading quiz...'}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle result route refresh - show result view even without full data
+  if (isResultRoute && questionId) {
+    return (
+      <div className="container mt-3">
+        <div className="text-center mt-3 mb-4">
+          <img
+            src="/quiz-quest-logo-horizontal.png"
+            alt="Quiz Quest"
+            style={{
+              width: '100%',
+              maxWidth: '400px',
+              height: 'auto'
+            }}
+          />
+        </div>
+
+        <div className="row">
+          <div className="col-md-8 offset-md-2">
+            <div className="card">
+              <div className="card-header bg-success text-white">
+                <h4 className="mb-0">
+                  <i className="bi bi-bar-chart-fill me-2"></i>
+                  Question {questionId} Results
+                </h4>
+              </div>
+              <div className="card-body">
+                {questionResults && questionResults.question && questionResults.options ? (
+                  <div>
+                    {/* Question Display */}
+                    <div className="text-center mb-4">
+                      <h3 className="mb-4">{questionResults.question}</h3>
+                    </div>
+
+                    {/* Answer Options with Correct Answer Highlighted - 2x2 Grid */}
+                    <div className="row mb-4">
+                      {questionResults.options.map((option: string, index: number) => {
+                        const isCorrect = index === questionResults.correctAnswer;
+                        
+                        return (
+                          <div key={index} className="col-6 mb-3">
+                            <div
+                              className={`option-btn option-${index} btn w-100 text-white d-flex align-items-center justify-content-center ${isCorrect ? 'correct-answer' : ''}`}
+                              style={{ 
+                                cursor: 'default',
+                                height: '100px',
+                                fontSize: '1.1rem',
+                                padding: '12px'
+                              }}
+                            >
+                              {isCorrect && (
+                                <span className="correct-indicator me-2">
+                                  <i className="bi bi-check-circle-fill" style={{ fontSize: '1.5rem', color: '#ffffff' }}></i>
+                                </span>
+                              )}
+                              <span className="text-center">{option}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Player Results Table */}
+                    {questionResults.playerAnswers.length > 0 && (
+                      <div className="mt-4">
+                        <h5 className="mb-3">
+                          <i className="bi bi-people-fill me-2"></i>
+                          Student Results ({questionResults.playerAnswers.length} students)
+                        </h5>
+                        <div className="table-responsive">
+                          <table className="table table-hover">
+                            <thead className="table-light">
+                              <tr>
+                                <th scope="col">Student</th>
+                                <th scope="col">Their Answer</th>
+                                <th scope="col">Result</th>
+                                <th scope="col" className="text-end">Score</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {questionResults.playerAnswers
+                                .sort((a, b) => b.score - a.score) // Sort by score descending
+                                .map((answer, index) => (
+                                <tr key={index}>
+                                  <td>
+                                    <div>
+                                      <strong>{answer.playerName}</strong>
+                                      {answer.studentId && (
+                                        <div className="text-muted small">ID: {answer.studentId}</div>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    {answer.answerId !== null ? (
+                                      <span className={`badge ${answer.isCorrect ? 'bg-success' : 'bg-danger'} fs-6`}>
+                                        Option {answer.answerId + 1}
+                                      </span>
+                                    ) : (
+                                      <span className="badge bg-secondary fs-6">No answer</span>
+                                    )}
+                                  </td>
+                                  <td>
+                                    {answer.isCorrect ? (
+                                      <span className="text-success fw-semibold">
+                                        <i className="bi bi-check-circle-fill me-1"></i>
+                                        Correct
+                                      </span>
+                                    ) : (
+                                      <span className="text-danger fw-semibold">
+                                        <i className="bi bi-x-circle-fill me-1"></i>
+                                        Wrong
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="text-end">
+                                    <strong className="text-primary">{answer.score} pts</strong>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <i className="bi bi-arrow-clockwise display-4 text-info mb-3"></i>
+                    <h5>Page Refreshed</h5>
+                    <p className="text-muted">Question results data is not available after page refresh.</p>
+                    <p className="text-muted">The quiz is still active. Use "Next Question" to continue.</p>
+                  </div>
+                )}
+                
+                <div className="text-center mt-4">
+                  <div className="d-flex gap-3 justify-content-center">
+                    <button 
+                      className="btn btn-success btn-lg px-4"
+                      onClick={nextQuestion}
+                    >
+                      <i className="bi bi-arrow-right me-2"></i>
+                      Next Question
+                    </button>
+                    <button 
+                      className="btn btn-danger"
+                      onClick={endQuiz}
+                    >
+                      <i className="bi bi-stop-fill me-2"></i>
+                      End Quiz
+                    </button>
+                    <button 
+                      className="btn btn-outline-secondary"
+                      onClick={backToDashboard}
+                    >
+                      <i className="bi bi-house me-2"></i>
+                      Dashboard
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

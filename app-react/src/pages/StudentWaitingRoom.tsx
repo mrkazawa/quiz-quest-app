@@ -110,12 +110,24 @@ const StudentWaitingRoom = () => {
       };
 
       // Handle quiz starting
-      const handleQuizStarted = (data: { roomId: string }) => {
-        console.log('Quiz started:', data);
-        navigate(`/student/room/${roomId}/quiz`);
-      };
+    const handleQuizStarted = (data: { roomId: string }) => {
+      console.log('Quiz started event received:', data);
+      
+      if (data?.roomId && data.roomId === roomId) {
+        // Quiz started, wait for new_question event to navigate
+        console.log('Quiz started, waiting for first question...');
+        setLoading(false);
+      } else {
+        console.warn('Quiz started for different room:', data?.roomId, 'expected:', roomId);
+      }
+    };
 
-      // Handle quiz/room ending
+    // Handle first question - navigate to question route
+    const handleNewQuestion = (data: { questionId: number; question: string; options: string[]; timeLimit: number }) => {
+      console.log('First question received, navigating to quiz:', data);
+      // Navigate to the question page
+      navigate(`/student/room/${roomId}/question/${data.questionId}`);
+    };      // Handle quiz/room ending
       const handleQuizEnded = (data: { message?: string }) => {
         console.log('Quiz ended:', data);
         localStorage.removeItem('studentInfo');
@@ -145,6 +157,7 @@ const StudentWaitingRoom = () => {
       socket.on('player_left', handlePlayerLeft);
       socket.on('player_disconnected', handlePlayerDisconnected);
       socket.on('quiz_started', handleQuizStarted);
+      socket.on('new_question', handleNewQuestion);
       socket.on('quiz_ended', handleQuizEnded);
       socket.on('room_deleted', handleRoomDeleted);
       socket.on('join_error', handleJoinError);
@@ -157,6 +170,7 @@ const StudentWaitingRoom = () => {
         socket.off('player_left', handlePlayerLeft);
         socket.off('player_disconnected', handlePlayerDisconnected);
         socket.off('quiz_started', handleQuizStarted);
+        socket.off('new_question', handleNewQuestion);
         socket.off('quiz_ended', handleQuizEnded);
         socket.off('room_deleted', handleRoomDeleted);
         socket.off('join_error', handleJoinError);

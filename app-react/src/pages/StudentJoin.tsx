@@ -36,10 +36,21 @@ const StudentJoin = () => {
       setIsLoading(false);
       
       // Store student info in localStorage for refresh scenarios
+      // Store in both old format (studentInfo) and new format (studentSession) for compatibility
       localStorage.setItem('studentInfo', JSON.stringify({
         playerName: playerName.trim(),
         studentId: studentId.trim(),
         roomId: data.roomId
+      }));
+      
+      localStorage.setItem('studentSession', JSON.stringify({
+        currentRoom: data.roomId,
+        playerName: playerName.trim(),
+        studentId: studentId.trim(),
+        currentScore: 0,
+        currentStreak: 0,
+        hasAnswered: false,
+        currentQuestionIndex: 0,
       }));
       
       // Navigate to student waiting room or quiz room based on quiz status

@@ -115,7 +115,13 @@ const TeacherWaitingRoom = () => {
 
     const handleQuizStarted = (data: { roomId: string }) => {
       console.log('Quiz started:', data);
-      navigate(`/teacher/room/${roomId}/quiz`);
+      // Don't navigate yet - wait for new_question event to get the first question
+    };
+
+    const handleNewQuestion = (data: { questionId: number; question: string; options: string[]; timeLimit: number }) => {
+      console.log('First question received, navigating to quiz room:', data);
+      // Navigate to the first question
+      navigate(`/teacher/room/${roomId}/question/${data.questionId}`);
     };
 
     socket.on('room_info', handleRoomInfo);
@@ -124,6 +130,7 @@ const TeacherWaitingRoom = () => {
     socket.on('room_deleted', handleRoomDeleted);
     socket.on('room_error', handleRoomError);
     socket.on('quiz_started', handleQuizStarted);
+    socket.on('new_question', handleNewQuestion);
 
     return () => {
       socket.off('room_info', handleRoomInfo);
@@ -132,6 +139,7 @@ const TeacherWaitingRoom = () => {
       socket.off('room_deleted', handleRoomDeleted);
       socket.off('room_error', handleRoomError);
       socket.off('quiz_started', handleQuizStarted);
+      socket.off('new_question', handleNewQuestion);
     };
   }, [socket, roomId, navigate, isAuthenticated]);
 

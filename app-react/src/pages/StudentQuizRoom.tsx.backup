@@ -25,7 +25,7 @@ interface AnswerResult {
 }
 
 const StudentQuizRoom = () => {
-  const { roomId, questionId } = useParams<{ roomId: string; questionId?: string }>();
+  const { roomId } = useParams<{ roomId: string }>();
   const { socket } = useSocket();
   const navigate = useNavigate();
 
@@ -39,32 +39,7 @@ const StudentQuizRoom = () => {
   const [error, setError] = useState<string | null>(null);
   const [waitingForNext, setWaitingForNext] = useState(false);
 
-  console.log('StudentQuizRoom render:', { roomId, questionId, socket: !!socket, currentQuestion: !!currentQuestion });
-
-  // Detect current route state for refresh handling
-  const isQuestionRoute = window.location.pathname.includes('/question/');
-  const isResultRoute = window.location.pathname.includes('/result/');
-  const isFinalRoute = window.location.pathname.includes('/final');
-
-  // Session management for URL-based routing
-  useEffect(() => {
-    // Validate and restore session on mount/refresh
-    const storedSession = localStorage.getItem('studentSession');
-    if (storedSession) {
-      try {
-        const session = JSON.parse(storedSession);
-        if (session.currentRoom === roomId) {
-          // Restore state from session
-          setScore(session.currentScore || 0);
-          setStreak(session.currentStreak || 0);
-          setHasSubmitted(session.hasAnswered || false);
-          console.log('Restored session state:', session);
-        }
-      } catch (e) {
-        console.warn('Failed to parse session:', e);
-      }
-    }
-  }, [roomId]);
+  console.log('StudentQuizRoom render:', { roomId, socket: !!socket, currentQuestion: !!currentQuestion });
 
   useEffect(() => {
     if (!socket || !roomId) {
@@ -90,24 +65,6 @@ const StudentQuizRoom = () => {
         if (data.currentStreak !== undefined) {
           setStreak(data.currentStreak);
         }
-
-        // Save session data for URL routing persistence
-        localStorage.setItem('studentSession', JSON.stringify({
-          currentRoom: roomId,
-          playerName: localStorage.getItem('studentName') || '',
-          studentId: localStorage.getItem('studentId') || '',
-          currentScore: data.currentScore || 0,
-          currentStreak: data.currentStreak || 0,
-          hasAnswered: data.hasAnswered || false,
-          currentQuestionIndex: data.currentQuestionIndex || 0,
-        }));
-
-        // Navigate to question URL based on state
-        if (data.hasAnswered) {
-          navigate(`/student/room/${roomId}/result/${data.questionId}`);
-        } else {
-          navigate(`/student/room/${roomId}/question/${data.questionId}`);
-        }
       };
 
       // Handle answer feedback
@@ -122,25 +79,15 @@ const StudentQuizRoom = () => {
       const handleQuestionEnded = (data: QuestionResults) => {
         console.log('Question ended:', data);
         setWaitingForNext(true);
-        
-        // Navigate to result URL if we have questionId
-        if (currentQuestion?.questionId) {
-          navigate(`/student/room/${roomId}/result/${currentQuestion.questionId}`);
-        }
-        
         // Show results or waiting state
       };
 
       // Handle quiz completion
       const handleQuizEnded = (data: { message?: string; historyId?: string }) => {
         console.log('Quiz ended:', data);
-        
-        // Navigate to final results URL
-        navigate(`/student/room/${roomId}/final`);
-        
-        // Clear session after quiz completion
-        localStorage.removeItem('studentSession');
         localStorage.removeItem('studentInfo');
+        alert(data.message || 'Quiz completed!');
+        navigate('/student/join');
       };
 
       // Handle room deletion
@@ -185,26 +132,6 @@ const StudentQuizRoom = () => {
 
     // Try to rejoin room on component mount (for refresh scenarios)
     const rejoinRoom = () => {
-      // Check for new session format first
-      const storedSession = localStorage.getItem('studentSession');
-      if (storedSession) {
-        try {
-          const session = JSON.parse(storedSession);
-          if (session.currentRoom === roomId) {
-            console.log('Rejoining quiz room with session:', session);
-            socket.emit('join_room', {
-              roomId,
-              playerName: session.playerName,
-              studentId: session.studentId
-            });
-            return;
-          }
-        } catch (e) {
-          console.warn('Failed to parse stored session:', e);
-        }
-      }
-      
-      // Fallback to old studentInfo format
       const storedInfo = localStorage.getItem('studentInfo');
       if (storedInfo) {
         try {
@@ -252,7 +179,7 @@ const StudentQuizRoom = () => {
       rejoinRoom();
       return setupEventListeners();
     }
-  }, [socket, roomId, navigate, currentQuestion]);
+  }, [socket, roomId, navigate]);
 
   // Timer countdown effect
   useEffect(() => {
@@ -287,11 +214,6 @@ const StudentQuizRoom = () => {
     });
 
     setHasSubmitted(true);
-    
-    // Navigate to result URL after submitting
-    if (currentQuestion?.questionId) {
-      navigate(`/student/room/${roomId}/result/${currentQuestion.questionId}`);
-    }
   };
 
   const leaveQuiz = () => {
@@ -338,43 +260,7 @@ const StudentQuizRoom = () => {
     );
   }
 
-  // Final Results Screen
-  if (isFinalRoute) {
-    return (
-      <div className="container mt-3">
-        {/* Header Logo */}
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
-        
-        <div className="question-results-container">
-          <div className="question-results-content text-center">
-            <h2 className="mb-4">Quiz Complete!</h2>
-            <div className="mb-4">
-              <h3>Final Score: <span>{score}</span></h3>
-            </div>
-            <button 
-              className="btn btn-success btn-lg"
-              onClick={() => navigate('/student/join')}
-            >
-              Join Another Quiz
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Result Screen (after answering or waiting for next question)
-  if (isResultRoute || waitingForNext) {
+  if (waitingForNext) {
     return (
       <div className="container mt-3">
         {/* Header Logo */}
@@ -505,8 +391,8 @@ const StudentQuizRoom = () => {
             </div>
           </div>
         </div>
-      ) : isQuestionRoute && currentQuestion ? (
-        // Question display - only show on question routes
+      ) : (
+        // Question display
         <div className="card quiz-question-screen">
           <div 
             className="card-header bg-success"
@@ -568,23 +454,6 @@ const StudentQuizRoom = () => {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      ) : (
-        // Loading or invalid state
-        <div className="container-fluid py-4">
-          <div className="row">
-            <div className="col-lg-8 mx-auto">
-              <div className="card">
-                <div className="card-body text-center py-5">
-                  <div className="mb-4">
-                    <i className="bi bi-hourglass-split display-1 text-muted"></i>
-                  </div>
-                  <h3 className="mb-3">Loading Quiz...</h3>
-                  <p className="text-muted">Room ID: <strong>{roomId}</strong></p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}

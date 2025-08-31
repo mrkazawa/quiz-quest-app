@@ -289,6 +289,8 @@ io.on("connection", (socket) => {
         // Send them directly to the question results with complete data
         const questionResults = {
           questionId: currentQuestionObj.id,
+          question: currentQuestionObj.question, // Add question text
+          options: currentQuestionObj.options, // Add options array
           correctAnswer: currentQuestionObj.correctAnswer,
           playerAnswers: Object.values(rooms[roomId].players).map((p) => {
             const answer = p.answers.find(
@@ -907,6 +909,8 @@ function endQuestion(roomId) {
   // Compile question results
   const questionResults = {
     questionId: currentQuestionObj.id,
+    question: currentQuestionObj.question, // Add question text
+    options: currentQuestionObj.options, // Add options array
     correctAnswer: currentQuestionObj.correctAnswer,
     currentQuestionIndex: rooms[roomId].currentQuestionIndex, // Add current question index
     totalQuestions: rooms[roomId].questionOrder.length, // Add total questions count
