@@ -7,10 +7,9 @@ import TeacherDashboard from './pages/TeacherDashboard.tsx';
 import TeacherWaitingRoom from './pages/TeacherWaitingRoom.tsx';
 import StudentJoin from './pages/StudentJoin.tsx';
 import StudentWaitingRoom from './pages/StudentWaitingRoom.tsx';
-import StudentQuizRoomNew from './pages/StudentQuizRoomNew.tsx';
+import StudentQuizRoom from './pages/StudentQuizRoom.tsx';
 import TeacherQuizRoom from './pages/TeacherQuizRoom.tsx';
 import './styles.css'; // Use original styles
-import './styles/quiz-quest.css'; // Quiz Quest specific styles
 import './App.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -36,9 +35,9 @@ function App() {
               <Route path="/student/join" element={<StudentJoin />} />
               <Route path="/student/join/:roomId" element={<StudentJoin />} />
               <Route path="/student/room/:roomId/waiting" element={<StudentWaitingRoom />} />
-              <Route path="/student/room/:roomId/question/:questionId" element={<StudentQuizRoomNew />} />
-              <Route path="/student/room/:roomId/submit/:questionId" element={<StudentQuizRoomNew />} />
-              <Route path="/student/room/:roomId/result/:questionId" element={<StudentQuizRoomNew />} />
+              <Route path="/student/room/:roomId/question/:questionId" element={<StudentQuizRoom />} />
+              <Route path="/student/room/:roomId/submit/:questionId" element={<StudentQuizRoom />} />
+              <Route path="/student/room/:roomId/result/:questionId" element={<StudentQuizRoom />} />
             </Routes>
           </div>
         </BrowserRouter>
