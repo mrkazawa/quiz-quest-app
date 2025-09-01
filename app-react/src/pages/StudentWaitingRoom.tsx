@@ -146,8 +146,20 @@ const StudentWaitingRoom = () => {
       // Handle errors
       const handleJoinError = (message: string) => {
         console.error('Join error:', message);
-        setError(message);
-        setLoading(false);
+        
+        // Clear stored session since room is invalid
+        localStorage.removeItem('studentInfo');
+        
+        if (message.includes('Room not found') || message.includes('Room does not exist')) {
+          // Room doesn't exist - redirect to join page
+          navigate('/student/join');
+        } else {
+          // Other join errors - show message then redirect
+          setError(message);
+          setTimeout(() => {
+            navigate('/student/join');
+          }, 2000);
+        }
       };
 
       socket.on('room_info', handleRoomInfo);

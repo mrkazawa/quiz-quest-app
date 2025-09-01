@@ -206,6 +206,18 @@ const TeacherQuizRoom = () => {
         setLoading(false);
       };
 
+      // Handle join errors (room not found)
+      const handleJoinError = (message: string) => {
+        console.error('Join error:', message);
+        if (message.includes('Room not found') || message.includes('Room does not exist')) {
+          // Redirect teacher to dashboard if room doesn't exist
+          navigate('/teacher/dashboard');
+          return;
+        }
+        setError(message);
+        setLoading(false);
+      };
+
       socket.on('new_question', handleNewQuestion);
       socket.on('player_answered', handlePlayerAnswered);
       socket.on('question_ended', handleQuestionEnded);
@@ -213,6 +225,7 @@ const TeacherQuizRoom = () => {
       socket.on('player_left', handlePlayerLeft);
       socket.on('quiz_ended', handleQuizCompleted);
       socket.on('room_error', handleRoomError);
+      socket.on('join_error', handleJoinError);
 
       return () => {
         socket.off('new_question', handleNewQuestion);
@@ -222,6 +235,7 @@ const TeacherQuizRoom = () => {
         socket.off('player_left', handlePlayerLeft);
         socket.off('quiz_ended', handleQuizCompleted);
         socket.off('room_error', handleRoomError);
+        socket.off('join_error', handleJoinError);
       };
     };
 

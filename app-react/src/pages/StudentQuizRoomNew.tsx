@@ -241,9 +241,19 @@ export default function StudentQuizRoom() {
     };
 
     const handleJoinError = (message: string) => {
-      alert(`Error joining room: ${message}`);
+      console.error('Join error:', message);
+      
+      // Clear any stored session since room is invalid
       localStorage.removeItem('studentSession');
-      navigate('/student/join');
+      
+      if (message.includes('Room not found') || message.includes('Room does not exist')) {
+        // Room doesn't exist - redirect to join page
+        navigate('/student/join');
+      } else {
+        // Other join errors (e.g., quiz already started)
+        alert(`Error joining room: ${message}`);
+        navigate('/student/join');
+      }
     };
 
     // Register event listeners

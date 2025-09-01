@@ -109,6 +109,11 @@ const TeacherWaitingRoom = () => {
 
     const handleRoomError = (message: string) => {
       console.error('Room error from server:', message);
+      if (message.includes('Room not found') || message.includes('Room does not exist')) {
+        // Room doesn't exist - redirect to dashboard
+        navigate('/teacher/dashboard');
+        return;
+      }
       setError('This room no longer exists. Please create a new room from the dashboard.');
       setLoading(false);
     };
