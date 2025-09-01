@@ -81,8 +81,8 @@ app.get("/api/quiz-history/:id", (req, res) => {
   res.json(historyItem);
 });
 
-// Serve static files from the app directory
-app.use(express.static(path.join(__dirname, "../app")));
+// Serve static files from the React build directory
+app.use(express.static(path.join(__dirname, "../app-react/dist")));
 
 // Load questions from all JSON files in the questions directory
 const questionSets = {};
@@ -1454,20 +1454,17 @@ function renderTemplate(templatePath, req, additionalData = {}) {
   return html;
 }
 
-// Update routes to use server-side translations
+// Update routes to serve React app
 app.get("/", (req, res) => {
-  const language = req.session.language || 'en';
-  res.sendFile(path.join(__dirname, "../app", "index.html"));
+  res.sendFile(path.join(__dirname, "../app-react/dist", "index.html"));
 });
 
 app.get("/student", (req, res) => {
-  const language = req.session.language || 'en';
-  res.sendFile(path.join(__dirname, "../app", "student.html"));
+  res.sendFile(path.join(__dirname, "../app-react/dist", "index.html"));
 });
 
-app.get("/teacher", requireTeacherAuth, (req, res) => {
-  const language = req.session.language || 'en';
-  res.sendFile(path.join(__dirname, "../app", "teacher.html"));
+app.get("/teacher", (req, res) => {
+  res.sendFile(path.join(__dirname, "../app-react/dist", "index.html"));
 });
 
 // Start the server

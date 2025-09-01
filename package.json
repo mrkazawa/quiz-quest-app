@@ -8,8 +8,10 @@
     "dev": "nodemon api/server.js",
     "dev:client": "cd app-react && npm run dev",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:client\"",
+    "build": "cd app-react && npm run build",
     "build:client": "cd app-react && npm run build",
-    "install:client": "cd app-react && npm install"
+    "install:client": "cd app-react && npm install",
+    "deploy": "npm run build && npm start"
   },
   "keywords": [
     "quiz",
