@@ -49,7 +49,6 @@ export default function StudentQuizRoom() {
   const isQuestionRoute = location.pathname.includes('/question/');
   const isSubmitRoute = location.pathname.includes('/submit/');
   const isResultRoute = location.pathname.includes('/result/');
-  const isFinalRoute = location.pathname.includes('/final');
 
   // Mark waitingForNext as used for state tracking
   console.log('Waiting state:', waitingForNext); // Used for debugging state
@@ -115,10 +114,7 @@ export default function StudentQuizRoom() {
     }
 
     // Handle different route states for refresh scenarios
-    if (isFinalRoute) {
-      // For final results - custom logic since not in allowed events
-      console.log('Final results route - would request final results');
-    } else if (isResultRoute && questionId) {
+    if (isResultRoute && questionId) {
       // On result page, waiting for next question
       console.log('Result route - waiting for next question');
     } else if (isSubmitRoute && questionId) {
@@ -129,7 +125,7 @@ export default function StudentQuizRoom() {
       // On question page - custom logic for question state
       console.log('Question route - would request question state');
     }
-  }, [roomId, questionId, location.pathname, socket, navigate, isQuestionRoute, isSubmitRoute, isResultRoute, isFinalRoute, validateSession]);
+  }, [roomId, questionId, location.pathname, socket, navigate, isQuestionRoute, isSubmitRoute, isResultRoute, validateSession]);
 
   // Socket event handlers
   useEffect(() => {
@@ -236,10 +232,12 @@ export default function StudentQuizRoom() {
     const handleQuizEnded = (data: { message?: string; historyId?: string }) => {
       console.log('Quiz ended:', data);
       
-      // Navigate to final results
-      if (roomId) {
-        navigate(`/student/room/${roomId}/final`);
-      }
+      // Clear session since quiz is completed
+      localStorage.removeItem('studentSession');
+      localStorage.removeItem('finalScore');
+      
+      // Navigate directly to join page
+      navigate('/student/join');
     };
 
     const handleJoinError = (message: string) => {
@@ -262,7 +260,7 @@ export default function StudentQuizRoom() {
       socket.off('quiz_ended', handleQuizEnded);
       socket.off('join_error', handleJoinError);
     };
-  }, [socket, roomId, navigate, questionId, saveSession]);
+  }, [socket, roomId, navigate, questionId, saveSession, score]);
 
   // Timer effect
   useEffect(() => {
@@ -309,42 +307,6 @@ export default function StudentQuizRoom() {
             <span className="visually-hidden">Loading...</span>
           </div>
           <p className="mt-3">Validating session...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Final Results Screen
-  if (isFinalRoute) {
-    return (
-      <div className="container mt-3">
-        {/* Header Logo */}
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
-        
-        <div className="question-results-container">
-          <div className="question-results-content text-center">
-            <h2 className="mb-4">Quiz Complete!</h2>
-            <div className="mb-4">
-              <h3>Final Score: <span>{score}</span></h3>
-              <p>Thank you for playing!</p>
-            </div>
-            <button 
-              className="btn btn-success btn-lg"
-              onClick={() => navigate('/student/join')}
-            >
-              Join Another Quiz
-            </button>
-          </div>
         </div>
       </div>
     );

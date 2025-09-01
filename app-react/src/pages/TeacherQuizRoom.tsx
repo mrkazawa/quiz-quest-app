@@ -14,6 +14,22 @@ interface QuestionData {
   totalQuestions: number;
 }
 
+interface QuizRankings {
+  id: string;
+  roomId: string;
+  quizId: string;
+  quizName: string;
+  dateCompleted: string;
+  playerCount: number;
+  rankings: Array<{
+    rank: number;
+    playerId: string;
+    playerName: string;
+    studentId: string;
+    score: number;
+  }>;
+}
+
 const TeacherQuizRoom = () => {
   const { roomId, questionId } = useParams<{ roomId: string; questionId?: string }>();
   const { socket } = useSocket();
@@ -24,6 +40,7 @@ const TeacherQuizRoom = () => {
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [questionResults, setQuestionResults] = useState<QuestionResults | null>(null);
+  const [quizRankings, setQuizRankings] = useState<QuizRankings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quizEnded, setQuizEnded] = useState(false);
@@ -103,6 +120,17 @@ const TeacherQuizRoom = () => {
       console.log('Final route detected on refresh...');
       setLoading(false);
       setQuizEnded(true);
+      
+      // Try to load quiz rankings for the final page
+      fetch(`/api/quiz-history/${roomId}`)
+        .then(response => response.json())
+        .then((quizData: QuizRankings) => {
+          console.log('Loaded quiz rankings on refresh:', quizData);
+          setQuizRankings(quizData);
+        })
+        .catch(error => {
+          console.error('Error loading quiz rankings on refresh:', error);
+        });
     } else {
       console.log('Unknown route state, staying in loading...');
     }
@@ -153,6 +181,19 @@ const TeacherQuizRoom = () => {
       const handleQuizCompleted = (data: { message?: string; historyId?: string }) => {
         console.log('Quiz completed:', data);
         setQuizEnded(true);
+        
+        // If we have a historyId, fetch the final rankings
+        if (data.historyId) {
+          fetch(`/api/quiz-history/${data.historyId}`)
+            .then(response => response.json())
+            .then((quizData: QuizRankings) => {
+              console.log('Loaded quiz rankings:', quizData);
+              setQuizRankings(quizData);
+            })
+            .catch(error => {
+              console.error('Error loading quiz rankings:', error);
+            });
+        }
         
         // Navigate to final results
         navigate(`/teacher/room/${roomId}/final`);
@@ -245,8 +286,19 @@ const TeacherQuizRoom = () => {
 
   const nextQuestion = () => {
     if (!socket || !roomId) return;
-    console.log('Moving to next question for room:', roomId);
-    socket.emit('next_question', roomId);
+    
+    // Check if this is the last question
+    const isLastQuestion = currentQuestion && 
+      (currentQuestion.currentQuestionIndex + 1) >= currentQuestion.totalQuestions;
+    
+    if (isLastQuestion) {
+      console.log('Last question completed, ending quiz for room:', roomId);
+      // End the quiz which will trigger quiz_ended event
+      socket.emit('next_question', roomId); // Server will detect end and emit quiz_ended
+    } else {
+      console.log('Moving to next question for room:', roomId);
+      socket.emit('next_question', roomId);
+    }
   };
 
   const endQuiz = () => {
@@ -425,8 +477,18 @@ const TeacherQuizRoom = () => {
                       className="btn btn-success btn-lg px-4"
                       onClick={nextQuestion}
                     >
-                      <i className="bi bi-arrow-right me-2"></i>
-                      Next Question
+                      <i className={`bi ${
+                        questionResults && 
+                        questionResults.currentQuestionIndex !== undefined && 
+                        questionResults.totalQuestions !== undefined &&
+                        (questionResults.currentQuestionIndex + 1) >= questionResults.totalQuestions
+                          ? 'bi-trophy' : 'bi-arrow-right'
+                      } me-2`}></i>
+                      {questionResults && 
+                       questionResults.currentQuestionIndex !== undefined && 
+                       questionResults.totalQuestions !== undefined &&
+                       (questionResults.currentQuestionIndex + 1) >= questionResults.totalQuestions
+                        ? 'Finalize Quiz' : 'Next Question'}
                     </button>
                     <button 
                       className="btn btn-danger"
@@ -471,32 +533,135 @@ const TeacherQuizRoom = () => {
 
   if (quizEnded) {
     return (
-      <div className="container-fluid py-4">
+      <div className="container mt-3">
+        <div className="text-center mt-3 mb-4">
+          <img
+            src="/quiz-quest-logo-horizontal.png"
+            alt="Quiz Quest"
+            style={{
+              width: '100%',
+              maxWidth: '400px',
+              height: 'auto'
+            }}
+          />
+        </div>
+
         <div className="row">
-          <div className="col-lg-8 mx-auto">
-            <div className="card border-success">
-              <div className="card-body text-center py-5">
-                <div className="mb-4">
-                  <i className="bi bi-trophy display-1 text-success"></i>
+          <div className="col-md-8 offset-md-2">
+            <div className="card">
+              <div className="card-body">
+                <div className="alert alert-success mb-4">
+                  <i className="bi bi-check-circle-fill me-2"></i>
+                  Quiz has ended successfully! Results have been saved to history.
                 </div>
-                <h2 className="text-success mb-3">Quiz Completed!</h2>
-                <p className="text-muted mb-4">Great job running the quiz!</p>
-                
-                <div className="d-flex gap-3 justify-content-center">
-                  <button 
-                    className="btn btn-primary"
-                    onClick={() => navigate('/teacher/dashboard')}
-                  >
-                    <i className="bi bi-house me-2"></i>
-                    Back to Dashboard
-                  </button>
-                  <button 
-                    className="btn btn-outline-primary"
-                    onClick={() => window.location.reload()}
-                  >
-                    <i className="bi bi-arrow-clockwise me-2"></i>
-                    View Results
-                  </button>
+
+                {quizRankings && (
+                  <div className="mb-3">
+                    <h4>{quizRankings.quizName}</h4>
+                    <p className="text-muted">
+                      {new Date(quizRankings.dateCompleted).toLocaleDateString()} {new Date(quizRankings.dateCompleted).toLocaleTimeString()} •{' '}
+                      {quizRankings.playerCount} players
+                    </p>
+                  </div>
+                )}
+
+                <div className="mb-4">
+                  <h4>Final Rankings</h4>
+                  {quizRankings && quizRankings.rankings.length > 0 ? (
+                    <div className="table-responsive mb-3">
+                      <table className="table ranking-table">
+                        <thead>
+                          <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Score</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {quizRankings.rankings.map((player, index) => (
+                            <tr key={index} className={
+                              index === 0 ? 'table-warning' : // Gold for 1st place
+                              index === 1 ? 'table-secondary' : // Silver for 2nd place  
+                              index === 2 ? 'table-warning' : '' // Bronze for 3rd place
+                            }>
+                              <td>
+                                <strong>#{player.rank}</strong>
+                                {index === 0 && <i className="bi bi-trophy-fill text-warning ms-2"></i>}
+                                {index === 1 && <i className="bi bi-award-fill text-secondary ms-2"></i>}
+                                {index === 2 && <i className="bi bi-award-fill text-warning ms-2"></i>}
+                              </td>
+                              <td>
+                                <strong>{player.playerName}</strong>
+                                {player.studentId && (
+                                  <small className="d-block text-muted">ID: {player.studentId}</small>
+                                )}
+                              </td>
+                              <td>
+                                <strong className="text-primary">{player.score} pts</strong>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="alert alert-info">
+                      <i className="bi bi-info-circle me-2"></i>
+                      {quizRankings ? 'No students participated in this quiz.' : 'Loading rankings...'}
+                    </div>
+                  )}
+                  
+                  <div className="d-flex" style={{ width: '100%' }}>
+                    <button 
+                      className="btn btn-lg btn-primary flex-grow-1 me-2"
+                      onClick={() => navigate('/teacher/dashboard')}
+                      style={{
+                        minWidth: 0,
+                        flexBasis: 0,
+                        flexShrink: 1,
+                        flexGrow: 3
+                      }}
+                    >
+                      <i className="bi bi-arrow-repeat me-2"></i>
+                      Start New Quiz
+                    </button>
+                    {quizRankings && (
+                      <button
+                        className="btn btn-outline-secondary btn-sm"
+                        style={{
+                          whiteSpace: 'nowrap',
+                          flexBasis: 0,
+                          flexShrink: 1,
+                          flexGrow: 1,
+                          minWidth: '120px'
+                        }}
+                        onClick={() => {
+                          // Create CSV content
+                          const csvContent = [
+                            ['Rank', 'Player Name', 'Student ID', 'Score'],
+                            ...quizRankings.rankings.map(player => [
+                              player.rank,
+                              player.playerName,
+                              player.studentId || 'N/A',
+                              player.score
+                            ])
+                          ].map(row => row.join(',')).join('\n');
+                          
+                          // Download CSV
+                          const blob = new Blob([csvContent], { type: 'text/csv' });
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `quiz-results-${quizRankings.roomId}.csv`;
+                          a.click();
+                          window.URL.revokeObjectURL(url);
+                        }}
+                      >
+                        <i className="bi bi-download me-2"></i>
+                        Download CSV
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -657,7 +822,7 @@ const TeacherQuizRoom = () => {
                     ) : (
                       <button 
                         className="btn btn-lg btn-success"
-                        onClick={endQuiz}
+                        onClick={nextQuestion}
                       >
                         <i className="bi bi-trophy me-2"></i>
                         Finalize Quiz

@@ -39,7 +39,6 @@ function App() {
               <Route path="/student/room/:roomId/question/:questionId" element={<StudentQuizRoomNew />} />
               <Route path="/student/room/:roomId/submit/:questionId" element={<StudentQuizRoomNew />} />
               <Route path="/student/room/:roomId/result/:questionId" element={<StudentQuizRoomNew />} />
-              <Route path="/student/room/:roomId/final" element={<StudentQuizRoomNew />} />
             </Routes>
           </div>
         </BrowserRouter>
