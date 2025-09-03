@@ -656,6 +656,219 @@ input.form-control:focus {
   }
 }
 
+/* Teacher Dashboard responsive layout with smooth scaling */
+.teacher-dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Start Quiz Button Responsive Design */
+.start-quiz-btn,
+.delete-quiz-btn {
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Extra large screens: three-line buttons with more padding */
+@media (min-width: 1200px) {
+  .start-quiz-btn,
+  .delete-quiz-btn {
+    padding: 0.5rem 0.75rem;
+    min-width: 90px;
+  }
+}
+
+/* Large screens: two-line buttons with moderate padding */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .start-quiz-btn,
+  .delete-quiz-btn {
+    padding: 0.4rem 0.6rem;
+    min-width: 80px;
+  }
+}
+
+/* Medium screens: two-line buttons with compact padding */
+@media (min-width: 768px) and (max-width: 991px) {
+  .start-quiz-btn,
+  .delete-quiz-btn {
+    padding: 0.375rem 0.5rem;
+    min-width: 75px;
+  }
+}
+
+/* Small screens: icon only with minimal padding, stacked layout */
+@media (max-width: 767px) {
+  .start-quiz-btn,
+  .delete-quiz-btn {
+    padding: 0.375rem;
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Button group styling */
+.d-flex.gap-2 {
+  gap: 0.5rem !important;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* Responsive gap and layout adjustments */
+@media (max-width: 767px) {
+  .d-flex.gap-2 {
+    gap: 0.25rem !important;
+    flex-direction: column !important;
+    align-items: center;
+    width: fit-content;
+  }
+}
+
+/* Actions column - always tight with no padding */
+.actions-col {
+  padding: 0 !important;
+  width: fit-content !important;
+  min-width: fit-content !important;
+}
+
+/* Button container - right aligned */
+.actions-col .d-flex {
+  justify-content: flex-end !important;
+  align-items: center;
+  width: 100%;
+  padding-right: 0.5rem; /* Only small right padding to keep buttons from edge */
+}
+
+/* Responsive adjustments for mobile stacking */
+@media (max-width: 767px) {
+  .actions-col .d-flex {
+    padding-right: 0.25rem;
+    flex-direction: column;
+    align-items: flex-end; /* Keep right alignment even when stacked */
+  }
+}
+
+/* Make table cell tight around buttons */
+td .d-flex {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-width: fit-content;
+}
+
+/* Remove extra width on buttons for tight fit */
+@media (min-width: 768px) {
+  .start-quiz-btn,
+  .delete-quiz-btn {
+    width: auto;
+  }
+}
+
+/* Ensure no overflow on small screens */
+@media (max-width: 767px) {
+  .start-quiz-btn,
+  .delete-quiz-btn {
+    flex-shrink: 0;
+  }
+}
+
+/* Delete button specific styling */
+.delete-quiz-btn {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.delete-quiz-btn:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+/* Responsive Table Column Widths - flexible layout */
+/* Actions column always fits content, quiz details takes remaining space */
+.quiz-details-col { 
+  width: auto; /* Takes remaining space */
+}
+.questions-col { 
+  width: 80px; /* Fixed small width for question count */
+  min-width: 80px;
+}
+.actions-col { 
+  width: 1%; /* Minimal width - will expand to fit content */
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments for very small screens */
+@media (max-width: 576px) {
+  .questions-col { 
+    width: 60px;
+    min-width: 60px;
+  }
+}
+
+/* Quiz table row optimization */
+.quiz-row td {
+  vertical-align: middle;
+  padding: 0.75rem 0.5rem;
+}
+
+.quiz-row {
+  height: auto;
+}
+
+/* Specific padding for different columns */
+.quiz-row .quiz-details-col,
+.quiz-row .questions-col {
+  padding: 0.75rem 0.5rem;
+}
+
+.quiz-row .actions-col {
+  padding: 0.75rem 0 !important; /* No left/right padding, only top/bottom */
+}
+
+/* Responsive row adjustments */
+@media (max-width: 767px) {
+  .quiz-row td {
+    padding: 0.5rem 0.25rem;
+  }
+  .quiz-row .actions-col {
+    padding: 0.5rem 0 !important;
+    min-height: 80px; /* Accommodate stacked buttons */
+  }
+}
+
+@media (max-width: 1400px) {
+  .teacher-dashboard-container {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .teacher-dashboard-container {
+    max-width: 98%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-dashboard-container {
+    max-width: 100%;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .teacher-dashboard-container {
+    padding: 0.5rem;
+  }
+}
+
 /* Content section styling - material design */
 .content-section {
   background-color: transparent;
@@ -686,15 +899,26 @@ input.form-control:focus {
   padding: 15px 0;
 }
 
-/* Make tables look better */
+/* Make tables look better and stretch full width */
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto; /* Allow flexible column sizing */
 }
 
 table th {
   background-color: #f8f9fa;
   font-weight: 600;
+}
+
+/* Ensure table stretches to container width */
+.table-responsive {
+  width: 100%;
+}
+
+.table-responsive table {
+  width: 100%;
+  min-width: 100%;
 }
 
 /* Material design for quiz containers */

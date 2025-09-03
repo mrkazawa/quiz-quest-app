@@ -84,9 +84,18 @@ const TeacherDashboard = () => {
     socket.emit('create_room', { quizId, teacherId });
   };
 
+  const deleteQuiz = (quizId: string, quizName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete "${quizName}"? This action cannot be undone.`);
+    if (confirmed) {
+      // TODO: Implement actual delete functionality
+      console.log('Delete quiz:', quizId);
+      alert('Delete functionality will be implemented in a future update.');
+    }
+  };
+
   const handleLogout = () => {
     logout();
-    navigate('/teacher/login');
+    navigate('/');
   };
 
   if (!isAuthenticated) {
@@ -103,160 +112,156 @@ const TeacherDashboard = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem 1.5rem' }}>
       {/* Header */}
-      <div className="row mb-4">
-        <div className="col">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h1 className="mb-1">Teacher Dashboard</h1>
-              <p className="text-muted mb-0">Welcome, Teacher {teacherId}</p>
-            </div>
-            <div className="d-flex align-items-center gap-3">
-              <div className="d-flex align-items-center">
-                <div className={`badge ${isConnected ? 'bg-success' : 'bg-danger'}`}>
-                  <i className={`bi ${isConnected ? 'bi-wifi' : 'bi-wifi-off'} me-1`}></i>
-                  {isConnected ? 'Connected' : 'Disconnected'}
-                </div>
-              </div>
-              <button className="btn btn-outline-secondary" onClick={handleLogout}>
-                <i className="bi bi-box-arrow-right me-2"></i>
-                Logout
-              </button>
-            </div>
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 className="mb-1">Teacher Dashboard</h1>
+            <p className="text-muted mb-0">Welcome! Ready to create a new quiz session?</p>
+          </div>
+          <div>
+            <button className="btn btn-danger" onClick={handleLogout}>
+              <i className="bi bi-box-arrow-right"></i>
+              <span className="d-none d-md-inline ms-2">Logout</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="row">
-        {/* Quiz Selection */}
-        <div className="col-lg-8">
-          <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h3 className="card-title mb-0">
-                <i className="bi bi-collection me-2"></i>
-                Available Quizzes
-              </h3>
-              <button 
-                className="btn btn-outline-primary btn-sm"
-                onClick={loadQuizzes}
-                disabled={loading}
-              >
-                <i className="bi bi-arrow-clockwise me-1"></i>
-                Refresh
-              </button>
-            </div>
-            <div className="card-body">
-              {loading && (
-                <div className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                  <p className="mt-2 mb-0">Loading quizzes...</p>
-                </div>
-              )}
-
-              {error && (
-                <div className="alert alert-danger">
-                  <i className="bi bi-exclamation-triangle me-2"></i>
-                  {error}
-                </div>
-              )}
-
-              {!loading && !error && quizzes.length === 0 && (
-                <div className="alert alert-warning">
-                  <i className="bi bi-info-circle me-2"></i>
-                  No quizzes available
-                </div>
-              )}
-
-              {!loading && !error && quizzes.length > 0 && (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead>
-                      <tr className="table-light">
-                        <th scope="col" style={{ width: '70%' }}>Quiz Details</th>
-                        <th scope="col" style={{ width: '15%', textAlign: 'center' }}>Questions</th>
-                        <th scope="col" style={{ width: '15%', textAlign: 'center' }}>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {quizzes.map((quiz) => (
-                        <tr key={quiz.id} className="quiz-row">
-                          <td>
-                            <h5 className="mb-1 text-primary fw-bold">{quiz.name}</h5>
-                            {quiz.description ? (
-                              <p className="mb-0 text-secondary">{quiz.description}</p>
-                            ) : (
-                              <p className="mb-0 text-muted fst-italic">No description available</p>
-                            )}
-                          </td>
-                          <td className="text-center align-middle">
-                            <span className="badge bg-info fs-6">{quiz.questionCount}</span>
-                          </td>
-                          <td className="text-center align-middle">
-                            <button
-                              className="btn btn-success btn-sm"
-                              onClick={() => createRoom(quiz.id)}
-                              disabled={!isConnected}
-                              title={!isConnected ? 'Socket connection required' : 'Create a new quiz room'}
-                            >
-                              <i className="bi bi-play-circle me-1"></i>
-                              Create Room
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+      {/* Quiz Selection */}
+      <div className="card shadow-sm">
+        <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h3 className="card-title mb-0">
+            <i className="bi bi-collection me-2"></i>
+            Available Quizzes
+          </h3>
+          <div className="btn-group" role="group">
+            <button 
+              className="btn btn-success btn-sm"
+              onClick={() => {/* TODO: Implement create quiz */}}
+              title="Create New Quiz"
+            >
+              <i className="bi bi-plus-circle"></i>
+              <span className="d-none d-lg-inline ms-1">Create Quiz</span>
+            </button>
+            <button 
+              className="btn btn-info btn-sm"
+              onClick={() => {/* TODO: Implement quiz history */}}
+              title="View Quiz History"
+            >
+              <i className="bi bi-clock-history"></i>
+              <span className="d-none d-lg-inline ms-1">History</span>
+            </button>
+            <button 
+              className="btn btn-light btn-sm border"
+              onClick={loadQuizzes}
+              disabled={loading}
+              title="Refresh Quiz List"
+            >
+              <i className="bi bi-arrow-clockwise"></i>
+              <span className="d-none d-lg-inline ms-1">Refresh</span>
+            </button>
           </div>
         </div>
-
-        {/* Sidebar */}
-        <div className="col-lg-4">
-          {/* Active Rooms */}
-          <div className="card mb-4">
-            <div className="card-header">
-              <h4 className="card-title mb-0">
-                <i className="bi bi-broadcast me-2"></i>
-                Active Rooms
-              </h4>
-            </div>
-            <div className="card-body">
-              {/* Placeholder for active rooms - will implement in next iteration */}
-              <p className="text-muted mb-0">No active rooms</p>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="card">
-            <div className="card-header">
-              <h4 className="card-title mb-0">
-                <i className="bi bi-lightning me-2"></i>
-                Quick Actions
-              </h4>
-            </div>
-            <div className="card-body">
-              <div className="d-grid gap-2">
-                <button className="btn btn-outline-primary">
-                  <i className="bi bi-file-earmark-plus me-2"></i>
-                  Upload New Quiz
-                </button>
-                <button className="btn btn-outline-info">
-                  <i className="bi bi-clock-history me-2"></i>
-                  View Quiz History
-                </button>
-                <button className="btn btn-outline-success">
-                  <i className="bi bi-gear me-2"></i>
-                  Settings
-                </button>
+        
+        <div className="card-body p-0">
+          {loading && (
+            <div className="text-center py-4">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
               </div>
+              <p className="mt-2 mb-0">Loading quizzes...</p>
             </div>
-          </div>
+          )}
+
+          {error && (
+            <div className="alert alert-danger m-3">
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && quizzes.length === 0 && (
+            <div className="alert alert-warning m-3">
+              <i className="bi bi-info-circle me-2"></i>
+              No quizzes available
+            </div>
+          )}
+
+          {!loading && !error && quizzes.length > 0 && (
+            <div className="table-responsive">
+              <table className="table table-hover mb-0">
+                <thead>
+                  <tr className="table-light">
+                    <th scope="col" className="quiz-details-col">Quiz Details</th>
+                    <th scope="col" className="questions-col text-center">Questions</th>
+                    <th scope="col" className="actions-col text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {quizzes.map((quiz) => (
+                    <tr key={quiz.id} className="quiz-row">
+                      <td>
+                        <h5 className="mb-1 text-primary fw-bold">{quiz.name}</h5>
+                        {quiz.description ? (
+                          <p className="mb-0 text-secondary">{quiz.description}</p>
+                        ) : (
+                          <p className="mb-0 text-muted fst-italic">No description available</p>
+                        )}
+                      </td>
+                      <td className="text-center align-middle">
+                        <span className="badge bg-info fs-6">{quiz.questionCount}</span>
+                      </td>
+                      <td className="align-middle actions-col p-0">
+                        <div className="d-flex justify-content-end gap-2 flex-md-row flex-column pe-2">
+                          <button
+                            className="btn btn-success start-quiz-btn"
+                            onClick={() => createRoom(quiz.id)}
+                            disabled={!isConnected}
+                            title={!isConnected ? 'Connection required' : 'Start new quiz session'}
+                            style={{ minWidth: '80px' }}
+                          >
+                            <i className="bi bi-play-circle"></i>
+                            {/* Three lines for extra large screens */}
+                            <span className="d-none d-xl-block mt-1">
+                              <div>START</div>
+                              <div>QUIZ</div>
+                            </span>
+                            {/* Two lines for large and medium screens */}
+                            <span className="d-none d-lg-block d-xl-none mt-1">
+                              <div>START</div>
+                              <div>QUIZ</div>
+                            </span>
+                            {/* Icon only for small screens - already handled by default */}
+                          </button>
+                          <button
+                            className="btn btn-danger delete-quiz-btn"
+                            onClick={() => deleteQuiz(quiz.id, quiz.name)}
+                            title="Delete quiz"
+                            style={{ minWidth: '80px' }}
+                          >
+                            <i className="bi bi-trash"></i>
+                            {/* Three lines for extra large screens */}
+                            <span className="d-none d-xl-block mt-1">
+                              <div>DELETE</div>
+                              <div>QUIZ</div>
+                            </span>
+                            {/* Two lines for large and medium screens */}
+                            <span className="d-none d-lg-block d-xl-none mt-1">
+                              <div>DELETE</div>
+                              <div>QUIZ</div>
+                            </span>
+                            {/* Icon only for small screens */}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
