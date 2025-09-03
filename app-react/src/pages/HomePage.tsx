@@ -28,18 +28,6 @@ const HomePage = () => {
             <Link to="/student/join" className="btn btn-lg btn-success">
               I'M A STUDENT
             </Link>
-            
-            {/* Language Toggle - will implement in next iteration */}
-            <div className="d-flex justify-content-center align-items-center mt-2 mb-2">
-              <div className="btn-group" role="group" aria-label="Language Toggle">
-                <button type="button" className="btn btn-outline-secondary btn-sm" style={{ minWidth: '45px' }}>
-                  ENG
-                </button>
-                <button type="button" className="btn btn-outline-secondary btn-sm" style={{ minWidth: '45px' }}>
-                  IND
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
