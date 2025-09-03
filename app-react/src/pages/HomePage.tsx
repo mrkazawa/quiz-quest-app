@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import TeacherLoginModal from '../components/TeacherLoginModal';
 
 const HomePage = () => {
+  const [showLoginModal, setShowLoginModal] = useState(false);
   return (
     <div className="homepage-container">
       <div className="homepage-content">
@@ -16,9 +19,12 @@ const HomePage = () => {
           <p className="lead mb-4">Choose your role to get started:</p>
 
           <div className="d-grid gap-3 mx-auto home-buttons">
-            <Link to="/teacher/login" className="btn btn-lg btn-primary">
+            <button 
+              onClick={() => setShowLoginModal(true)}
+              className="btn btn-lg btn-primary"
+            >
               I'M A TEACHER
-            </Link>
+            </button>
             <Link to="/student/join" className="btn btn-lg btn-success">
               I'M A STUDENT
             </Link>
@@ -37,6 +43,12 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Teacher Login Modal */}
+      <TeacherLoginModal 
+        show={showLoginModal}
+        onHide={() => setShowLoginModal(false)}
+      />
     </div>
   );
 };

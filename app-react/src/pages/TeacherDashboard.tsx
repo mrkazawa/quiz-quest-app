@@ -48,8 +48,8 @@ const TeacherDashboard = () => {
   useEffect(() => {
     console.log('Dashboard useEffect - isAuthenticated:', isAuthenticated);
     if (!isAuthenticated) {
-      console.log('Not authenticated, redirecting to login');
-      navigate('/teacher/login');
+      console.log('Not authenticated, redirecting to home');
+      navigate('/');
       return;
     }
     

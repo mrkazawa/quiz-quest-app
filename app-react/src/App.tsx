@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SocketProvider } from './context/SocketContext.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
 import HomePage from './pages/HomePage.tsx';
-import TeacherLogin from './pages/TeacherLogin.tsx';
 import TeacherDashboard from './pages/TeacherDashboard.tsx';
 import TeacherWaitingRoom from './pages/TeacherWaitingRoom.tsx';
 import StudentJoin from './pages/StudentJoin.tsx';
@@ -24,7 +23,6 @@ function App() {
               <Route path="/" element={<HomePage />} />
               
               {/* Teacher Routes */}
-              <Route path="/teacher/login" element={<TeacherLogin />} />
               <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
               <Route path="/teacher/room/:roomId/waiting" element={<TeacherWaitingRoom />} />
               <Route path="/teacher/room/:roomId/question/:questionId" element={<TeacherQuizRoom />} />
