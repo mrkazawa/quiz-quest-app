@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SocketProvider } from './context/SocketContext.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
+import ProtectedRoute from './components/ProtectedRoute.tsx';
 import HomePage from './pages/HomePage.tsx';
+import NotFound from './pages/NotFound.tsx';
 import TeacherDashboard from './pages/TeacherDashboard.tsx';
 import TeacherWaitingRoom from './pages/TeacherWaitingRoom.tsx';
 import StudentJoin from './pages/StudentJoin.tsx';
@@ -22,20 +24,43 @@ function App() {
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               
-              {/* Teacher Routes */}
-              <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-              <Route path="/teacher/room/:roomId/waiting" element={<TeacherWaitingRoom />} />
-              <Route path="/teacher/room/:roomId/question/:questionId" element={<TeacherQuizRoom />} />
-              <Route path="/teacher/room/:roomId/result/:questionId" element={<TeacherQuizRoom />} />
-              <Route path="/teacher/room/:roomId/final" element={<TeacherQuizRoom />} />
+              {/* Teacher Routes - Protected */}
+              <Route path="/teacher/dashboard" element={
+                <ProtectedRoute>
+                  <TeacherDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher/room/:roomId/waiting" element={
+                <ProtectedRoute>
+                  <TeacherWaitingRoom />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher/room/:roomId/question/:questionId" element={
+                <ProtectedRoute>
+                  <TeacherQuizRoom />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher/room/:roomId/result/:questionId" element={
+                <ProtectedRoute>
+                  <TeacherQuizRoom />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher/room/:roomId/final" element={
+                <ProtectedRoute>
+                  <TeacherQuizRoom />
+                </ProtectedRoute>
+              } />
               
-              {/* Student Routes */}
+              {/* Student Routes - Public */}
               <Route path="/student/join" element={<StudentJoin />} />
               <Route path="/student/join/:roomId" element={<StudentJoin />} />
               <Route path="/student/room/:roomId/waiting" element={<StudentWaitingRoom />} />
               <Route path="/student/room/:roomId/question/:questionId" element={<StudentQuizRoom />} />
               <Route path="/student/room/:roomId/submit/:questionId" element={<StudentQuizRoom />} />
               <Route path="/student/room/:roomId/result/:questionId" element={<StudentQuizRoom />} />
+              
+              {/* Catch-all route for 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </BrowserRouter>
