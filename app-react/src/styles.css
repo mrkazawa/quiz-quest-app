@@ -791,14 +791,14 @@ td .d-flex {
 
 /* Responsive Table Column Widths - flexible layout */
 /* Actions column always fits content, quiz details takes remaining space */
-.quiz-details-col { 
+.quiz-details-col {
   width: auto; /* Takes remaining space */
 }
-.questions-col { 
+.questions-col {
   width: 80px; /* Fixed small width for question count */
   min-width: 80px;
 }
-.actions-col { 
+.actions-col {
   width: 1%; /* Minimal width - will expand to fit content */
   min-width: fit-content;
   white-space: nowrap;
@@ -806,7 +806,7 @@ td .d-flex {
 
 /* Responsive adjustments for very small screens */
 @media (max-width: 576px) {
-  .questions-col { 
+  .questions-col {
     width: 60px;
     min-width: 60px;
   }
@@ -1181,4 +1181,27 @@ table th {
   color: #ffffff !important;
   background-color: #0d6efd !important;
   border-bottom: 1px solid #dee2e6;
+}
+
+/* Alert styling for table containers - ensures proper alignment */
+.alert.table-alert {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  padding: 16px 1rem !important;
+}
+
+/* Ensure table alerts stretch full width in card body with no gaps */
+.card-body.p-0 > .alert.table-alert {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 16px 1rem !important;
 }

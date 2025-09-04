@@ -55,7 +55,7 @@ function loadAvailableQuizzes() {
     .then((quizzes) => {
       if (quizzes.length === 0) {
         quizList.innerHTML =
-          `<div class="alert alert-warning">${LanguageUtils.t('no_quizzes_available')}</div>`;
+          `<div class="alert alert-warning table-alert">${LanguageUtils.t('no_quizzes_available')}</div>`;
         return;
       }
       quizQuestions = quizzes;
@@ -73,11 +73,11 @@ function loadAvailableQuizzes() {
       quizzes.forEach((quiz) => {
         const row = document.createElement("tr");
         row.className = "quiz-row";
-        
-        const descriptionText = quiz.description 
+
+        const descriptionText = quiz.description
           ? `<p class="mb-0 text-secondary">${quiz.description}</p>`
           : `<p class="mb-0 text-muted fst-italic">${LanguageUtils.t('no_description_available')}</p>`;
-        
+
         row.innerHTML = `
           <td>
             <h5 class="mb-1 text-primary fw-bold">${quiz.name}</h5>
@@ -107,7 +107,7 @@ function loadAvailableQuizzes() {
     })
     .catch((error) => {
       console.error("Error fetching quizzes:", error);
-      quizList.innerHTML = `<div class="alert alert-danger">Error loading quizzes: ${error.message}</div>`;
+      quizList.innerHTML = `<div class="alert alert-danger table-alert">Error loading quizzes: ${error.message}</div>`;
     });
 }
 
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize language from server and apply translations
   LanguageUtils.initLanguageFromServer().then((language) => {
     LanguageUtils.applyTranslations(language);
-    
+
     // Apply translations to header title if needed
     if (typeof updateHeaderTitle === "function") {
       const currentScreen = getCurrentScreenName();
@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateHeaderTitle(LanguageUtils.t(currentScreen.toLowerCase().replace(/\s+/g, '_')));
       }
     }
-    
+
     // Apply placeholder translations specifically for textarea elements
     document.querySelectorAll('textarea[data-lang-key]').forEach(element => {
       const key = element.getAttribute('data-lang-key');

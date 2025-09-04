@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.js';
-import { useSocket } from '../hooks/useSocket.js';
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.js";
+import { useSocket } from "../hooks/useSocket.js";
 
 interface SimpleQuiz {
   id: string;
@@ -14,39 +14,44 @@ const TeacherDashboard = () => {
   const { isAuthenticated, teacherId, logout } = useAuth();
   const { socket, isConnected } = useSocket();
   const navigate = useNavigate();
-  
+
   const [quizzes, setQuizzes] = useState<SimpleQuiz[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // const [activeRooms, setActiveRooms] = useState<Array<{id: string, participants: number}>>([]);
 
-  console.log('TeacherDashboard render - isAuthenticated:', isAuthenticated, 'teacherId:', teacherId);
+  console.log(
+    "TeacherDashboard render - isAuthenticated:",
+    isAuthenticated,
+    "teacherId:",
+    teacherId
+  );
 
   const loadQuizzes = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('Fetching /api/quizzes...');
-      const response = await fetch('/api/quizzes');
-      console.log('Response received:', response.status, response.ok);
-      
+      console.log("Fetching /api/quizzes...");
+      const response = await fetch("/api/quizzes");
+      console.log("Response received:", response.status, response.ok);
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      console.log('Quiz data:', data);
+      console.log("Quiz data:", data);
       setQuizzes(data);
-      setError('');
+      setError("");
     } catch (err) {
-      console.error('Quiz loading error:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.error("Quiz loading error:", err);
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    console.log('Dashboard loaded - teacherId:', teacherId);
+    console.log("Dashboard loaded - teacherId:", teacherId);
     loadQuizzes();
   }, [loadQuizzes, teacherId]);
 
@@ -54,48 +59,55 @@ const TeacherDashboard = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleRoomCreated = (data: { roomId: string, quizId: string }) => {
-      console.log('Room created:', data);
+    const handleRoomCreated = (data: { roomId: string; quizId: string }) => {
+      console.log("Room created:", data);
       // Navigate to waiting room when room is created
       navigate(`/teacher/room/${data.roomId}/waiting`);
     };
 
-    socket.on('room_created', handleRoomCreated);
+    socket.on("room_created", handleRoomCreated);
 
     return () => {
-      socket.off('room_created', handleRoomCreated);
+      socket.off("room_created", handleRoomCreated);
     };
   }, [socket, navigate]);
 
   const createRoom = (quizId: string) => {
     if (!socket || !teacherId) {
-      console.log('Socket or teacherId not available');
-      alert('Socket connection not ready. Please refresh the page.');
+      console.log("Socket or teacherId not available");
+      alert("Socket connection not ready. Please refresh the page.");
       return;
     }
 
     if (!socket.connected) {
-      console.log('Socket not connected');
-      alert('Socket connection not ready. Please refresh the page.');
+      console.log("Socket not connected");
+      alert("Socket connection not ready. Please refresh the page.");
       return;
     }
-    
-    console.log('Creating room for quiz:', quizId, 'Socket connected:', socket.connected);
-    socket.emit('create_room', { quizId, teacherId });
+
+    console.log(
+      "Creating room for quiz:",
+      quizId,
+      "Socket connected:",
+      socket.connected
+    );
+    socket.emit("create_room", { quizId, teacherId });
   };
 
   const deleteQuiz = (quizId: string, quizName: string) => {
-    const confirmed = window.confirm(`Are you sure you want to delete "${quizName}"? This action cannot be undone.`);
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${quizName}"? This action cannot be undone.`
+    );
     if (confirmed) {
       // TODO: Implement actual delete functionality
-      console.log('Delete quiz:', quizId);
-      alert('Delete functionality will be implemented in a future update.');
+      console.log("Delete quiz:", quizId);
+      alert("Delete functionality will be implemented in a future update.");
     }
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   if (!isAuthenticated) {
@@ -112,13 +124,17 @@ const TeacherDashboard = () => {
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem 1.5rem' }}>
+    <div
+      style={{ maxWidth: "1200px", margin: "0 auto", padding: "1rem 1.5rem" }}
+    >
       {/* Header */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center">
           <div>
             <h1 className="mb-1">Teacher Dashboard</h1>
-            <p className="text-muted mb-0">Welcome! Ready to create a new quiz session?</p>
+            <p className="text-muted mb-0">
+              Welcome! Ready to create a new quiz session?
+            </p>
           </div>
           <div>
             <button className="btn btn-danger" onClick={handleLogout}>
@@ -137,23 +153,27 @@ const TeacherDashboard = () => {
             Available Quizzes
           </h3>
           <div className="btn-group" role="group">
-            <button 
+            <button
               className="btn btn-success btn-sm"
-              onClick={() => {/* TODO: Implement create quiz */}}
+              onClick={() => {
+                /* TODO: Implement create quiz */
+              }}
               title="Create New Quiz"
             >
               <i className="bi bi-plus-circle"></i>
               <span className="d-none d-lg-inline ms-1">Create Quiz</span>
             </button>
-            <button 
+            <button
               className="btn btn-info btn-sm"
-              onClick={() => {/* TODO: Implement quiz history */}}
+              onClick={() => {
+                /* TODO: Implement quiz history */
+              }}
               title="View Quiz History"
             >
               <i className="bi bi-clock-history"></i>
               <span className="d-none d-lg-inline ms-1">History</span>
             </button>
-            <button 
+            <button
               className="btn btn-light btn-sm border"
               onClick={loadQuizzes}
               disabled={loading}
@@ -164,7 +184,7 @@ const TeacherDashboard = () => {
             </button>
           </div>
         </div>
-        
+
         <div className="card-body p-0">
           {loading && (
             <div className="text-center py-4">
@@ -176,14 +196,14 @@ const TeacherDashboard = () => {
           )}
 
           {error && (
-            <div className="alert alert-danger m-3">
+            <div className="alert alert-danger table-alert">
               <i className="bi bi-exclamation-triangle me-2"></i>
               {error}
             </div>
           )}
 
           {!loading && !error && quizzes.length === 0 && (
-            <div className="alert alert-warning m-3">
+            <div className="alert alert-warning table-alert">
               <i className="bi bi-info-circle me-2"></i>
               No quizzes available
             </div>
@@ -194,24 +214,38 @@ const TeacherDashboard = () => {
               <table className="table table-hover mb-0">
                 <thead>
                   <tr className="table-light">
-                    <th scope="col" className="quiz-details-col">Quiz Details</th>
-                    <th scope="col" className="questions-col text-center">Questions</th>
-                    <th scope="col" className="actions-col text-center">Actions</th>
+                    <th scope="col" className="quiz-details-col">
+                      Quiz Details
+                    </th>
+                    <th scope="col" className="questions-col text-center">
+                      Questions
+                    </th>
+                    <th scope="col" className="actions-col text-center">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {quizzes.map((quiz) => (
                     <tr key={quiz.id} className="quiz-row">
                       <td>
-                        <h5 className="mb-1 text-primary fw-bold">{quiz.name}</h5>
+                        <h5 className="mb-1 text-primary fw-bold">
+                          {quiz.name}
+                        </h5>
                         {quiz.description ? (
-                          <p className="mb-0 text-secondary">{quiz.description}</p>
+                          <p className="mb-0 text-secondary">
+                            {quiz.description}
+                          </p>
                         ) : (
-                          <p className="mb-0 text-muted fst-italic">No description available</p>
+                          <p className="mb-0 text-muted fst-italic">
+                            No description available
+                          </p>
                         )}
                       </td>
                       <td className="text-center align-middle">
-                        <span className="badge bg-info fs-6">{quiz.questionCount}</span>
+                        <span className="badge bg-info fs-6">
+                          {quiz.questionCount}
+                        </span>
                       </td>
                       <td className="align-middle actions-col p-0">
                         <div className="d-flex justify-content-end gap-2 flex-md-row flex-column pe-2">
@@ -219,8 +253,12 @@ const TeacherDashboard = () => {
                             className="btn btn-success start-quiz-btn"
                             onClick={() => createRoom(quiz.id)}
                             disabled={!isConnected}
-                            title={!isConnected ? 'Connection required' : 'Start new quiz session'}
-                            style={{ minWidth: '80px' }}
+                            title={
+                              !isConnected
+                                ? "Connection required"
+                                : "Start new quiz session"
+                            }
+                            style={{ minWidth: "80px" }}
                           >
                             <i className="bi bi-play-circle"></i>
                             {/* Three lines for extra large screens */}
@@ -239,7 +277,7 @@ const TeacherDashboard = () => {
                             className="btn btn-danger delete-quiz-btn"
                             onClick={() => deleteQuiz(quiz.id, quiz.name)}
                             title="Delete quiz"
-                            style={{ minWidth: '80px' }}
+                            style={{ minWidth: "80px" }}
                           >
                             <i className="bi bi-trash"></i>
                             {/* Three lines for extra large screens */}

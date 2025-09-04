@@ -900,3 +900,26 @@ table th {
     max-height: 30px;
   }
 }
+
+/* Alert styling for table containers - ensures proper alignment */
+.alert.table-alert {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  padding: 16px 1rem !important;
+}
+
+/* Ensure table alerts stretch full width in card body with no gaps */
+.card-body.p-0 > .alert.table-alert {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 16px 1rem !important;
+}
