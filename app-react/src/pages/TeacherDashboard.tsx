@@ -158,9 +158,7 @@ const TeacherDashboard = () => {
           <div className="btn-group" role="group">
             <button
               className="btn btn-primary btn-sm"
-              onClick={() => {
-                /* TODO: Implement create quiz */
-              }}
+              onClick={() => navigate("/teacher/create-quiz")}
               title="Create New Quiz"
             >
               <i className="bi bi-plus-circle"></i>

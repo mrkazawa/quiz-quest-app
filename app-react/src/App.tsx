@@ -10,6 +10,7 @@ import StudentJoin from './pages/StudentJoin.tsx';
 import StudentWaitingRoom from './pages/StudentWaitingRoom.tsx';
 import StudentQuizRoom from './pages/StudentQuizRoom.tsx';
 import TeacherQuizRoom from './pages/TeacherQuizRoom.tsx';
+import TeacherCreateQuiz from './pages/TeacherCreateQuiz.js';
 import './styles.css'; // Use original styles
 import './App.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -48,6 +49,11 @@ function App() {
               <Route path="/teacher/room/:roomId/final" element={
                 <ProtectedRoute>
                   <TeacherQuizRoom />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher/create-quiz" element={
+                <ProtectedRoute>
+                  <TeacherCreateQuiz />
                 </ProtectedRoute>
               } />
               
