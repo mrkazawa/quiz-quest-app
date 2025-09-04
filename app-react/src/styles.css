@@ -1393,7 +1393,7 @@ table th {
   transition: all 0.2s ease-in-out !important;
 }
 
-.btn.start-quiz-btn:hover {
+.btn.start-quiz-btn:hover:not(:disabled) {
   background-color: #047857 !important;
   border-color: #047857 !important;
   color: white !important;
@@ -1401,10 +1401,20 @@ table th {
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
 }
 
-.btn.start-quiz-btn:focus {
+.btn.start-quiz-btn:focus:not(:disabled) {
   background-color: #047857 !important;
   border-color: #047857 !important;
   box-shadow: 0 0 0 0.2rem rgba(5, 150, 105, 0.25) !important;
+}
+
+.btn.start-quiz-btn:disabled {
+  background-color: #9ca3af !important;
+  border-color: #9ca3af !important;
+  color: white !important;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .delete-quiz-btn {

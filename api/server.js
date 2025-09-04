@@ -1306,6 +1306,50 @@ app.post("/api/create-quiz", (req, res) => {
   }
 });
 
+// Delete quiz endpoint
+app.delete("/api/quiz/:quizId", (req, res) => {
+  try {
+    const { quizId } = req.params;
+    
+    // Check if quiz exists
+    if (!questionSets[quizId]) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Quiz not found' 
+      });
+    }
+
+    // Get the quiz name for logging
+    const quizName = questionSets[quizId].name;
+
+    // Remove from memory
+    delete questionSets[quizId];
+
+    // Delete the file from disk
+    const questionsDir = path.join(__dirname, "../questions");
+    const filePath = path.join(questionsDir, `${quizId}.json`);
+    
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`Deleted quiz file: ${filePath}`);
+    }
+
+    console.log(`Quiz "${quizName}" (${quizId}) deleted successfully`);
+    
+    res.json({ 
+      success: true, 
+      message: `Quiz "${quizName}" deleted successfully` 
+    });
+
+  } catch (error) {
+    console.error('Error deleting quiz:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal server error' 
+    });
+  }
+});
+
 // Get active rooms (existing sessions)
 app.get("/api/active-rooms", (req, res) => {
   // Only allow teachers to see active rooms

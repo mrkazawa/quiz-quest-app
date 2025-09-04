@@ -18,6 +18,10 @@ const TeacherDashboard = () => {
   const [quizzes, setQuizzes] = useState<SimpleQuiz[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{
+    show: boolean;
+    quiz: { id: string; name: string } | null;
+  }>({ show: false, quiz: null });
   // const [activeRooms, setActiveRooms] = useState<Array<{id: string, participants: number}>>([]);
 
   console.log(
@@ -95,14 +99,41 @@ const TeacherDashboard = () => {
   };
 
   const deleteQuiz = (quizId: string, quizName: string) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${quizName}"? This action cannot be undone.`
-    );
-    if (confirmed) {
-      // TODO: Implement actual delete functionality
-      console.log("Delete quiz:", quizId);
-      alert("Delete functionality will be implemented in a future update.");
+    setDeleteModal({
+      show: true,
+      quiz: { id: quizId, name: quizName }
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.quiz) return;
+
+    try {
+      const response = await fetch(`/api/quiz/${deleteModal.quiz.id}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Remove quiz from local state
+        setQuizzes(prev => prev.filter(quiz => quiz.id !== deleteModal.quiz!.id));
+        // Close modal
+        setDeleteModal({ show: false, quiz: null });
+        console.log(`Quiz "${deleteModal.quiz.name}" deleted successfully`);
+      } else {
+        // Handle API error
+        console.error('Failed to delete quiz:', result.error);
+        alert(`Failed to delete quiz: ${result.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting quiz:', error);
+      alert('Error deleting quiz. Please check your connection and try again.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ show: false, quiz: null });
   };
 
   const handleLogout = () => {
@@ -261,15 +292,9 @@ const TeacherDashboard = () => {
                             style={{ minWidth: "80px" }}
                           >
                             <i className="bi bi-play-circle"></i>
-                            {/* Three lines for extra large screens */}
-                            <span className="d-none d-xl-block mt-1">
+                            {/* Text for large screens and up */}
+                            <span className="d-none d-lg-block mt-1">
                               <div>START</div>
-                              <div>QUIZ</div>
-                            </span>
-                            {/* Two lines for large and medium screens */}
-                            <span className="d-none d-lg-block d-xl-none mt-1">
-                              <div>START</div>
-                              <div>QUIZ</div>
                             </span>
                             {/* Icon only for small screens - already handled by default */}
                           </button>
@@ -280,15 +305,9 @@ const TeacherDashboard = () => {
                             style={{ minWidth: "80px" }}
                           >
                             <i className="bi bi-trash"></i>
-                            {/* Three lines for extra large screens */}
-                            <span className="d-none d-xl-block mt-1">
+                            {/* Text for large screens and up */}
+                            <span className="d-none d-lg-block mt-1">
                               <div>DELETE</div>
-                              <div>QUIZ</div>
-                            </span>
-                            {/* Two lines for large and medium screens */}
-                            <span className="d-none d-lg-block d-xl-none mt-1">
-                              <div>DELETE</div>
-                              <div>QUIZ</div>
                             </span>
                             {/* Icon only for small screens */}
                           </button>
@@ -302,6 +321,57 @@ const TeacherDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div 
+          className="modal show d-block" 
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={handleDeleteCancel}
+        >
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content shadow-lg">
+              <div className="modal-header bg-danger text-white border-0 pb-3">
+                <h5 className="modal-title d-flex align-items-center mb-0">
+                  <i className="bi bi-exclamation-triangle-fill me-2" style={{ fontSize: '1.5rem' }}></i>
+                  Confirm Deletion
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={handleDeleteCancel}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body py-4">
+                <div className="text-center">
+                  <div className="mb-3">
+                    <i className="bi bi-trash text-danger" style={{ fontSize: '3rem' }}></i>
+                  </div>
+                  <h6 className="mb-3">Are you sure you want to delete this quiz?</h6>
+                  <div className="bg-light rounded p-3 mb-3">
+                    <div className="fw-bold text-muted mb-1">Quiz Title:</div>
+                    <div className="text-primary fw-bold">{deleteModal.quiz?.name}</div>
+                  </div>
+                  <p className="text-muted mb-0">
+                    <small>This action cannot be undone. All quiz data will be permanently removed.</small>
+                  </p>
+                </div>
+              </div>
+              <div className="modal-footer border-0 pt-0 justify-content-center">
+                <button
+                  type="button"
+                  className="btn btn-danger btn-lg px-4"
+                  onClick={handleDeleteConfirm}
+                >
+                  <i className="bi bi-trash me-2"></i>
+                  Delete Quiz
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
