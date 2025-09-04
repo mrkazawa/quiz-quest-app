@@ -1020,63 +1020,147 @@ table th {
   }
 }
 
-/* Join Quiz Screen - Full Height Layout */
+/* Join Quiz Screen - Boxed Layout with Max Height */
 .join-quiz-container {
-  min-height: 100vh; /* Use min-height for natural flow */
+  height: 100vh; /* Fixed height to prevent scrollbar */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Center content vertically */
+  justify-content: center; /* Center the entire box */
   align-items: center;
-  padding: 0; /* Remove all padding */
+  padding: 2rem 0; /* Add sensible top and bottom padding */
   margin: 0; /* Remove all margin */
   box-sizing: border-box;
+  overflow: hidden; /* Prevent scrollbars */
 }
 
+/* Main content box with max height */
 .join-quiz-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between; /* Distribute sections within box */
   align-items: center;
   width: 100%;
   max-width: 800px;
-  gap: 1.5rem; /* Reduce gap for tighter spacing */
-  padding: 1rem; /* Minimal internal padding */
+  max-height: 600px; /* Limit maximum height of content box */
+  min-height: 500px; /* Ensure minimum height for consistency */
+  padding: 2rem 1rem; /* Internal padding for the box */
+  background-color: rgba(255, 255, 255, 0.02); /* Very subtle background */
+  border-radius: 12px; /* Rounded corners for the box */
+  gap: 2rem; /* Fixed gap between all sections for consistency */
 }
 
 /* Override Bootstrap container padding for this specific page */
 .join-quiz-container .container {
-  padding: 0 !important;
+  padding: 2rem 0 !important; /* Add top/bottom padding to container */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center the content vertically */
+  box-sizing: border-box;
 }
 
+.join-quiz-container .row {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.join-quiz-container .col-12 {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Logo section - top of box */
+.join-quiz-container .text-center {
+  flex: 0 0 auto; /* Don't grow/shrink */
+  padding: 0; /* Remove padding, use gap instead */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Form section - middle of box (flexible) */
 .join-quiz-content form {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Consistent spacing between form fields */
+  flex: 1; /* Take available middle space */
+  justify-content: center; /* Center the form vertically within its allocated space */
+  align-items: stretch; /* Make form fields full width */
 }
 
+/* Button section - bottom of box */
 .join-quiz-button {
   width: 100%;
   max-width: 800px;
+  flex: 0 0 auto; /* Don't grow/shrink */
+  padding: 0; /* Remove padding, use gap instead */
 }
 
 /* Responsive adjustments for join quiz */
 @media (max-width: 768px) {
   .join-quiz-container {
-    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    padding: 1.5rem 0; /* Reduce padding on tablets */
+  }
+
+  .join-quiz-container .container {
+    padding: 1.5rem 0 !important;
   }
 
   .join-quiz-content {
-    gap: 1rem;
-    padding: 0.5rem;
+    max-height: 500px; /* Reduce box height on tablets */
+    min-height: 450px; /* Increase min-height to maintain spacing */
+    padding: 1.5rem 0.5rem;
+    gap: 2rem; /* Keep same gap for consistent spacing */
+  }
+
+  .join-quiz-content form {
+    gap: 0.75rem;
+  }
+
+  .join-quiz-button {
+    padding: 0;
+  }
+
+  .join-quiz-container .text-center {
+    padding: 0;
   }
 }
 
 @media (max-width: 576px) {
   .join-quiz-container {
-    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    padding: 1rem 0; /* Minimal padding on mobile */
+  }
+
+  .join-quiz-container .container {
+    padding: 1rem 0 !important;
   }
 
   .join-quiz-content {
-    gap: 0.75rem;
-    padding: 0.5rem;
+    max-height: 480px; /* Slightly increase height for better spacing */
+    min-height: 420px; /* Increase min-height to maintain spacing */
+    padding: 1rem 0.5rem;
+    gap: 1.75rem; /* Slightly reduce gap but keep substantial spacing */
+  }
+
+  .join-quiz-content form {
+    gap: 0.5rem;
+  }
+
+  .join-quiz-button {
+    padding: 0;
+  }
+
+  .join-quiz-container .text-center {
+    padding: 0;
   }
 }
 
