@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
 
@@ -18,6 +18,13 @@ interface QuizData {
 const TeacherCreateQuiz = () => {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  
+  // Additional authentication check - redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
   
   const [quizJson, setQuizJson] = useState("");
   const [loading, setLoading] = useState(false);
