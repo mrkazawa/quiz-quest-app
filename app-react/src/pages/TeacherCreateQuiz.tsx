@@ -241,20 +241,21 @@ Make sure:
       <div className="card shadow-sm">
         <div className="card-body p-0">
           {/* Help Section - Moved to top with better styling */}
-          <div className="alert alert-primary border-0 rounded-0 m-0 mb-3" 
+          <div className="alert border-0 rounded-0 m-0 mb-3" 
                style={{ 
-                 background: "linear-gradient(135deg, #007bff 0%, #0056b3 100%)",
-                 borderBottom: "3px solid #0056b3"
+                 background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                 borderLeft: "4px solid #28a745",
+                 color: "#495057"
                }}>
-            <div className="d-flex align-items-start p-2">
-              <i className="bi bi-lightbulb-fill me-3 mt-1" style={{ fontSize: "1.4rem", color: "#ffd700" }}></i>
+            <div className="d-flex align-items-start p-4">
+              <i className="bi bi-lightbulb-fill me-3 mt-1" style={{ fontSize: "1.4rem", color: "#28a745" }}></i>
               <div className="flex-grow-1">
-                <div className="fw-bold mb-2" style={{ fontSize: "1.1rem" }}>Need help creating a quiz?</div>
-                <div className="mb-3" style={{ fontSize: "0.95rem", opacity: "0.95" }}>
+                <div className="fw-bold mb-2" style={{ fontSize: "1.1rem", color: "#343a40" }}>Need help creating a quiz?</div>
+                <div className="mb-3" style={{ fontSize: "0.95rem", color: "#6c757d" }}>
                   Use our ChatGPT prompt to automatically generate quiz content from your teaching materials.
                 </div>
                 <button
-                  className="btn btn-light btn-sm shadow-sm"
+                  className="btn btn-success btn-sm shadow-sm"
                   onClick={() => setShowHelpModal(true)}
                   style={{ fontWeight: "500" }}
                 >
@@ -266,12 +267,9 @@ Make sure:
           </div>
 
           {/* Quiz JSON Input - Moved text above textarea */}
-          <div className="px-4 mb-4">
+          <div className="mb-4">
             <div className="mb-3">
               <label className="form-label fw-bold fs-5 mb-2">Quiz in JSON Format:</label>
-              <p className="text-muted mb-0" style={{ fontSize: "0.9rem" }}>
-                Paste your JSON quiz data here. Use the ChatGPT instructions above to get started.
-              </p>
             </div>
             <textarea
               className="form-control font-monospace"
@@ -304,7 +302,7 @@ Make sure:
           )}
 
           {/* Action Buttons - Back on leftmost, Save on rightmost */}
-          <div className="d-flex justify-content-between align-items-center px-4 pb-4">
+          <div className="d-flex justify-content-between align-items-center">
             <button
               className="btn btn-secondary btn-lg"
               onClick={() => navigate("/teacher/dashboard")}
@@ -388,7 +386,7 @@ Make sure:
                     title="Download a sample quiz template"
                   >
                     <i className="bi bi-file-earmark-text me-1"></i>
-                    Download Template
+                    JSON Template
                   </a>
                   <button
                     className={`btn ${copyButtonText === "Copied!" ? "btn-success" : "btn-primary"}`}
