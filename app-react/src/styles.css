@@ -1,9 +1,19 @@
+/* Selective global reset - only target root elements */
+html {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: "Roboto", "Arial", sans-serif;
   background-color: #ffffff; /* White background instead of grey */
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
 }
 
 .quiz-logo {
@@ -1012,22 +1022,30 @@ table th {
 
 /* Join Quiz Screen - Full Height Layout */
 .join-quiz-container {
-  min-height: 100vh; /* Full viewport height */
+  min-height: 100vh; /* Use min-height for natural flow */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center; /* Center content vertically */
   align-items: center;
-  padding: 20px;
+  padding: 0; /* Remove all padding */
+  margin: 0; /* Remove all margin */
+  box-sizing: border-box;
 }
 
 .join-quiz-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
   max-width: 800px;
+  gap: 1.5rem; /* Reduce gap for tighter spacing */
+  padding: 1rem; /* Minimal internal padding */
+}
+
+/* Override Bootstrap container padding for this specific page */
+.join-quiz-container .container {
+  padding: 0 !important;
 }
 
 .join-quiz-content form {
@@ -1037,30 +1055,28 @@ table th {
 .join-quiz-button {
   width: 100%;
   max-width: 800px;
-  margin-top: auto;
-  padding-bottom: 40px;
 }
 
 /* Responsive adjustments for join quiz */
 @media (max-width: 768px) {
   .join-quiz-container {
-    min-height: 100vh;
-    padding: 15px;
+    padding: 0;
   }
 
-  .join-quiz-button {
-    padding-bottom: 30px;
+  .join-quiz-content {
+    gap: 1rem;
+    padding: 0.5rem;
   }
 }
 
 @media (max-width: 576px) {
   .join-quiz-container {
-    min-height: 100vh;
-    padding: 10px;
+    padding: 0;
   }
 
-  .join-quiz-button {
-    padding-bottom: 20px;
+  .join-quiz-content {
+    gap: 0.75rem;
+    padding: 0.5rem;
   }
 }
 
@@ -1284,7 +1300,7 @@ table th {
 }
 
 /* Quiz action buttons styling */
-.start-quiz-btn {
+.btn.start-quiz-btn {
   background-color: #059669 !important;
   border-color: #059669 !important;
   color: white !important;
@@ -1293,7 +1309,7 @@ table th {
   transition: all 0.2s ease-in-out !important;
 }
 
-.start-quiz-btn:hover {
+.btn.start-quiz-btn:hover {
   background-color: #047857 !important;
   border-color: #047857 !important;
   color: white !important;
@@ -1301,7 +1317,7 @@ table th {
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
 }
 
-.start-quiz-btn:focus {
+.btn.start-quiz-btn:focus {
   background-color: #047857 !important;
   border-color: #047857 !important;
   box-shadow: 0 0 0 0.2rem rgba(5, 150, 105, 0.25) !important;

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useSocket } from '../hooks/useSocket.js';
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useSocket } from "../hooks/useSocket.js";
 
 interface PlayerInfo {
   id: string;
@@ -20,123 +20,135 @@ const StudentJoin = () => {
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
   const { socket } = useSocket();
   const navigate = useNavigate();
-  
-  const [playerName, setPlayerName] = useState('');
-  const [studentId, setStudentId] = useState('');
-  const [roomId, setRoomId] = useState(urlRoomId || '');
+
+  const [playerName, setPlayerName] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const [roomId, setRoomId] = useState(urlRoomId || "");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Socket event listeners
   useEffect(() => {
     if (!socket) return;
 
     const handleJoinedRoom = (data: JoinedRoomData) => {
-      console.log('Successfully joined room:', data);
+      console.log("Successfully joined room:", data);
       setIsLoading(false);
-      
+
       // Store student info in localStorage for refresh scenarios
       // Store in both old format (studentInfo) and new format (studentSession) for compatibility
-      localStorage.setItem('studentInfo', JSON.stringify({
-        playerName: playerName.trim(),
-        studentId: studentId.trim(),
-        roomId: data.roomId
-      }));
-      
-      localStorage.setItem('studentSession', JSON.stringify({
-        currentRoom: data.roomId,
-        playerName: playerName.trim(),
-        studentId: studentId.trim(),
-        currentScore: 0,
-        currentStreak: 0,
-        hasAnswered: false,
-        currentQuestionIndex: 0,
-      }));
-      
+      localStorage.setItem(
+        "studentInfo",
+        JSON.stringify({
+          playerName: playerName.trim(),
+          studentId: studentId.trim(),
+          roomId: data.roomId,
+        })
+      );
+
+      localStorage.setItem(
+        "studentSession",
+        JSON.stringify({
+          currentRoom: data.roomId,
+          playerName: playerName.trim(),
+          studentId: studentId.trim(),
+          currentScore: 0,
+          currentStreak: 0,
+          hasAnswered: false,
+          currentQuestionIndex: 0,
+        })
+      );
+
       // Navigate to student waiting room or quiz room based on quiz status
       if (data.isActive) {
         navigate(`/student/room/${data.roomId}/quiz`);
       } else {
         // Pass initial players data to waiting room
         navigate(`/student/room/${data.roomId}/waiting`, {
-          state: { initialPlayers: data.players }
+          state: { initialPlayers: data.players },
         });
       }
     };
 
     const handleJoinError = (message: string) => {
-      console.error('Join error:', message);
+      console.error("Join error:", message);
       setError(message);
       setIsLoading(false);
     };
 
-    socket.on('joined_room', handleJoinedRoom);
-    socket.on('join_error', handleJoinError);
+    socket.on("joined_room", handleJoinedRoom);
+    socket.on("join_error", handleJoinError);
 
     return () => {
-      socket.off('joined_room', handleJoinedRoom);
-      socket.off('join_error', handleJoinError);
+      socket.off("joined_room", handleJoinedRoom);
+      socket.off("join_error", handleJoinError);
     };
   }, [socket, navigate, playerName, studentId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     // Validation
     if (!playerName.trim() || !studentId.trim() || !roomId.trim()) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       setIsLoading(false);
       return;
     }
 
     if (!socket) {
-      setError('Connection not available. Please refresh the page.');
+      setError("Connection not available. Please refresh the page.");
       setIsLoading(false);
       return;
     }
 
     if (!socket.connected) {
-      setError('Not connected to server. Please refresh the page.');
+      setError("Not connected to server. Please refresh the page.");
       setIsLoading(false);
       return;
     }
 
-    console.log('Attempting to join room:', { playerName: playerName.trim(), studentId: studentId.trim(), roomId: roomId.trim() });
-    
+    console.log("Attempting to join room:", {
+      playerName: playerName.trim(),
+      studentId: studentId.trim(),
+      roomId: roomId.trim(),
+    });
+
     // Emit join room event
-    socket.emit('join_room', {
+    socket.emit("join_room", {
       roomId: roomId.trim(),
       playerName: playerName.trim(),
-      studentId: studentId.trim()
+      studentId: studentId.trim(),
     });
   };
 
   return (
-    <div className="container mt-3">
+    <div className="container">
       <div className="row">
         <div className="col-12 p-0">
           <div className="join-quiz-container">
-            <div className="text-center mt-3 mb-4">
+            <div className="text-center">
               <Link to="/" className="quiz-logo-clickable">
                 <img
                   src="/quiz-quest-logo-horizontal.png"
                   alt="Quiz Quest"
                   style={{
-                    width: '100%',
-                    maxWidth: '400px',
-                    height: 'auto',
-                    maxHeight: 'none'
+                    width: "100%",
+                    maxWidth: "400px",
+                    height: "auto",
+                    maxHeight: "none",
                   }}
                 />
               </Link>
             </div>
-            
+
             <div className="join-quiz-content">
               <form id="joinForm" onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="playerName" className="form-label">Your Name</label>
+                <div className="mb-2">
+                  <label htmlFor="playerName" className="form-label">
+                    Your Name
+                  </label>
                   <input
                     type="text"
                     className="form-control form-control-lg"
@@ -148,9 +160,11 @@ const StudentJoin = () => {
                     disabled={isLoading}
                   />
                 </div>
-                
-                <div className="mb-3">
-                  <label htmlFor="studentId" className="form-label">Student ID</label>
+
+                <div className="mb-2">
+                  <label htmlFor="studentId" className="form-label">
+                    Student ID
+                  </label>
                   <input
                     type="text"
                     className="form-control form-control-lg"
@@ -162,9 +176,11 @@ const StudentJoin = () => {
                     disabled={isLoading}
                   />
                 </div>
-                
-                <div className="mb-3">
-                  <label htmlFor="roomId" className="form-label">Room ID</label>
+
+                <div className="mb-2">
+                  <label htmlFor="roomId" className="form-label">
+                    Room ID
+                  </label>
                   <input
                     type="text"
                     className="form-control form-control-lg"
@@ -177,7 +193,7 @@ const StudentJoin = () => {
                     maxLength={6}
                   />
                 </div>
-                
+
                 {error && (
                   <div className="alert alert-danger" role="alert">
                     {error}
@@ -185,7 +201,7 @@ const StudentJoin = () => {
                 )}
               </form>
             </div>
-            
+
             <div className="join-quiz-button">
               <div className="d-grid">
                 <button
@@ -196,7 +212,10 @@ const StudentJoin = () => {
                 >
                   {isLoading ? (
                     <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      ></span>
                       Joining...
                     </>
                   ) : (
