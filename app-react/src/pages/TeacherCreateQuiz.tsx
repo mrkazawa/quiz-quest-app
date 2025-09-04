@@ -21,9 +21,10 @@ const TeacherCreateQuiz = () => {
   
   const [quizJson, setQuizJson] = useState("");
   const [loading, setLoading] = useState(false);
-  const [validationMessage, setValidationMessage] = useState<{
+  const [notification, setNotification] = useState<{
     message: string;
-    type: "success" | "danger" | "info";
+    type: "success" | "error" | "info";
+    show: boolean;
   } | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [copyButtonText, setCopyButtonText] = useState("Copy Prompt");
@@ -110,8 +111,18 @@ Make sure:
     return { valid: true };
   };
 
-  const showValidationMessage = (message: string, type: "success" | "danger" | "info") => {
-    setValidationMessage({ message, type });
+  const showNotification = (message: string, type: "success" | "error" | "info") => {
+    setNotification({ message, type, show: true });
+    
+    // Auto-hide notification after 4 seconds
+    setTimeout(() => {
+      setNotification(prev => prev ? { ...prev, show: false } : null);
+    }, 4000);
+    
+    // Remove notification after animation
+    setTimeout(() => {
+      setNotification(null);
+    }, 4500);
   };
 
   const copyToClipboard = async (text: string) => {
@@ -140,7 +151,7 @@ Make sure:
         setCopyButtonText("Copy Prompt");
       }, 2000);
     } else {
-      showValidationMessage("Failed to copy to clipboard", "danger");
+      showNotification("Failed to copy to clipboard", "error");
     }
   };
 
@@ -148,7 +159,7 @@ Make sure:
     const jsonText = quizJson.trim();
 
     if (!jsonText) {
-      showValidationMessage("Please paste your quiz JSON.", "danger");
+      showNotification("Please paste your quiz JSON.", "error");
       return;
     }
 
@@ -158,7 +169,7 @@ Make sure:
       const validation = validateQuizJson(quizData);
 
       if (!validation.valid) {
-        showValidationMessage(validation.error || "Invalid quiz format", "danger");
+        showNotification(validation.error || "Invalid quiz format", "error");
         return;
       }
 
@@ -176,20 +187,20 @@ Make sure:
       const result = await response.json();
 
       if (response.ok && result.success) {
-        showValidationMessage(`Quiz "${quizData.setName}" created successfully!`, "success");
+        showNotification(`Quiz "${quizData.setName}" created successfully!`, "success");
 
         // Navigate back to dashboard after short delay
         setTimeout(() => {
           navigate("/teacher/dashboard");
         }, 1500);
       } else {
-        showValidationMessage(result.error || "Failed to create quiz", "danger");
+        showNotification(result.error || "Failed to create quiz", "error");
       }
     } catch (error) {
       if (error instanceof SyntaxError) {
-        showValidationMessage("Invalid JSON format. Please check your JSON syntax.", "danger");
+        showNotification("Invalid JSON format. Please check your JSON syntax.", "error");
       } else {
-        showValidationMessage("Error creating quiz: " + (error as Error).message, "danger");
+        showNotification("Error creating quiz: " + (error as Error).message, "error");
       }
     } finally {
       setLoading(false);
@@ -283,22 +294,8 @@ Make sure:
             />
           </div>
 
-          {/* Validation Message */}
-          {validationMessage && (
-            <div className={`alert alert-${validationMessage.type} mx-4 mb-4`} 
-                 style={{ borderRadius: "8px", border: "none" }} 
-                 role="alert">
-              <i className={`bi ${
-                validationMessage.type === 'success' ? 'bi-check-circle-fill' : 
-                validationMessage.type === 'danger' ? 'bi-exclamation-triangle-fill' : 
-                'bi-info-circle-fill'
-              } me-2`}></i>
-              {validationMessage.message}
-            </div>
-          )}
-
           {/* Action Buttons - Back on leftmost, Save on rightmost */}
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-between align-items-center px-4 pb-4">
             <button
               className="btn btn-secondary btn-lg"
               onClick={() => navigate("/teacher/dashboard")}
@@ -399,6 +396,41 @@ Make sure:
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {notification && (
+        <div 
+          className={`position-fixed top-0 end-0 m-4 alert ${
+            notification.type === 'success' ? 'alert-success' : 
+            notification.type === 'error' ? 'alert-danger' : 
+            'alert-info'
+          } d-flex align-items-center shadow-lg`}
+          style={{
+            zIndex: 1060,
+            minWidth: '350px',
+            transform: notification.show ? 'translateX(0)' : 'translateX(100%)',
+            transition: 'transform 0.3s ease-in-out',
+            border: 'none',
+            borderRadius: '8px'
+          }}
+          role="alert"
+        >
+          <i className={`bi ${
+            notification.type === 'success' ? 'bi-check-circle-fill' : 
+            notification.type === 'error' ? 'bi-exclamation-triangle-fill' : 
+            'bi-info-circle-fill'
+          } me-3`} style={{ fontSize: '1.2rem' }}></i>
+          <div className="flex-grow-1">
+            {notification.message}
+          </div>
+          <button
+            type="button"
+            className="btn-close ms-2"
+            onClick={() => setNotification(prev => prev ? { ...prev, show: false } : null)}
+            aria-label="Close"
+          ></button>
         </div>
       )}
     </div>
