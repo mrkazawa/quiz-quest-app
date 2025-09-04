@@ -137,7 +137,10 @@ const TeacherDashboard = () => {
             </p>
           </div>
           <div>
-            <button className="btn btn-danger" onClick={handleLogout}>
+            <button
+              className="btn btn-outline-danger btn-sm"
+              onClick={handleLogout}
+            >
               <i className="bi bi-box-arrow-right"></i>
               <span className="d-none d-md-inline ms-2">Logout</span>
             </button>
@@ -154,17 +157,17 @@ const TeacherDashboard = () => {
           </h3>
           <div className="btn-group" role="group">
             <button
-              className="btn btn-success btn-sm"
+              className="btn btn-primary btn-sm"
               onClick={() => {
                 /* TODO: Implement create quiz */
               }}
               title="Create New Quiz"
             >
               <i className="bi bi-plus-circle"></i>
-              <span className="d-none d-lg-inline ms-1">Create Quiz</span>
+              <span className="d-none d-lg-inline ms-1">Create</span>
             </button>
             <button
-              className="btn btn-info btn-sm"
+              className="btn btn-secondary btn-sm"
               onClick={() => {
                 /* TODO: Implement quiz history */
               }}
@@ -174,7 +177,7 @@ const TeacherDashboard = () => {
               <span className="d-none d-lg-inline ms-1">History</span>
             </button>
             <button
-              className="btn btn-light btn-sm border"
+              className="btn btn-outline-secondary btn-sm"
               onClick={loadQuizzes}
               disabled={loading}
               title="Refresh Quiz List"
@@ -211,24 +214,14 @@ const TeacherDashboard = () => {
 
           {!loading && !error && quizzes.length > 0 && (
             <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead>
-                  <tr className="table-light">
-                    <th scope="col" className="quiz-details-col">
-                      Quiz Details
-                    </th>
-                    <th scope="col" className="questions-col text-center">
-                      Questions
-                    </th>
-                    <th scope="col" className="actions-col text-center">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
+              <table className="table mb-0">
                 <tbody>
                   {quizzes.map((quiz) => (
-                    <tr key={quiz.id} className="quiz-row">
-                      <td>
+                    <tr
+                      key={quiz.id}
+                      className="quiz-row border-top border-bottom"
+                    >
+                      <td className="py-3">
                         <h5 className="mb-1 text-primary fw-bold">
                           {quiz.name}
                         </h5>
@@ -242,12 +235,21 @@ const TeacherDashboard = () => {
                           </p>
                         )}
                       </td>
-                      <td className="text-center align-middle">
-                        <span className="badge bg-info fs-6">
-                          {quiz.questionCount}
-                        </span>
+                      <td className="text-center align-middle py-3">
+                        <div className="d-flex flex-column align-items-center justify-content-center d-lg-none">
+                          <span className="badge bg-info fs-6 mb-1">
+                            {quiz.questionCount}
+                          </span>
+                          <small className="text-muted">questions</small>
+                        </div>
+                        <div className="d-none d-lg-flex align-items-center justify-content-center">
+                          <span className="badge bg-info fs-6 me-2">
+                            {quiz.questionCount}
+                          </span>
+                          <small className="text-muted">questions</small>
+                        </div>
                       </td>
-                      <td className="align-middle actions-col p-0">
+                      <td className="align-middle actions-col p-0 py-3">
                         <div className="d-flex justify-content-end gap-2 flex-md-row flex-column pe-2">
                           <button
                             className="btn btn-success start-quiz-btn"
@@ -274,7 +276,7 @@ const TeacherDashboard = () => {
                             {/* Icon only for small screens - already handled by default */}
                           </button>
                           <button
-                            className="btn btn-danger delete-quiz-btn"
+                            className="btn btn-outline-danger delete-quiz-btn"
                             onClick={() => deleteQuiz(quiz.id, quiz.name)}
                             title="Delete quiz"
                             style={{ minWidth: "80px" }}
