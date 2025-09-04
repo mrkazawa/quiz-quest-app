@@ -240,36 +240,32 @@ Make sure:
       {/* Main Content - Removed padding from card body */}
       <div className="card shadow-sm">
         <div className="card-body p-0">
-          {/* Help Section - Moved to top with better styling */}
-          <div className="alert border-0 rounded-0 m-0 mb-3" 
+          {/* Help Section - Compact alert with 100% width */}
+          <div className="alert alert-info table-alert d-flex align-items-center" 
                style={{ 
-                 background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
-                 borderLeft: "4px solid #28a745",
-                 color: "#495057"
+                 background: "linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)",
+                 borderLeft: "4px solid #0dcaf0",
+                 color: "#055160"
                }}>
-            <div className="d-flex align-items-start p-4">
-              <i className="bi bi-lightbulb-fill me-3 mt-1" style={{ fontSize: "1.4rem", color: "#28a745" }}></i>
-              <div className="flex-grow-1">
-                <div className="fw-bold mb-2" style={{ fontSize: "1.1rem", color: "#343a40" }}>Need help creating a quiz?</div>
-                <div className="mb-3" style={{ fontSize: "0.95rem", color: "#6c757d" }}>
-                  Use our ChatGPT prompt to automatically generate quiz content from your teaching materials.
-                </div>
-                <button
-                  className="btn btn-success btn-sm shadow-sm"
-                  onClick={() => setShowHelpModal(true)}
-                  style={{ fontWeight: "500" }}
-                >
-                  <i className="bi bi-chat-square-text-fill me-2"></i>
-                  Get ChatGPT Instructions
-                </button>
-              </div>
+            <i className="bi bi-lightbulb-fill me-3" style={{ fontSize: "1.2rem", color: "#0dcaf0" }}></i>
+            <div className="flex-grow-1">
+              <span className="fw-bold me-2">Need help creating a quiz?</span>
+              <span style={{ color: "#0c5460" }}>Use ChatGPT to generate quiz content.</span>
             </div>
+            <button
+              className="btn btn-info btn-sm ms-3"
+              onClick={() => setShowHelpModal(true)}
+              style={{ fontWeight: "500" }}
+            >
+              <i className="bi bi-chat-square-text-fill me-2"></i>
+              Get Instructions
+            </button>
           </div>
 
-          {/* Quiz JSON Input - Moved text above textarea */}
-          <div className="mb-4">
-            <div className="mb-3">
-              <label className="form-label fw-bold fs-5 mb-2">Quiz in JSON Format:</label>
+          {/* Quiz JSON Input - Added padding top for spacing */}
+          <div className="mb-4 pt-4">
+            <div className="mb-0">
+              <label className="form-label fw-bold fs-5">Quiz in JSON Format:</label>
             </div>
             <textarea
               className="form-control font-monospace"
