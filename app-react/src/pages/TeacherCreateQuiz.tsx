@@ -26,6 +26,7 @@ const TeacherCreateQuiz = () => {
     type: "success" | "danger" | "info";
   } | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [copyButtonText, setCopyButtonText] = useState("Copy Prompt");
 
   const chatgptPrompt = `I need to create a quiz in JSON format. Please generate a json format text based on [YOUR TOPIC/MATERIALS]. Follow this exact structure:
 
@@ -133,7 +134,11 @@ Make sure:
   const handleCopyPrompt = async () => {
     const success = await copyToClipboard(chatgptPrompt);
     if (success) {
-      showValidationMessage("ChatGPT prompt copied to clipboard!", "success");
+      setCopyButtonText("Copied!");
+      // Reset button text after 2 seconds
+      setTimeout(() => {
+        setCopyButtonText("Copy Prompt");
+      }, 2000);
     } else {
       showValidationMessage("Failed to copy to clipboard", "danger");
     }
@@ -332,11 +337,19 @@ Make sure:
 
       {/* Help Modal - Added Download Template button */}
       {showHelpModal && (
-        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-lg">
+        <div 
+          className="modal show d-block" 
+          tabIndex={-1} 
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={() => setShowHelpModal(false)}
+        >
+          <div 
+            className="modal-dialog modal-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-content">
-              <div className="modal-header bg-primary text-white">
-                <h5 className="modal-title">
+              <div className="modal-header bg-primary text-white mb-0">
+                <h5 className="modal-title mb-0">
                   <i className="bi bi-chat-square-text-fill me-2"></i>
                   How to Create Your Quiz with ChatGPT
                 </h5>
@@ -347,13 +360,12 @@ Make sure:
                 ></button>
               </div>
               <div className="modal-body">
-                <div className="mb-4">
+                <div className="mb-0">
                   <div className="alert alert-info border-0" style={{ backgroundColor: "#e7f3ff" }}>
                     <i className="bi bi-info-circle-fill me-2"></i>
                     <strong>Instructions:</strong> Copy this prompt to ChatGPT along with your teaching materials. 
                     Make sure to replace <code>[YOUR TOPIC/MATERIALS]</code> with your actual content.
                   </div>
-                  <label className="form-label fw-bold">ChatGPT Prompt:</label>
                   <textarea
                     className="form-control font-monospace bg-light"
                     rows={15}
@@ -369,14 +381,7 @@ Make sure:
                 </div>
               </div>
               <div className="modal-footer bg-light">
-                <div className="d-flex gap-2 w-100">
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleCopyPrompt}
-                  >
-                    <i className="bi bi-clipboard me-1"></i>
-                    Copy Prompt
-                  </button>
+                <div className="d-flex justify-content-between w-100">
                   <a
                     href="/api/quiz-template"
                     className="btn btn-outline-success"
@@ -385,12 +390,16 @@ Make sure:
                     <i className="bi bi-file-earmark-text me-1"></i>
                     Download Template
                   </a>
-                  <div className="flex-grow-1"></div>
                   <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowHelpModal(false)}
+                    className={`btn ${copyButtonText === "Copied!" ? "btn-success" : "btn-primary"}`}
+                    onClick={handleCopyPrompt}
+                    style={{ 
+                      opacity: copyButtonText === "Copied!" ? 0.6 : 1,
+                      transition: "all 0.3s ease"
+                    }}
                   >
-                    Close
+                    <i className={`bi ${copyButtonText === "Copied!" ? "bi-check" : "bi-clipboard"} me-1`}></i>
+                    {copyButtonText}
                   </button>
                 </div>
               </div>
