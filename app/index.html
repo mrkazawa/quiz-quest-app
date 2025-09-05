@@ -16,34 +16,6 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <style>
-      /* Password input group styling */
-      .input-group .form-control.is-invalid {
-        border-right: 1px solid #dc3545;
-      }
-
-      .input-group .form-control.is-invalid + .btn {
-        border-color: #dc3545;
-        background-color: #fff;
-      }
-
-      .input-group .form-control.is-invalid + .btn:hover {
-        border-color: #dc3545;
-        background-color: #dc3545;
-        color: #fff;
-      }
-
-      /* Normal state button styling */
-      .input-group .btn-outline-secondary {
-        background-color: #fff;
-        border-color: #6c757d;
-      }
-
-      .input-group .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: #fff;
-      }
-
       /* Hide browser's native password reveal icon when focused or typing */
       #teacherPassword:focus::-ms-reveal,
       #teacherPassword:focus::-webkit-credentials-auto-fill-button {
@@ -60,12 +32,6 @@
       #teacherPassword::-ms-clear {
         display: none !important;
       }
-
-      /* Focus state */
-      .input-group .btn:focus {
-        box-shadow: none;
-        outline: none;
-      }
     </style>
   </head>
   <body>
@@ -80,19 +46,12 @@
           />
 
           <h2 class="mb-4">Welcome!</h2>
-          <p class="lead mb-4">Choose your role to get started:</p>
+          <p class="lead mb-4">Login to get started</p>
 
           <div class="d-grid gap-3 mx-auto home-buttons">
             <button id="teacherBtn" class="btn btn-lg btn-primary">
-              <span data-lang-en="I'M A TEACHER" data-lang-id="SAYA GURU">I'M A TEACHER</span>
+              <span data-lang-en="Password Login" data-lang-id="Login Kata Sandi">Password Login</span>
             </button>
-            <a
-              href="/student#dashboard"
-              id="studentBtn"
-              class="btn btn-lg btn-success"
-            >
-              <span data-lang-en="I'M A STUDENT" data-lang-id="SAYA SISWA">I'M A STUDENT</span>
-            </a>
             
             <!-- Language Toggle -->
             <div class="d-flex justify-content-center align-items-center mt-2 mb-2">
@@ -120,7 +79,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header bg-primary">
-            <h5 class="modal-title" data-lang-en="Teacher Authentication" data-lang-id="Autentikasi Guru">Teacher Authentication</h5>
+            <h5 class="modal-title" data-lang-en="Password Login" data-lang-id="Login Kata Sandi">Password Login</h5>
             <button
               type="button"
               class="btn-close"
@@ -131,23 +90,14 @@
           <div class="modal-body">
             <p data-lang-en="Please enter the teacher password to continue:" data-lang-id="Masukkan kata sandi guru untuk melanjutkan:">Please enter the teacher password to continue:</p>
             <div class="mb-3">
-              <div class="input-group">
-                <input
-                  type="password"
-                  class="form-control"
-                  id="teacherPassword"
-                  data-lang-en-placeholder="Enter password"
-                  data-lang-id-placeholder="Masukkan kata sandi"
-                  placeholder="Enter password"
-                />
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  id="togglePassword"
-                >
-                  <i class="bi bi-eye" id="eyeIcon"></i>
-                </button>
-              </div>
+              <input
+                type="password"
+                class="form-control"
+                id="teacherPassword"
+                data-lang-en-placeholder="Enter password"
+                data-lang-id-placeholder="Masukkan kata sandi"
+                placeholder="Enter password"
+              />
               <div
                 id="passwordError"
                 class="invalid-feedback"
@@ -184,11 +134,11 @@
       const translations = {
         en: {
           "Welcome!": "Welcome!",
-          "Choose your role to get started:": "Choose your role to get started:"
+          "Login to get started": "Login to get started"
         },
         id: {
           "Welcome!": "Selamat Datang!",
-          "Choose your role to get started:": "Pilih peran Anda untuk memulai:"
+          "Login to get started": "Login untuk memulai"
         }
       };
 
@@ -252,7 +202,7 @@
           welcomeH2.textContent = translations[lang]["Welcome!"];
         }
         if (leadP) {
-          leadP.textContent = translations[lang]["Choose your role to get started:"];
+          leadP.textContent = translations[lang]["Login to get started"];
         }
       }
 
@@ -297,8 +247,6 @@
         const submitPasswordBtn = document.getElementById("submitPassword");
         const teacherPassword = document.getElementById("teacherPassword");
         const passwordError = document.getElementById("passwordError");
-        const togglePasswordBtn = document.getElementById("togglePassword");
-        const eyeIcon = document.getElementById("eyeIcon");
 
         // Show modal when teacher button is clicked
         teacherBtn.addEventListener("click", () => {
@@ -308,26 +256,7 @@
           teacherPassword.classList.remove("is-invalid");
           passwordError.style.display = "none";
 
-          // Reset eye icon completely
-          eyeIcon.className = "bi bi-eye";
-
           passwordModal.show();
-        });
-
-        // Toggle password visibility
-        togglePasswordBtn.addEventListener("click", () => {
-          const type =
-            teacherPassword.type === "password" ? "text" : "password";
-          teacherPassword.type = type;
-
-          // Toggle eye icon
-          if (type === "password") {
-            eyeIcon.classList.remove("bi-eye-slash");
-            eyeIcon.classList.add("bi-eye");
-          } else {
-            eyeIcon.classList.remove("bi-eye");
-            eyeIcon.classList.add("bi-eye-slash");
-          }
         });
 
         // Handle submit button click

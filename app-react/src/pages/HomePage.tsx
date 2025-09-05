@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import TeacherLoginModal from '../components/TeacherLoginModal';
 
 const HomePage = () => {
@@ -16,21 +15,15 @@ const HomePage = () => {
           />
 
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Welcome!</h2>
-          <p className="text-lg text-gray-600 mb-8">Choose your role to get started:</p>
+          <p className="text-lg text-gray-600 mb-8">Login to get started</p>
 
           <div className="space-y-4">
             <button 
               onClick={() => setShowLoginModal(true)}
               className="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-4 rounded-lg text-lg font-semibold transition-colors duration-200"
             >
-              I'M A TEACHER
+              Password Login
             </button>
-            <Link 
-              to="/student/join" 
-              className="block w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 text-center"
-            >
-              I'M A STUDENT
-            </Link>
           </div>
         </div>
       </div>
