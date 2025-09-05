@@ -277,7 +277,7 @@ const StudentWaitingRoom = () => {
     >
       <div className="max-w-4xl mx-auto px-4">
         {/* Players List */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg border border-gray-200">
           <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-t-lg px-6 py-4 text-center">
             <h4 className="text-xl font-semibold mb-0 flex items-center justify-center">
               <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

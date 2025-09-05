@@ -10,7 +10,6 @@ body {
   font-size: 2.5rem;
   font-weight: bold;
   color: #333333; /* Dark text color for better visibility */
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Make the logo look clickable */
@@ -137,7 +136,6 @@ a.quiz-logo-clickable:hover img.quiz-logo-clickable {
 /* Only add hover effects for student view option buttons */
 #quizQuestionScreen .option-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   color: #ffffff; /* Keep text white */
   cursor: pointer;
 }
@@ -184,7 +182,6 @@ a.quiz-logo-clickable:hover img.quiz-logo-clickable {
 .correct-answer {
   border: 3px solid #fff !important;
   position: relative;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8) !important;
   animation: pulse-border 2s infinite;
 }
 
@@ -198,13 +195,13 @@ a.quiz-logo-clickable:hover img.quiz-logo-clickable {
 /* Add a subtle pulsing animation to make the correct answer stand out */
 @keyframes pulse-border {
   0% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    border-color: rgba(255, 255, 255, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    border-color: rgba(255, 255, 255, 0);
   }
 }
 
@@ -384,7 +381,6 @@ h2.bg-success {
   font-size: 15px;
   line-height: 1.6;
   border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
 }
 
@@ -451,7 +447,6 @@ input.form-control {
 input.form-control:focus {
   border-color: #3498db;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 /* Button styling with material design - lightweight customization of Bootstrap */
@@ -462,7 +457,6 @@ input.form-control:focus {
   font-weight: 500;
   letter-spacing: 0.5px;
   transition: all 0.2s;
-  box-shadow: none;
 }
 
 /* Use Bootstrap's button hover states but preserve text color */
@@ -492,7 +486,6 @@ input.form-control:focus {
   border-width: 2px;
   font-weight: 500;
   color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btn-success {

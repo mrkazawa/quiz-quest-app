@@ -23,11 +23,11 @@ const Header = ({ title, subtitle, showLogout = false, showBack = false, backTo 
   };
 
   return (
-    <header className="bg-gradient-to-r from-slate-800 to-slate-700 text-white shadow-lg sticky top-0 z-50 border-b border-slate-600">
+    <header className="bg-gradient-to-r from-slate-800 to-slate-700 text-white sticky top-0 z-50 border-b border-slate-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left section */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 min-w-0 flex-1">
             {showBack && (
               <button
                 onClick={handleBack}
@@ -40,16 +40,16 @@ const Header = ({ title, subtitle, showLogout = false, showBack = false, backTo 
               </button>
             )}
             
-            <div className="flex flex-col">
-              <h1 className="text-xl font-bold text-white">{title}</h1>
+            <div className="flex flex-col min-w-0 flex-1">
+              <h1 className="text-xl font-bold text-white truncate">{title}</h1>
               {subtitle && (
-                <p className="text-sm text-slate-300">{subtitle}</p>
+                <p className="text-sm text-slate-300 truncate">{subtitle}</p>
               )}
             </div>
           </div>
 
           {/* Right section */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 flex-shrink-0">
             {showLogout && (
               <button
                 onClick={handleLogout}

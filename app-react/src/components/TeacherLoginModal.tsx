@@ -115,7 +115,7 @@ const TeacherLoginModal: React.FC<TeacherLoginModalProps> = ({ show, onHide }) =
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={handleBackdropClick}
       >
-        <div className="bg-white rounded-lg shadow-xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-white rounded-lg max-w-md w-full" onClick={(e) => e.stopPropagation()}>
           <div className="bg-primary-600 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
             <h5 className="text-lg font-semibold">Password Login</h5>
             <button

@@ -136,7 +136,7 @@ const StudentJoin = () => {
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow-xl p-6">
+        <div className="bg-white rounded-lg p-6">
           <form id="joinForm" onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 mb-2">

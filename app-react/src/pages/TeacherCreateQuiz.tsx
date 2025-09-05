@@ -236,193 +236,201 @@ Make sure:
       showBack={true} 
       backTo="/teacher/dashboard"
     >
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
-
-      {/* Main Content - Removed padding from card body */}
-      <div className="card shadow-sm">
-        <div className="card-body p-0">
-          {/* Help Section - Compact alert with 100% width */}
-          <div className="alert alert-info table-alert d-flex align-items-center" 
-               style={{ 
-                 background: "linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)",
-                 borderLeft: "4px solid #0dcaf0",
-                 color: "#055160"
-               }}>
-            <i className="bi bi-lightbulb-fill me-3" style={{ fontSize: "1.2rem", color: "#0dcaf0" }}></i>
-            <div className="flex-grow-1">
-              <span className="fw-bold me-2">Need help creating a quiz?</span>
-              <span style={{ color: "#0c5460" }}>Use ChatGPT to generate quiz content.</span>
+      <div className="max-w-4xl mx-auto px-6">
+        {/* Main Content Card */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          {/* Help Section */}
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-cyan-400 p-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="w-6 h-6 text-cyan-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7.5 3.5a.5.5 0 01-1 0V9a.5.5 0 011 0v4.5zm.5-6.5a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-cyan-800">
+                  <span className="font-semibold">Need help creating a quiz?</span>
+                  <span className="ml-2">Use ChatGPT to generate quiz content.</span>
+                </p>
+              </div>
             </div>
             <button
-              className="btn btn-info btn-sm ms-3"
               onClick={() => setShowHelpModal(true)}
-              style={{ fontWeight: "500" }}
+              className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
             >
-              <i className="bi bi-chat-square-text-fill me-2"></i>
-              Get Instructions
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" />
+              </svg>
+              <span>Get Instructions</span>
             </button>
           </div>
 
-          {/* Quiz JSON Input - Added padding top for spacing */}
-          <div className="mb-4 pt-4">
-            <div className="mb-0">
-              <label className="form-label fw-bold fs-5">Quiz in JSON Format:</label>
+          {/* Form Content */}
+          <div className="p-6">
+            {/* Quiz JSON Input */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-lg font-semibold text-gray-900 mb-3">
+                  Quiz in JSON Format:
+                </label>
+                <textarea
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-none transition-colors duration-200"
+                  rows={15}
+                  placeholder="Paste your quiz JSON here..."
+                  value={quizJson}
+                  onChange={(e) => setQuizJson(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Save Button - Only one button now */}
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSaveQuiz}
+                  disabled={loading}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 min-w-[140px]"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Save Quiz</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-            <textarea
-              className="form-control font-monospace"
-              rows={15}
-              placeholder="Paste your quiz JSON here..."
-              value={quizJson}
-              onChange={(e) => setQuizJson(e.target.value)}
-              disabled={loading}
-              style={{ 
-                fontSize: "0.85rem",
-                lineHeight: "1.4",
-                border: "2px solid #e9ecef",
-                borderRadius: "8px"
-              }}
-            />
-          </div>
-
-          {/* Action Buttons - Back on leftmost, Save on rightmost */}
-          <div className="d-flex justify-content-between align-items-center">
-            <button
-              className="btn btn-secondary btn-lg"
-              onClick={() => navigate("/teacher/dashboard")}
-              style={{ minWidth: "120px" }}
-            >
-              <i className="bi bi-arrow-left me-2"></i>
-              Back
-            </button>
-            <button
-              className="btn btn-success btn-lg"
-              onClick={handleSaveQuiz}
-              disabled={loading}
-              style={{ minWidth: "140px" }}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-check-lg me-2"></i>
-                  Save Quiz
-                </>
-              )}
-            </button>
           </div>
         </div>
-      </div>
 
-      {/* Help Modal - Added Download Template button */}
-      {showHelpModal && (
-        <div 
-          className="modal show d-block" 
-          tabIndex={-1} 
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          onClick={() => setShowHelpModal(false)}
-        >
+        {/* Help Modal */}
+        {showHelpModal && (
           <div 
-            className="modal-dialog modal-lg"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowHelpModal(false)}
           >
-            <div className="modal-content">
-              <div className="modal-header bg-primary text-white mb-0">
-                <h5 className="modal-title mb-0">
-                  <i className="bi bi-chat-square-text-fill me-2"></i>
+            <div 
+              className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" />
+                  </svg>
                   How to Create Your Quiz with ChatGPT
-                </h5>
+                </h3>
                 <button
-                  type="button"
-                  className="btn-close btn-close-white"
                   onClick={() => setShowHelpModal(false)}
-                ></button>
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <div className="modal-body">
-                <div className="mb-0">
-                  <div className="alert alert-info border-0" style={{ backgroundColor: "#e7f3ff" }}>
-                    <i className="bi bi-info-circle-fill me-2"></i>
-                    <strong>Instructions:</strong> Copy this prompt to ChatGPT along with your teaching materials. 
-                    Make sure to replace <code>[YOUR TOPIC/MATERIALS]</code> with your actual content.
+
+              {/* Modal Body */}
+              <div className="p-6 max-h-[calc(90vh-140px)] overflow-y-auto">
+                <div className="mb-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start">
+                      <svg className="w-5 h-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <div className="text-blue-800">
+                        <p className="font-semibold">Instructions:</p>
+                        <p className="mt-1">Copy this prompt to ChatGPT along with your teaching materials. Make sure to replace <code className="bg-blue-100 px-1 py-0.5 rounded text-blue-900 font-mono text-sm">[YOUR TOPIC/MATERIALS]</code> with your actual content.</p>
+                      </div>
+                    </div>
                   </div>
                   <textarea
-                    className="form-control font-monospace bg-light"
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-lg font-mono text-sm resize-none"
                     rows={15}
                     readOnly
                     value={chatgptPrompt}
-                    style={{ 
-                      resize: "none",
-                      fontSize: "0.85rem",
-                      lineHeight: "1.4",
-                      border: "2px solid #dee2e6"
-                    }}
                   />
                 </div>
               </div>
-              <div className="modal-footer bg-light">
-                <div className="d-flex justify-content-between w-100">
-                  <a
-                    href="/api/quiz-template"
-                    className="btn btn-outline-success"
-                    title="Download a sample quiz template"
-                  >
-                    <i className="bi bi-file-earmark-text me-1"></i>
-                    JSON Template
-                  </a>
-                  <button
-                    className={`btn ${copyButtonText === "Copied!" ? "btn-success" : "btn-primary"}`}
-                    onClick={handleCopyPrompt}
-                    style={{ 
-                      opacity: copyButtonText === "Copied!" ? 0.6 : 1,
-                      transition: "all 0.3s ease"
-                    }}
-                  >
-                    <i className={`bi ${copyButtonText === "Copied!" ? "bi-check" : "bi-clipboard"} me-1`}></i>
-                    {copyButtonText}
-                  </button>
-                </div>
+
+              {/* Modal Footer */}
+              <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
+                <a
+                  href="/api/quiz-template"
+                  className="bg-white hover:bg-gray-50 text-green-700 border border-green-300 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                  title="Download a sample quiz template"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>JSON Template</span>
+                </a>
+                <button
+                  onClick={handleCopyPrompt}
+                  className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                    copyButtonText === "Copied!" 
+                      ? "bg-green-600 text-white" 
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={
+                      copyButtonText === "Copied!" 
+                        ? "M5 13l4 4L19 7"
+                        : "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    } />
+                  </svg>
+                  <span>{copyButtonText}</span>
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Toast Notification */}
-      {notification && (
-        <div 
-          className={`position-fixed top-0 end-0 m-4 alert ${
-            notification.type === 'success' ? 'alert-success' : 
-            notification.type === 'error' ? 'alert-danger' : 
-            'alert-info'
-          } d-flex align-items-center shadow-lg`}
-          style={{
-            zIndex: 1060,
-            minWidth: '350px',
-            transform: notification.show ? 'translateX(0)' : 'translateX(100%)',
-            transition: 'transform 0.3s ease-in-out',
-            border: 'none',
-            borderRadius: '8px'
-          }}
-          role="alert"
-        >
-          <i className={`bi ${
-            notification.type === 'success' ? 'bi-check-circle-fill' : 
-            notification.type === 'error' ? 'bi-exclamation-triangle-fill' : 
-            'bi-info-circle-fill'
-          } me-3`} style={{ fontSize: '1.2rem' }}></i>
-          <div className="flex-grow-1">
-            {notification.message}
+        {/* Toast Notification */}
+        {notification && (
+          <div 
+            className={`fixed top-4 right-4 z-50 max-w-sm w-full transition-transform duration-300 ease-in-out ${
+              notification.show ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            <div className={`rounded-lg p-4 border border-gray-200 flex items-center space-x-3 ${
+              notification.type === 'success' ? 'bg-green-50 text-green-800 border-green-200' : 
+              notification.type === 'error' ? 'bg-red-50 text-red-800 border-red-200' : 
+              'bg-blue-50 text-blue-800 border-blue-200'
+            }`}>
+              <div className="flex-shrink-0">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d={
+                    notification.type === 'success' 
+                      ? "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      : notification.type === 'error'
+                      ? "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      : "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  } clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1 text-sm font-medium">
+                {notification.message}
+              </div>
+              <button
+                onClick={() => setNotification(prev => prev ? { ...prev, show: false } : null)}
+                className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            className="btn-close ms-2"
-            onClick={() => setNotification(prev => prev ? { ...prev, show: false } : null)}
-            aria-label="Close"
-          ></button>
-        </div>
-      )}
+        )}
       </div>
     </Layout>
   );

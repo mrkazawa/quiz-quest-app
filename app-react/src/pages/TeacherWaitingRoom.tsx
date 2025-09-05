@@ -161,6 +161,13 @@ const TeacherWaitingRoom = () => {
     }
   };
 
+  const copyRoomId = () => {
+    if (roomId) {
+      navigator.clipboard.writeText(roomId);
+      // Could add a toast notification here
+    }
+  };
+
   const copyRoomLink = () => {
     const url = `${window.location.origin}/student/join/${roomId}`;
     navigator.clipboard.writeText(url);
@@ -169,12 +176,10 @@ const TeacherWaitingRoom = () => {
 
   if (loading) {
     return (
-      <div className="container py-5">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-2">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2 text-gray-600">
             {!socket ? 'Initializing connection...' : 
              !socket.connected ? 'Connecting to server...' : 
              'Loading room information...'}
@@ -186,16 +191,18 @@ const TeacherWaitingRoom = () => {
 
   if (error) {
     return (
-      <div className="container py-5">
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle me-2"></i>
-          {error}
-          <button 
-            className="btn btn-primary ms-3"
-            onClick={() => navigate('/teacher/dashboard')}
-          >
-            Back to Dashboard
-          </button>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <i className="bi bi-exclamation-triangle mr-2"></i>
+            <span>{error}</span>
+            <button 
+              className="ml-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+              onClick={() => navigate('/teacher/dashboard')}
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -203,16 +210,18 @@ const TeacherWaitingRoom = () => {
 
   if (!roomInfo) {
     return (
-      <div className="container py-5">
-        <div className="alert alert-warning">
-          <i className="bi bi-info-circle me-2"></i>
-          Room not found or no longer exists.
-          <button 
-            className="btn btn-primary ms-3"
-            onClick={() => navigate('/teacher/dashboard')}
-          >
-            Back to Dashboard
-          </button>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <i className="bi bi-info-circle mr-2"></i>
+            <span>Room not found or no longer exists.</span>
+            <button 
+              className="ml-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+              onClick={() => navigate('/teacher/dashboard')}
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -226,81 +235,87 @@ const TeacherWaitingRoom = () => {
       showBack={true} 
       backTo="/teacher/dashboard"
     >
-      <div className="container-fluid">
-        <div className="row">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Room Info & Controls */}
-          <div className="col-lg-4 mb-4">
-            <div className="card">
-              <div className="card-header">
-                <h4 className="card-title mb-0">
-                  <i className="bi bi-door-open me-2"></i>
+          <div>
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-t-lg px-6 py-4">
+                <h4 className="text-xl font-semibold mb-0 flex items-center">
+                  <i className="bi bi-door-open mr-2"></i>
                   Room Details
                 </h4>
               </div>
-              <div className="card-body">
-                <div className="mb-3">
-                  <label className="form-label fw-bold">Room ID</label>
-                  <div className="input-group">
+              <div className="p-6">
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Room ID</label>
+                  <div className="flex">
                     <input 
                       type="text" 
-                      className="form-control fw-bold fs-4 text-center" 
+                      className="flex-1 px-3 py-2 text-2xl font-bold text-center border border-gray-300 rounded-l-lg bg-gray-50 text-gray-800 focus:outline-none" 
                       value={roomId} 
                       readOnly 
                     />
                     <button 
-                      className="btn btn-outline-secondary"
-                      onClick={copyRoomLink}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg transition-colors duration-200 text-gray-600"
+                      onClick={copyRoomId}
+                      title="Copy Room ID"
                     >
-                      <i className="bi bi-clipboard"></i>
+                      <i className="bi bi-clipboard text-lg"></i>
                     </button>
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label fw-bold">Join URL</label>
-                  <div className="input-group">
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Join URL</label>
+                  <div className="flex">
                     <input 
                       type="text" 
-                      className="form-control" 
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-800 text-sm focus:outline-none" 
                       value={`${window.location.origin}/student/join/${roomId}`}
                       readOnly 
                     />
                     <button 
-                      className="btn btn-outline-secondary"
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg transition-colors duration-200 text-gray-600"
                       onClick={copyRoomLink}
+                      title="Copy Join URL"
                     >
-                      <i className="bi bi-clipboard"></i>
+                      <i className="bi bi-clipboard text-lg"></i>
                     </button>
                   </div>
                 </div>
 
-                <div className="mb-3 text-center">
-                  <label className="form-label fw-bold">QR Code</label>
-                  <div className="border rounded p-3 bg-white">
+                <div className="mb-6 text-center">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">QR Code</label>
+                  <div className="border border-gray-200 rounded-lg p-4 bg-white inline-block">
                     <QRCodeSVG 
                       value={`${window.location.origin}/student/join/${roomId}`}
-                      size={200}
+                      size={160}
                       level="H"
                       includeMargin={true}
                     />
                   </div>
-                  <small className="text-muted">Students can scan this QR code to join</small>
+                  <p className="text-xs text-gray-500 mt-2">Students can scan this QR code to join</p>
                 </div>
 
-                <div className="d-grid gap-2">
+                <div className="space-y-3">
                   <button 
-                    className="btn btn-success btn-lg"
+                    className={`w-full px-4 py-3 rounded-lg font-semibold text-white transition-colors duration-200 flex items-center justify-center ${
+                      students.length === 0 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    }`}
                     onClick={startQuiz}
                     disabled={students.length === 0}
                   >
-                    <i className="bi bi-play-circle me-2"></i>
+                    <i className="bi bi-play-circle mr-2"></i>
                     Start Quiz ({students.length} students)
                   </button>
                   <button 
-                    className="btn btn-outline-danger"
+                    className="w-full px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-300 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
                     onClick={deleteRoom}
                   >
-                    <i className="bi bi-trash me-2"></i>
+                    <i className="bi bi-trash mr-2"></i>
                     Delete Room
                   </button>
                 </div>
@@ -309,28 +324,28 @@ const TeacherWaitingRoom = () => {
           </div>
 
           {/* Students List */}
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-header d-flex justify-content-between align-items-center">
-                <h4 className="card-title mb-0">
-                  <i className="bi bi-people me-2"></i>
+          <div>
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-t-lg px-6 py-4">
+                <h4 className="text-xl font-semibold mb-0 flex items-center">
+                  <i className="bi bi-people mr-2"></i>
                   Joined Students ({students.length})
                 </h4>
               </div>
-              <div className="card-body">
+              <div className="p-6">
                 {students.length === 0 ? (
-                  <div className="text-center py-5">
-                    <i className="bi bi-people display-1 text-muted"></i>
-                    <h5 className="text-muted mt-3">Waiting for students to join...</h5>
-                    <p className="text-muted">Share the Room ID or URL with your students</p>
+                  <div className="text-center py-12">
+                    <i className="bi bi-people text-6xl text-gray-300 mb-4 block"></i>
+                    <h5 className="text-xl text-gray-500 mb-2">Waiting for students to join...</h5>
+                    <p className="text-gray-400">Share the Room ID or URL with your students</p>
                   </div>
                 ) : (
-                  <div className="d-flex flex-wrap gap-2 justify-content-center">
+                  <div className="flex flex-wrap gap-3 justify-center">
                     {students.map((student) => (
                       <span 
                         key={student.socketId}
-                        className="badge bg-light text-dark border border-primary fs-6 px-3 py-2"
-                        style={{ fontWeight: 500, whiteSpace: 'nowrap' }}
+                        className="inline-block bg-blue-50 text-blue-800 border border-blue-200 px-4 py-2 rounded-lg font-medium text-sm"
+                        style={{ whiteSpace: 'nowrap' }}
                       >
                         {student.name}
                       </span>

@@ -156,7 +156,7 @@ const TeacherDashboard = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Quiz Selection */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
               <h3 className="text-xl font-bold text-white flex items-center">
@@ -234,7 +234,7 @@ const TeacherDashboard = () => {
                 {quizzes.map((quiz) => (
                   <div
                     key={quiz.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                    className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors duration-200"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                       <div className="flex-1">
@@ -289,7 +289,7 @@ const TeacherDashboard = () => {
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
           onClick={handleDeleteCancel}
         >
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-lg max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="bg-red-600 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
               <h5 className="text-lg font-semibold flex items-center mb-0">
                 <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
