@@ -1503,3 +1503,42 @@ table th {
 .table-responsive .table tbody tr:first-child td {
   border-top: none;
 }
+
+/* Dashboard action buttons styling */
+.dashboard-action-btn {
+  background-color: #f8f9fa !important;
+  border-color: #dee2e6 !important;
+  color: #495057 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.dashboard-action-btn:hover:not(:disabled) {
+  background-color: #e9ecef !important;
+  border-color: #adb5bd !important;
+  color: #343a40 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dashboard-action-btn:focus:not(:disabled) {
+  background-color: #e9ecef !important;
+  border-color: #adb5bd !important;
+  box-shadow: 0 0 0 0.2rem rgba(173, 181, 189, 0.25) !important;
+}
+
+.dashboard-action-btn:active:not(:disabled) {
+  background-color: #dee2e6 !important;
+  border-color: #adb5bd !important;
+  transform: translateY(0) !important;
+}
+
+.dashboard-action-btn:disabled {
+  background-color: #e9ecef !important;
+  border-color: #dee2e6 !important;
+  color: #6c757d !important;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}

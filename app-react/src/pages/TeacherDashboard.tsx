@@ -188,7 +188,7 @@ const TeacherDashboard = () => {
           </h3>
           <div className="btn-group" role="group">
             <button
-              className="btn btn-primary btn-sm"
+              className="btn btn-light btn-sm border dashboard-action-btn"
               onClick={() => navigate("/teacher/create-quiz")}
               title="Create New Quiz"
             >
@@ -196,7 +196,7 @@ const TeacherDashboard = () => {
               <span className="d-none d-lg-inline ms-1">Create</span>
             </button>
             <button
-              className="btn btn-secondary btn-sm"
+              className="btn btn-light btn-sm border dashboard-action-btn"
               onClick={() => {
                 /* TODO: Implement quiz history */
               }}
@@ -206,7 +206,7 @@ const TeacherDashboard = () => {
               <span className="d-none d-lg-inline ms-1">History</span>
             </button>
             <button
-              className="btn btn-outline-secondary btn-sm"
+              className="btn btn-light btn-sm border dashboard-action-btn"
               onClick={loadQuizzes}
               disabled={loading}
               title="Refresh Quiz List"
