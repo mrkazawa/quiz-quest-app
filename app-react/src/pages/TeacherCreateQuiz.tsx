@@ -302,7 +302,7 @@ Make sure:
           </div>
 
           {/* Action Buttons - Back on leftmost, Save on rightmost */}
-          <div className="d-flex justify-content-between align-items-center px-4 pb-4">
+          <div className="d-flex justify-content-between align-items-center">
             <button
               className="btn btn-secondary btn-lg"
               onClick={() => navigate("/teacher/dashboard")}
