@@ -22,6 +22,7 @@ const TeacherWaitingRoom = () => {
   const [roomInfo, setRoomInfo] = useState<{quizName: string, roomId: string} | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showBackModal, setShowBackModal] = useState(false);
 
   console.log('TeacherWaitingRoom render:', { roomId, socket: !!socket, isAuthenticated, loading });
 
@@ -154,13 +155,6 @@ const TeacherWaitingRoom = () => {
     socket.emit('start_quiz', { roomId });
   };
 
-  const deleteRoom = () => {
-    if (!socket || !roomId) return;
-    if (confirm('Are you sure you want to delete this room?')) {
-      socket.emit('delete_room', { roomId });
-    }
-  };
-
   const copyRoomId = () => {
     if (roomId) {
       navigator.clipboard.writeText(roomId);
@@ -172,6 +166,22 @@ const TeacherWaitingRoom = () => {
     const url = `${window.location.origin}/student/join/${roomId}`;
     navigator.clipboard.writeText(url);
     // Could add a toast notification here
+  };
+
+  const handleBackClick = () => {
+    setShowBackModal(true);
+  };
+
+  const handleBackConfirm = () => {
+    if (!socket || !roomId) return;
+    
+    // Delete the room when leaving
+    socket.emit('delete_room', { roomId });
+    navigate('/teacher/dashboard');
+  };
+
+  const handleBackCancel = () => {
+    setShowBackModal(false);
   };
 
   if (loading) {
@@ -234,6 +244,7 @@ const TeacherWaitingRoom = () => {
       showLogout={true} 
       showBack={true} 
       backTo="/teacher/dashboard"
+      onBackClick={handleBackClick}
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -252,7 +263,7 @@ const TeacherWaitingRoom = () => {
                   <div className="flex">
                     <input 
                       type="text" 
-                      className="flex-1 px-3 py-2 text-2xl font-bold text-center border border-gray-300 rounded-l-lg bg-gray-50 text-gray-800 focus:outline-none" 
+                      className="flex-1 px-3 py-2 text-2xl font-bold border border-gray-300 rounded-l-lg bg-gray-50 text-gray-800 focus:outline-none" 
                       value={roomId} 
                       readOnly 
                     />
@@ -311,13 +322,6 @@ const TeacherWaitingRoom = () => {
                     <i className="bi bi-play-circle mr-2"></i>
                     Start Quiz ({students.length} students)
                   </button>
-                  <button 
-                    className="w-full px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-300 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
-                    onClick={deleteRoom}
-                  >
-                    <i className="bi bi-trash mr-2"></i>
-                    Delete Room
-                  </button>
                 </div>
               </div>
             </div>
@@ -357,6 +361,64 @@ const TeacherWaitingRoom = () => {
           </div>
         </div>
       </div>
+
+      {/* Leave Room Confirmation Modal */}
+      {showBackModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
+          onClick={handleBackCancel}
+        >
+          <div className="bg-white rounded-lg max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-red-600 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
+              <h5 className="text-lg font-semibold flex items-center mb-0">
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                Leave Room
+              </h5>
+              <button
+                type="button"
+                className="text-white hover:text-gray-200 transition-colors"
+                onClick={handleBackCancel}
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="text-center">
+                <div className="mb-4">
+                  <svg className="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                </div>
+                <h6 className="text-lg font-medium mb-4">Are you sure you want to leave the room?</h6>
+                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                  <div className="text-sm text-gray-600 mb-1">Room ID:</div>
+                  <div className="text-red-700 font-semibold">{roomId}</div>
+                </div>
+                <p className="text-gray-500 text-sm mb-0">
+                  This will permanently delete the room and disconnect all students. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="px-6 pb-6 flex justify-center">
+              <button
+                type="button"
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                onClick={handleBackConfirm}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                <span>Delete Room & Leave</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

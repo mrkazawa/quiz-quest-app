@@ -7,9 +7,10 @@ interface HeaderProps {
   showLogout?: boolean;
   showBack?: boolean;
   backTo?: string;
+  onBackClick?: () => void;
 }
 
-const Header = ({ title, subtitle, showLogout = false, showBack = false, backTo = '/' }: HeaderProps) => {
+const Header = ({ title, subtitle, showLogout = false, showBack = false, backTo = '/', onBackClick }: HeaderProps) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -19,7 +20,11 @@ const Header = ({ title, subtitle, showLogout = false, showBack = false, backTo 
   };
 
   const handleBack = () => {
-    navigate(backTo);
+    if (onBackClick) {
+      onBackClick();
+    } else {
+      navigate(backTo);
+    }
   };
 
   return (

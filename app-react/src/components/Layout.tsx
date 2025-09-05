@@ -8,6 +8,7 @@ interface LayoutProps {
   showLogout?: boolean;
   showBack?: boolean;
   backTo?: string;
+  onBackClick?: () => void;
 }
 
 const Layout = ({ 
@@ -16,19 +17,19 @@ const Layout = ({
   subtitle, 
   showLogout = false, 
   showBack = false, 
-  backTo = '/' 
+  backTo = '/',
+  onBackClick
 }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header 
-        title={title}
-        subtitle={subtitle}
-        showLogout={showLogout}
-        showBack={showBack}
-        backTo={backTo}
-      />
-      
-      <main className="flex-1 py-6">
+        <Header 
+          title={title} 
+          subtitle={subtitle} 
+          showLogout={showLogout} 
+          showBack={showBack} 
+          backTo={backTo}
+          onBackClick={onBackClick}
+        />      <main className="flex-1 py-6">
         {children}
       </main>
       
