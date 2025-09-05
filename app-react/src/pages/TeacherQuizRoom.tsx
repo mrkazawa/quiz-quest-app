@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket.js';
 import { useAuth } from '../hooks/useAuth.js';
@@ -31,6 +31,17 @@ interface QuizRankings {
   }>;
 }
 
+interface RoomInfo {
+  roomId: string;
+  quizName: string;
+  students: Array<{
+    socketId: string;
+    studentId: string;
+    name: string;
+    joinedAt: number;
+  }>;
+}
+
 const TeacherQuizRoom = () => {
   const { roomId, questionId } = useParams<{ roomId: string; questionId?: string }>();
   const { socket } = useSocket();
@@ -42,6 +53,7 @@ const TeacherQuizRoom = () => {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [questionResults, setQuestionResults] = useState<QuestionResults | null>(null);
   const [quizRankings, setQuizRankings] = useState<QuizRankings | null>(null);
+  const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quizEnded, setQuizEnded] = useState(false);
@@ -69,6 +81,19 @@ const TeacherQuizRoom = () => {
       return;
     }
   }, [isAuthenticated, navigate]);
+
+  // Rejoin room as teacher function - moved outside useEffect to make it accessible
+  const rejoinTeacherRoom = useCallback(() => {
+    if (!socket || !roomId) return;
+    console.log('Teacher rejoining quiz room:', { roomId, teacherId });
+    socket.emit('join_teacher_room', {
+      roomId,
+      teacherId: teacherId || 'unknown'
+    });
+    
+    // Also request room info to get quiz name
+    socket.emit('get_room_info', { roomId });
+  }, [socket, roomId, teacherId]);
 
   useEffect(() => {
     if (!socket || !roomId || !isAuthenticated) {
@@ -137,6 +162,12 @@ const TeacherQuizRoom = () => {
     }
 
     const setupEventListeners = () => {
+      // Handle room info
+      const handleRoomInfo = (data: RoomInfo) => {
+        console.log('Received room info:', data);
+        setRoomInfo(data);
+      };
+
       // Handle new question started
       const handleNewQuestion = (data: QuestionData) => {
         console.log('New question started:', data);
@@ -200,6 +231,26 @@ const TeacherQuizRoom = () => {
         navigate(`/teacher/room/${roomId}/final`);
       };
 
+      // Handle teacher joined completed room
+      const handleTeacherJoinedCompletedRoom = (data: { roomId: string; isCompleted: boolean; historyId: string }) => {
+        console.log('Teacher joined completed room:', data);
+        setQuizEnded(true);
+        
+        // Fetch the final rankings from history
+        fetch(`/api/quiz-history/${data.historyId}`)
+          .then(response => response.json())
+          .then((quizData: QuizRankings) => {
+            console.log('Loaded quiz rankings from completed room:', quizData);
+            setQuizRankings(quizData);
+            setLoading(false);
+          })
+          .catch(error => {
+            console.error('Error loading quiz rankings from completed room:', error);
+            setError('Failed to load quiz results');
+            setLoading(false);
+          });
+      };
+
       // Handle room errors
       const handleRoomError = (message: string) => {
         console.error('Room error:', message);
@@ -219,34 +270,42 @@ const TeacherQuizRoom = () => {
         setLoading(false);
       };
 
+      // Handle next question errors
+      const handleNextError = (message: string) => {
+        console.error('Next question error:', message);
+        // Try to rejoin teacher room if there's an authorization issue
+        if (message.includes('Not authorized')) {
+          console.log('Authorization issue, attempting to rejoin teacher room...');
+          rejoinTeacherRoom();
+        }
+        setError(`Error advancing to next question: ${message}`);
+      };
+
+      socket.on('room_info', handleRoomInfo);
       socket.on('new_question', handleNewQuestion);
       socket.on('player_answered', handlePlayerAnswered);
       socket.on('question_ended', handleQuestionEnded);
       socket.on('player_joined', handlePlayerJoined);
       socket.on('player_left', handlePlayerLeft);
       socket.on('quiz_ended', handleQuizCompleted);
+      socket.on('teacher_joined_completed_room', handleTeacherJoinedCompletedRoom);
       socket.on('room_error', handleRoomError);
       socket.on('join_error', handleJoinError);
+      socket.on('next_error', handleNextError);
 
       return () => {
+        socket.off('room_info', handleRoomInfo);
         socket.off('new_question', handleNewQuestion);
         socket.off('player_answered', handlePlayerAnswered);
         socket.off('question_ended', handleQuestionEnded);
         socket.off('player_joined', handlePlayerJoined);
         socket.off('player_left', handlePlayerLeft);
         socket.off('quiz_ended', handleQuizCompleted);
+        socket.off('teacher_joined_completed_room', handleTeacherJoinedCompletedRoom);
         socket.off('room_error', handleRoomError);
         socket.off('join_error', handleJoinError);
+        socket.off('next_error', handleNextError);
       };
-    };
-
-    // Rejoin room as teacher on component mount
-    const rejoinTeacherRoom = () => {
-      console.log('Teacher rejoining quiz room:', { roomId, teacherId });
-      socket.emit('join_teacher_room', {
-        roomId,
-        teacherId: teacherId || 'unknown'
-      });
     };
 
     if (!socket.connected) {
@@ -273,7 +332,7 @@ const TeacherQuizRoom = () => {
       rejoinTeacherRoom();
       return setupEventListeners();
     }
-  }, [socket, roomId, teacherId, isAuthenticated, navigate, questionId, isQuestionRoute, isResultRoute, isFinalRoute]);
+  }, [socket, roomId, teacherId, isAuthenticated, navigate, questionId, isQuestionRoute, isResultRoute, isFinalRoute, rejoinTeacherRoom]);
 
   // Timer countdown effect
   useEffect(() => {
@@ -300,7 +359,17 @@ const TeacherQuizRoom = () => {
   };
 
   const nextQuestion = () => {
-    if (!socket || !roomId) return;
+    if (!socket || !roomId) {
+      console.error('Cannot advance question: missing socket or roomId');
+      return;
+    }
+    
+    console.log('Attempting to advance to next question for room:', roomId);
+    console.log('Socket connected:', socket.connected);
+    console.log('Socket ID:', socket.id);
+    
+    // Clear any previous errors
+    setError(null);
     
     // Check if this is the last question
     const isLastQuestion = currentQuestion && 
@@ -339,8 +408,8 @@ const TeacherQuizRoom = () => {
   if (loading) {
     return (
       <Layout 
-        title="Quiz Room"
-        subtitle="Loading quiz..."
+        title={roomInfo?.quizName || "Quiz Room"}
+        subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -363,8 +432,8 @@ const TeacherQuizRoom = () => {
   if (isResultRoute && questionId) {
     return (
       <Layout 
-        title={`Question ${questionId} Results`}
-        subtitle="Review student answers and continue to next question"
+        title={roomInfo?.quizName || "Quiz Room"}
+        subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
         <div className="max-w-7xl mx-auto px-4">
@@ -415,6 +484,40 @@ const TeacherQuizRoom = () => {
                       );
                     })}
                   </div>
+
+                  {/* Progress indicator below options */}
+                  {questionResults.currentQuestionIndex !== undefined && questionResults.totalQuestions !== undefined && (
+                    <div className="mb-6">
+                      <div className="max-w-4xl mx-auto">
+                        {/* Step Progress Bar with Dots */}
+                        <div className="flex items-center justify-center mb-3">
+                          {Array.from({ length: questionResults.totalQuestions }, (_, index) => (
+                            <div key={index} className="flex items-center">
+                              <div 
+                                className={`w-3 h-3 rounded-full ${
+                                  index <= questionResults.currentQuestionIndex 
+                                    ? 'bg-blue-600'   // Current and completed questions - blue
+                                    : 'bg-gray-300'   // Future questions - gray
+                                } transition-colors duration-300`}
+                              />
+                              {index < questionResults.totalQuestions - 1 && (
+                                <div 
+                                  className={`w-8 h-0.5 mx-1 ${
+                                    index < questionResults.currentQuestionIndex 
+                                      ? 'bg-blue-600' 
+                                      : 'bg-gray-300'
+                                  } transition-colors duration-300`}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-center text-gray-600 text-sm">
+                          Question {questionResults.currentQuestionIndex + 1} of {questionResults.totalQuestions}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Player Results Table */}
                   {questionResults.playerAnswers.length > 0 && (
@@ -556,8 +659,8 @@ const TeacherQuizRoom = () => {
   if (error) {
     return (
       <Layout 
-        title="Quiz Room Error"
-        subtitle="There was an error accessing the quiz room"
+        title={roomInfo?.quizName || "Quiz Room"}
+        subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -583,8 +686,8 @@ const TeacherQuizRoom = () => {
   if (quizEnded) {
     return (
       <Layout 
-        title="Quiz Complete"
-        subtitle="View final rankings and download results"
+        title={roomInfo?.quizName || "Quiz Room"}
+        subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
         <div className="max-w-7xl mx-auto px-4">
@@ -723,8 +826,8 @@ const TeacherQuizRoom = () => {
   if (!currentQuestion) {
     return (
       <Layout 
-        title="Ready to Start Quiz"
-        subtitle={`Room ID: ${roomId} • Students are ready`}
+        title={roomInfo?.quizName || "Quiz Room"}
+        subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
         <div className="max-w-7xl mx-auto px-4">
@@ -768,45 +871,12 @@ const TeacherQuizRoom = () => {
 
   return (
     <Layout 
-      title={`Question ${currentQuestion?.currentQuestionIndex ? currentQuestion.currentQuestionIndex + 1 : 1}`}
-      subtitle={`Room ID: ${roomId} • ${timeRemaining}s remaining`}
+      title={roomInfo?.quizName || "Quiz Room"}
+      subtitle={`Room ID: ${roomId}`}
       showLogout={true}
     >
       <div className="max-w-7xl mx-auto px-4">
-
-      {/* Question Progress */}
-      <div className="mb-6">
         <div className="max-w-4xl mx-auto">
-          {/* Step Progress Bar with Dots */}
-          <div className="flex items-center justify-center mb-3">
-            {Array.from({ length: currentQuestion.totalQuestions }, (_, index) => (
-              <div key={index} className="flex items-center">
-                <div 
-                  className={`w-3 h-3 rounded-full ${
-                    index <= currentQuestion.currentQuestionIndex 
-                      ? 'bg-blue-600'   // Current and completed questions - blue
-                      : 'bg-gray-300'   // Future questions - gray
-                  } transition-colors duration-300`}
-                />
-                {index < currentQuestion.totalQuestions - 1 && (
-                  <div 
-                    className={`w-8 h-0.5 mx-1 ${
-                      index < currentQuestion.currentQuestionIndex 
-                        ? 'bg-blue-600' 
-                        : 'bg-gray-300'
-                    } transition-colors duration-300`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-gray-600 text-sm">
-            Question {currentQuestion.currentQuestionIndex + 1} of {currentQuestion.totalQuestions}
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto">
         {/* Current Question */}
         <div className="bg-white rounded-lg border border-gray-200">
           <div 
@@ -871,13 +941,41 @@ const TeacherQuizRoom = () => {
               )}
             </div>
 
+            {/* Question Progress - Moved below options */}
+            <div className="mb-6">
+              <div className="max-w-4xl mx-auto">
+                {/* Step Progress Bar with Dots */}
+                <div className="flex items-center justify-center mb-3">
+                  {Array.from({ length: currentQuestion.totalQuestions }, (_, index) => (
+                    <div key={index} className="flex items-center">
+                      <div 
+                        className={`w-3 h-3 rounded-full ${
+                          index <= currentQuestion.currentQuestionIndex 
+                            ? 'bg-blue-600'   // Current and completed questions - blue
+                            : 'bg-gray-300'   // Future questions - gray
+                        } transition-colors duration-300`}
+                      />
+                      {index < currentQuestion.totalQuestions - 1 && (
+                        <div 
+                          className={`w-8 h-0.5 mx-1 ${
+                            index < currentQuestion.currentQuestionIndex 
+                              ? 'bg-blue-600' 
+                              : 'bg-gray-300'
+                          } transition-colors duration-300`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-gray-600 text-sm">
+                  Question {currentQuestion.currentQuestionIndex + 1} of {currentQuestion.totalQuestions}
+                </p>
+              </div>
+            </div>
+
             {/* Question Controls */}
             <div className="mt-6">
-              {!questionResults ? (
-                <div className="text-center py-4">
-                  {/* No loading indicator needed */}
-                </div>
-              ) : (
+              {questionResults && (
                 <div className="w-full">
                   {currentQuestion.currentQuestionIndex + 1 < currentQuestion.totalQuestions ? (
                     <button 

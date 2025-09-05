@@ -30,6 +30,17 @@ interface QuizState {
   currentQuestionIndex: number;
 }
 
+interface RoomInfo {
+  roomId: string;
+  quizName: string;
+  students: Array<{
+    socketId: string;
+    studentId: string;
+    name: string;
+    joinedAt: number;
+  }>;
+}
+
 export default function StudentQuizRoom() {
   const { roomId, questionId } = useParams<{ roomId: string; questionId?: string }>();
   const navigate = useNavigate();
@@ -46,6 +57,7 @@ export default function StudentQuizRoom() {
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const [sessionValid, setSessionValid] = useState<boolean>(false);
   const [waitingForNext, setWaitingForNext] = useState<boolean>(false);
+  const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null);
 
   // Get current route state
   const isQuestionRoute = location.pathname.includes('/question/');
@@ -143,11 +155,21 @@ export default function StudentQuizRoom() {
         studentId: getStoredSession()?.studentId || null
       });
 
+      // Request room info to get quiz name
+      if (socket) {
+        socket.emit('get_room_info', { roomId: joinedRoomId });
+      }
+
       if (!isActive) {
         // Quiz hasn't started, go to waiting room
         navigate(`/student/room/${joinedRoomId}/waiting`);
       }
       // If quiz is active, wait for new_question event to handle navigation
+    };
+
+    const handleRoomInfo = (data: RoomInfo) => {
+      console.log('Student received room info:', data);
+      setRoomInfo(data);
     };
 
     const handleNewQuestion = (data: NewQuestionData) => {
@@ -261,6 +283,7 @@ export default function StudentQuizRoom() {
     };
 
     // Register event listeners
+    socket.on('room_info', handleRoomInfo);
     socket.on('joined_room', handleJoinedRoom);
     socket.on('new_question', handleNewQuestion);
     socket.on('question_ended', handleQuestionEnded);
@@ -268,6 +291,7 @@ export default function StudentQuizRoom() {
     socket.on('join_error', handleJoinError);
 
     return () => {
+      socket.off('room_info', handleRoomInfo);
       socket.off('joined_room', handleJoinedRoom);
       socket.off('new_question', handleNewQuestion);
       socket.off('question_ended', handleQuestionEnded);
@@ -316,8 +340,8 @@ export default function StudentQuizRoom() {
   if (!sessionValid) {
     return (
       <Layout 
-        title="Loading..."
-        subtitle="Validating your session..."
+        title={roomInfo?.quizName || "Quiz Room"}
+        subtitle={`Room ID: ${roomId}`}
       >
         <div className="max-w-7xl mx-auto px-4 mt-8">
           <div className="text-center">
@@ -335,7 +359,7 @@ export default function StudentQuizRoom() {
   if (isSubmitRoute) {
     return (
       <Layout 
-        title="Answer Submitted"
+        title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
         <div className="max-w-7xl mx-auto px-4">
@@ -371,7 +395,7 @@ export default function StudentQuizRoom() {
   if (isResultRoute) {
     return (
       <Layout 
-        title="Question Results"
+        title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
         <div className="max-w-7xl mx-auto px-4">
@@ -447,42 +471,10 @@ export default function StudentQuizRoom() {
   if (isQuestionRoute && currentQuestion) {
     return (
       <Layout 
-        title={`Question ${currentQuestion.questionId}`}
+        title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
         <div className="max-w-7xl mx-auto px-4">
-
-        {/* Question Progress */}
-        <div className="mb-6">
-          <div className="max-w-4xl mx-auto">
-            {/* Step Progress Bar with Dots */}
-            <div className="flex items-center justify-center mb-3">
-              {Array.from({ length: totalQuestions }, (_, index) => (
-                <div key={index} className="flex items-center">
-                  <div 
-                    className={`w-3 h-3 rounded-full ${
-                      index <= currentQuestionIndex 
-                        ? 'bg-blue-600'   // Current and completed questions - blue
-                        : 'bg-gray-300'   // Future questions - gray
-                    } transition-colors duration-300`}
-                  />
-                  {index < totalQuestions - 1 && (
-                    <div 
-                      className={`w-8 h-0.5 mx-1 ${
-                        index < currentQuestionIndex 
-                          ? 'bg-blue-600' 
-                          : 'bg-gray-300'
-                      } transition-colors duration-300`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            <p className="text-center text-gray-600 text-sm">
-              Question {currentQuestionIndex + 1} of {totalQuestions}
-            </p>
-          </div>
-        </div>
 
         <div className="max-w-4xl mx-auto">
           {/* Current Question */}
@@ -536,6 +528,38 @@ export default function StudentQuizRoom() {
                 )}
               </div>
 
+              {/* Question Progress - Moved below options */}
+              <div className="mb-6">
+                <div className="max-w-4xl mx-auto">
+                  {/* Step Progress Bar with Dots */}
+                  <div className="flex items-center justify-center mb-3">
+                    {Array.from({ length: totalQuestions }, (_, index) => (
+                      <div key={index} className="flex items-center">
+                        <div 
+                          className={`w-3 h-3 rounded-full ${
+                            index <= currentQuestionIndex 
+                              ? 'bg-blue-600'   // Current and completed questions - blue
+                              : 'bg-gray-300'   // Future questions - gray
+                          } transition-colors duration-300`}
+                        />
+                        {index < totalQuestions - 1 && (
+                          <div 
+                            className={`w-8 h-0.5 mx-1 ${
+                              index < currentQuestionIndex 
+                                ? 'bg-blue-600' 
+                                : 'bg-gray-300'
+                            } transition-colors duration-300`}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-center text-gray-600 text-sm">
+                    Question {currentQuestionIndex + 1} of {totalQuestions}
+                  </p>
+                </div>
+              </div>
+
               {/* Score display at bottom */}
               {currentQuestionIndex > 0 && (
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
@@ -566,7 +590,7 @@ export default function StudentQuizRoom() {
   if (isQuestionRoute && !currentQuestion) {
     return (
       <Layout 
-        title="Loading Question..."
+        title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
         <div className="max-w-7xl mx-auto px-4 mt-8">
@@ -584,8 +608,8 @@ export default function StudentQuizRoom() {
   // Loading/validation state
   return (
     <Layout 
-      title="Loading Quiz..."
-      subtitle="Connecting to quiz room..."
+      title={roomInfo?.quizName || "Quiz Room"}
+      subtitle={`Room ID: ${roomId}`}
     >
       <div className="max-w-7xl mx-auto px-4 mt-8">
         <div className="text-center">

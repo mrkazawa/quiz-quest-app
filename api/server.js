@@ -139,6 +139,9 @@ try {
 // Store players in each room
 const rooms = {};
 
+// Track teacher sessions - maps socketId to teacherId
+const teacherSessions = {};
+
 // Socket.IO connection handler
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -511,11 +514,35 @@ io.on("connection", (socket) => {
 
   // Move to the next question
   socket.on("next_question", (roomId) => {
-    if (!rooms[roomId] || rooms[roomId].hostId !== socket.id) {
-      socket.emit("next_error", "Not authorized to advance quiz");
+    console.log(`Teacher ${socket.id} attempting to advance question in room ${roomId}`);
+    
+    if (!rooms[roomId]) {
+      console.log(`Room ${roomId} not found`);
+      socket.emit("next_error", "Room not found");
       return;
     }
 
+    const room = rooms[roomId];
+    console.log(`Room ${roomId} found. Current hostId: ${room.hostId}, requesting socket: ${socket.id}`);
+    console.log(`Teacher session ID: ${room.teacherSessionId}`);
+
+    // Check if this socket is authorized to control the room
+    if (room.hostId !== socket.id) {
+      console.log(`Authorization mismatch. Room hostId: ${room.hostId}, Socket ID: ${socket.id}`);
+      
+      // Try to auto-correct if this socket belongs to the same teacher session
+      // This can happen when the teacher navigates between pages and socket gets reconnected
+      const socketTeacherId = teacherSessions[socket.id];
+      if (socketTeacherId && room.teacherSessionId === socketTeacherId) {
+        console.log(`Auto-correcting hostId for same teacher session: ${socketTeacherId}`);
+        room.hostId = socket.id;
+      } else {
+        socket.emit("next_error", "Not authorized to advance quiz");
+        return;
+      }
+    }
+
+    console.log(`Authorization confirmed for room ${roomId}, proceeding with next question`);
     moveToNextQuestion(roomId);
   });
 
@@ -674,6 +701,21 @@ io.on("connection", (socket) => {
       return;
     }
 
+    const room = rooms[roomId];
+
+    // Handle completed rooms (quiz ended but room still exists for final results)
+    if (room.isCompleted) {
+      socket.emit("teacher_joined_completed_room", {
+        roomId,
+        isCompleted: true,
+        historyId: roomId,
+      });
+      console.log(
+        `Teacher ${socket.id} joined completed room ${roomId} for final results`
+      );
+      return;
+    }
+
     // Check if this is the same teacher based on teacher ID
     const isSameTeacher = rooms[roomId].teacherSessionId === teacherId;
 
@@ -694,6 +736,8 @@ io.on("connection", (socket) => {
     rooms[roomId].hostId = socket.id;
     // Update teacher session ID (in case it changed)
     rooms[roomId].teacherSessionId = teacherId;
+    // Track this teacher's session
+    teacherSessions[socket.id] = teacherId;
     socket.join(roomId);
 
     console.log(
@@ -787,6 +831,9 @@ io.on("connection", (socket) => {
   // Disconnect handler
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+
+    // Clean up teacher session mapping
+    delete teacherSessions[socket.id];
 
     // Remove socket mapping and handle disconnection
     for (const roomId in rooms) {
@@ -1115,9 +1162,18 @@ function endQuiz(roomId) {
     rooms[roomId].timer = null;
   }
 
-  // Delete the room immediately after quiz ends
-  delete rooms[roomId];
-  console.log(`Room ${roomId} was deleted after quiz ended`);
+  // Mark room as completed but don't delete immediately
+  // This allows teacher to view final results
+  rooms[roomId].isCompleted = true;
+  rooms[roomId].completedAt = Date.now();
+
+  // Set a delayed deletion timer (5 minutes) to clean up the room
+  rooms[roomId].deletionTimer = setTimeout(() => {
+    console.log(`Cleaning up completed room ${roomId} after timeout`);
+    delete rooms[roomId];
+  }, 5 * 60 * 1000); // 5 minutes
+  
+  console.log(`Room ${roomId} marked as completed, will be cleaned up in 5 minutes`);
 };
 
 // Authentication middleware

@@ -35,6 +35,7 @@ export interface ServerToClientEvents {
   quiz_ended: (data: { message?: string; historyId?: string }) => void;
   answer_result: (data: { isCorrect: boolean; pointsEarned: number; streak: number; totalScore: number }) => void;
   answer_error: (message: string) => void;
+  next_error: (message: string) => void;
   player_answered: (data: { playerId: string; playerName: string; studentId: string; answerId: number; timeTaken: number }) => void;
   teacher_joined_room: (data: TeacherJoinedRoomData) => void;
   teacher_joined_completed_room: (data: { roomId: string; isCompleted: boolean; historyId: string }) => void;
