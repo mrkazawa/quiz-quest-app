@@ -43,6 +43,7 @@ export default function StudentQuizRoom() {
   const [streak, setStreak] = useState<number>(0);
   const [hasAnswered, setHasAnswered] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const [sessionValid, setSessionValid] = useState<boolean>(false);
   const [waitingForNext, setWaitingForNext] = useState<boolean>(false);
 
@@ -159,6 +160,7 @@ export default function StudentQuizRoom() {
         currentScore: serverScore,
         currentStreak: serverStreak,
         currentQuestionIndex: serverQuestionIndex,
+        totalQuestions: serverTotalQuestions,
         hasAnswered: serverHasAnswered,
         questionExpired: serverQuestionExpired,
       } = data;
@@ -167,7 +169,7 @@ export default function StudentQuizRoom() {
       setCurrentQuestion({
         questionId: newQuestionId.toString(),
         question,
-        options,
+        options: options || [], // Provide fallback empty array
         timeLimit,
         remainingTime,
       });
@@ -176,6 +178,7 @@ export default function StudentQuizRoom() {
       setScore(serverScore || 0);
       setStreak(serverStreak || 0);
       setCurrentQuestionIndex(serverQuestionIndex || 0);
+      setTotalQuestions(serverTotalQuestions || 0);
       setHasAnswered(serverHasAnswered || false);
       setWaitingForNext(false);
 
@@ -440,7 +443,7 @@ export default function StudentQuizRoom() {
     );
   }
 
-  // Question Screen
+    // Question Screen
   if (isQuestionRoute && currentQuestion) {
     return (
       <Layout 
@@ -448,62 +451,130 @@ export default function StudentQuizRoom() {
         subtitle={`Room ID: ${roomId}`}
       >
         <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            {/* Progress and Timer */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm font-medium text-gray-700">
-                  Question {currentQuestionIndex + 1}
-                </span>
-              </div>
-              <div className="timer-display">
-                {timeLeft}s
-              </div>
-            </div>
 
-            {/* Question Text */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold text-center text-gray-900">
-                {currentQuestion.question}
-              </h2>
-            </div>
-
-            {/* Options - 2x2 grid for 4 options */}
-            <div className="student-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {currentQuestion.options?.map((option, index) => (
-                <button
-                  key={index}
-                  className={`option-btn option-${index} ${hasAnswered ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={() => submitAnswer(index)}
-                  disabled={hasAnswered}
-                >
-                  {option}
-                </button>
-              )) || (
-                <div className="col-span-full text-center text-gray-500">
-                  No options available
+        {/* Question Progress */}
+        <div className="mb-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Step Progress Bar with Dots */}
+            <div className="flex items-center justify-center mb-3">
+              {Array.from({ length: totalQuestions }, (_, index) => (
+                <div key={index} className="flex items-center">
+                  <div 
+                    className={`w-3 h-3 rounded-full ${
+                      index <= currentQuestionIndex 
+                        ? 'bg-blue-600'   // Current and completed questions - blue
+                        : 'bg-gray-300'   // Future questions - gray
+                    } transition-colors duration-300`}
+                  />
+                  {index < totalQuestions - 1 && (
+                    <div 
+                      className={`w-8 h-0.5 mx-1 ${
+                        index < currentQuestionIndex 
+                          ? 'bg-blue-600' 
+                          : 'bg-gray-300'
+                      } transition-colors duration-300`}
+                    />
+                  )}
                 </div>
-              )}
+              ))}
             </div>
+            <p className="text-center text-gray-600 text-sm">
+              Question {currentQuestionIndex + 1} of {totalQuestions}
+            </p>
+          </div>
+        </div>
 
-            {/* Score display at bottom */}
-            {currentQuestionIndex > 0 && (
-              <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                <div className="text-lg font-semibold text-gray-900">
-                  Current Score: <span className="text-blue-600">{score}</span>
+        <div className="max-w-4xl mx-auto">
+          {/* Current Question */}
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div 
+              className="bg-blue-600 text-white rounded-t-lg px-6 py-4"
+            >
+              <div className="flex justify-between items-center">
+                <h4 className="text-lg font-semibold">Question {currentQuestionIndex + 1}</h4>
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{timeLeft}s</div>
                 </div>
-                {streak > 1 && (
-                  <div className="flex items-center space-x-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                      </svg>
-                      {streak}x Streak!
-                    </span>
+              </div>
+              <div className="mt-3 bg-white bg-opacity-20 rounded-full h-2">
+                <div
+                  className="bg-blue-300 h-2 rounded-full transition-all duration-1000"
+                  style={{ 
+                    width: `${(timeLeft / (currentQuestion.timeLimit || 30)) * 100}%`
+                  }}
+                ></div>
+              </div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-center mb-6">{currentQuestion.question}</h3>
+
+              {/* Answer Options - Student View (With interaction) */}
+              <div className="student-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {currentQuestion?.options?.map((option, index) => (
+                  <button
+                    key={index}
+                    className={`option-btn option-${index} w-full text-white ${hasAnswered ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={() => submitAnswer(index)}
+                    disabled={hasAnswered}
+                    style={{ 
+                      minHeight: '96px',
+                      backgroundColor: (
+                        index === 0 ? '#ef4444' : // red-500
+                        index === 1 ? '#3b82f6' : // blue-500  
+                        index === 2 ? '#eab308' : // yellow-500
+                        index === 3 ? '#22c55e' : // green-500
+                        '#6b7280' // gray-500 fallback
+                      )
+                    }}
+                  >
+                    {option}
+                  </button>
+                )) || (
+                  <div className="col-span-full text-center text-gray-500">
+                    Loading options...
                   </div>
                 )}
               </div>
-            )}
+
+              {/* Score display at bottom */}
+              {currentQuestionIndex > 0 && (
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <div className="text-lg font-semibold text-gray-900">
+                    Current Score: <span className="text-blue-600">{score}</span>
+                  </div>
+                  {streak > 1 && (
+                    <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 717 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                        </svg>
+                        {streak}x Streak!
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // If on question route but no question data yet, show loading
+  if (isQuestionRoute && !currentQuestion) {
+    return (
+      <Layout 
+        title="Loading Question..."
+        subtitle={`Room ID: ${roomId}`}
+      >
+        <div className="max-w-7xl mx-auto px-4 mt-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
+              <span className="sr-only">Loading...</span>
+            </div>
+            <p className="mt-4 text-gray-600">Loading question...</p>
           </div>
         </div>
       </Layout>
