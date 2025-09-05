@@ -343,12 +343,12 @@ const TeacherQuizRoom = () => {
         subtitle="Loading quiz..."
         showLogout={true}
       >
-        <div className="container py-5">
+        <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
+              <span className="sr-only">Loading...</span>
             </div>
-            <p className="mt-2">
+            <p className="mt-4 text-gray-600">
               {!socket ? 'Connecting...' : 
                !socket.connected ? 'Connecting to quiz room...' : 
                'Loading quiz...'}
@@ -367,158 +367,182 @@ const TeacherQuizRoom = () => {
         subtitle="Review student answers and continue to next question"
         showLogout={true}
       >
-        <div className="container">
-          <div className="row">
-            <div className="col-md-8 offset-md-2">
-              <div className="card">
-                <div className="card-header bg-success text-white">
-                  <h4 className="mb-0">
-                    <i className="bi bi-bar-chart-fill me-2"></i>
-                    Question {questionId} Results
-                  </h4>
-                </div>
-                <div className="card-body">
-                {questionResults && questionResults.question && questionResults.options ? (
-                  <div>
-                    {/* Question Display */}
-                    <div className="text-center mb-4">
-                      <h3 className="mb-4">{questionResults.question}</h3>
-                    </div>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="bg-green-600 text-white rounded-t-lg px-6 py-4">
+                <h4 className="text-xl font-semibold mb-0 flex items-center">
+                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Question {questionId} Results
+                </h4>
+              </div>
+              <div className="p-6">
+              {questionResults && questionResults.question && questionResults.options ? (
+                <div>
+                  {/* Question Display */}
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-semibold mb-4">{questionResults.question}</h3>
+                  </div>
 
-                    {/* Answer Options with Correct Answer Highlighted - 2x2 Grid */}
-                    <div className="row mb-4">
-                      {questionResults.options.map((option: string, index: number) => {
-                        const isCorrect = index === questionResults.correctAnswer;
-                        
-                        return (
-                          <div key={index} className="col-6 mb-3">
-                            <div
-                              className={`option-btn option-${index} btn w-100 text-white d-flex align-items-center justify-content-center ${isCorrect ? 'correct-answer' : ''}`}
-                              style={{ 
-                                cursor: 'default',
-                                height: '100px',
-                                fontSize: '1.1rem',
-                                padding: '12px'
-                              }}
-                            >
-                              {isCorrect && (
-                                <span className="correct-indicator me-2">
-                                  <i className="bi bi-check-circle-fill" style={{ fontSize: '1.5rem', color: '#ffffff' }}></i>
-                                </span>
-                              )}
-                              <span className="text-center">{option}</span>
-                            </div>
+                  {/* Answer Options with Correct Answer Highlighted - 2x2 Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {questionResults.options.map((option: string, index: number) => {
+                      const isCorrect = index === questionResults.correctAnswer;
+                      
+                      return (
+                        <div key={index}>
+                          <div
+                            className={`option-btn option-${index} w-full text-white flex items-center justify-center ${isCorrect ? 'correct-answer' : ''}`}
+                            style={{ 
+                              cursor: 'default',
+                              height: '100px',
+                              fontSize: '1.1rem',
+                              padding: '12px'
+                            }}
+                          >
+                            {isCorrect && (
+                              <span className="mr-2">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </span>
+                            )}
+                            <span className="text-center">{option}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Player Results Table */}
-                    {questionResults.playerAnswers.length > 0 && (
-                      <div className="mt-4">
-                        <h5 className="mb-3">
-                          <i className="bi bi-people-fill me-2"></i>
-                          Student Results ({questionResults.playerAnswers.length} students)
-                        </h5>
-                        <div className="table-responsive">
-                          <table className="table table-hover">
-                            <thead className="table-light">
-                              <tr>
-                                <th scope="col">Student</th>
-                                <th scope="col">Their Answer</th>
-                                <th scope="col">Result</th>
-                                <th scope="col" className="text-end">Score</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {questionResults.playerAnswers
-                                .sort((a, b) => b.score - a.score) // Sort by score descending
-                                .map((answer, index) => (
-                                <tr key={index}>
-                                  <td>
-                                    <div>
-                                      <strong>{answer.playerName}</strong>
-                                      {answer.studentId && (
-                                        <div className="text-muted small">ID: {answer.studentId}</div>
-                                      )}
-                                    </div>
-                                  </td>
-                                  <td>
-                                    {answer.answerId !== null ? (
-                                      <span className={`badge ${answer.isCorrect ? 'bg-success' : 'bg-danger'} fs-6`}>
-                                        Option {answer.answerId + 1}
-                                      </span>
-                                    ) : (
-                                      <span className="badge bg-secondary fs-6">No answer</span>
-                                    )}
-                                  </td>
-                                  <td>
-                                    {answer.isCorrect ? (
-                                      <span className="text-success fw-semibold">
-                                        <i className="bi bi-check-circle-fill me-1"></i>
-                                        Correct
-                                      </span>
-                                    ) : (
-                                      <span className="text-danger fw-semibold">
-                                        <i className="bi bi-x-circle-fill me-1"></i>
-                                        Wrong
-                                      </span>
-                                    )}
-                                  </td>
-                                  <td className="text-end">
-                                    <strong className="text-primary">{answer.score} pts</strong>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
                         </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Player Results Table */}
+                  {questionResults.playerAnswers.length > 0 && (
+                    <div className="mt-6">
+                      <h5 className="text-lg font-semibold mb-4 flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Student Results ({questionResults.playerAnswers.length} students)
+                      </h5>
+                      <div className="overflow-x-auto">
+                        <table className="w-full bg-white rounded-lg overflow-hidden border border-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Their Answer</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {questionResults.playerAnswers
+                              .sort((a, b) => b.score - a.score) // Sort by score descending
+                              .map((answer, index) => (
+                              <tr key={index} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div>
+                                    <div className="font-semibold text-gray-900">{answer.playerName}</div>
+                                    {answer.studentId && (
+                                      <div className="text-sm text-gray-500">ID: {answer.studentId}</div>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {answer.answerId !== null ? (
+                                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${answer.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                      Option {answer.answerId + 1}
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">No answer</span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {answer.isCorrect ? (
+                                    <span className="text-green-600 font-semibold flex items-center">
+                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      Correct
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-600 font-semibold flex items-center">
+                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                      Wrong
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                  <span className="font-semibold text-blue-600">{answer.score} pts</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <i className="bi bi-arrow-clockwise display-4 text-info mb-3"></i>
-                    <h5>Page Refreshed</h5>
-                    <p className="text-muted">Question results data is not available after page refresh.</p>
-                    <p className="text-muted">The quiz is still active. Use "Next Question" to continue.</p>
-                  </div>
-                )}
-                
-                <div className="text-center mt-4">
-                  <div className="d-flex gap-3 justify-content-center">
-                    <button 
-                      className="btn btn-success btn-lg px-4"
-                      onClick={nextQuestion}
-                    >
-                      <i className={`bi ${
-                        questionResults && 
-                        questionResults.currentQuestionIndex !== undefined && 
-                        questionResults.totalQuestions !== undefined &&
-                        (questionResults.currentQuestionIndex + 1) >= questionResults.totalQuestions
-                          ? 'bi-trophy' : 'bi-arrow-right'
-                      } me-2`}></i>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <svg className="w-16 h-16 text-blue-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <h5 className="text-lg font-semibold text-gray-900 mb-2">Page Refreshed</h5>
+                  <p className="text-gray-600 mb-2">Question results data is not available after page refresh.</p>
+                  <p className="text-gray-600">The quiz is still active. Use "Next Question" to continue.</p>
+                </div>
+              )}
+              
+              <div className="text-center mt-6">
+                <div className="flex flex-wrap gap-3 justify-center">
+                  <button 
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
+                    onClick={nextQuestion}
+                  >
+                    <svg className={`w-5 h-5 mr-2 ${
+                      questionResults && 
+                      questionResults.currentQuestionIndex !== undefined && 
+                      questionResults.totalQuestions !== undefined &&
+                      (questionResults.currentQuestionIndex + 1) >= questionResults.totalQuestions
+                        ? '' : ''
+                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       {questionResults && 
                        questionResults.currentQuestionIndex !== undefined && 
                        questionResults.totalQuestions !== undefined &&
-                       (questionResults.currentQuestionIndex + 1) >= questionResults.totalQuestions
-                        ? 'Finalize Quiz' : 'Next Question'}
-                    </button>
-                    <button 
-                      className="btn btn-danger"
-                      onClick={endQuiz}
-                    >
-                      <i className="bi bi-stop-fill me-2"></i>
-                      End Quiz
-                    </button>
-                    <button 
-                      className="btn btn-outline-secondary"
-                      onClick={backToDashboard}
-                    >
-                      <i className="bi bi-house me-2"></i>
-                      Dashboard
-                    </button>
-                  </div>
+                       (questionResults.currentQuestionIndex + 1) >= questionResults.totalQuestions ? (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      ) : (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      )}
+                    </svg>
+                    {questionResults && 
+                     questionResults.currentQuestionIndex !== undefined && 
+                     questionResults.totalQuestions !== undefined &&
+                     (questionResults.currentQuestionIndex + 1) >= questionResults.totalQuestions
+                      ? 'Finalize Quiz' : 'Next Question'}
+                  </button>
+                  <button 
+                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
+                    onClick={endQuiz}
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                    </svg>
+                    End Quiz
+                  </button>
+                  <button 
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
+                    onClick={backToDashboard}
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m0 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10M9 21h6" />
+                    </svg>
+                    Dashboard
+                  </button>
                 </div>
               </div>
             </div>
@@ -536,12 +560,16 @@ const TeacherQuizRoom = () => {
         subtitle="There was an error accessing the quiz room"
         showLogout={true}
       >
-        <div className="container py-5">
-          <div className="alert alert-danger">
-            <i className="bi bi-exclamation-triangle me-2"></i>
-            {error}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span>{error}</span>
+            </div>
             <button 
-              className="btn btn-primary ms-3"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-200 mt-3"
               onClick={() => navigate('/teacher/dashboard')}
             >
               Back to Dashboard
@@ -559,123 +587,129 @@ const TeacherQuizRoom = () => {
         subtitle="View final rankings and download results"
         showLogout={true}
       >
-        <div className="container">
-          <div className="row">
-            <div className="col-md-8 offset-md-2">
-              <div className="card">
-              <div className="card-body">
-                <div className="alert alert-success mb-4">
-                  <i className="bi bi-check-circle-fill me-2"></i>
-                  Quiz has ended successfully! Results have been saved to history.
-                </div>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg border border-gray-200">
+            <div className="p-6">
+              <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg mb-6 flex items-center">
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Quiz has ended successfully! Results have been saved to history.
+              </div>
 
-                {quizRankings && (
-                  <div className="mb-3">
-                    <h4>{quizRankings.quizName}</h4>
-                    <p className="text-muted">
-                      {new Date(quizRankings.dateCompleted).toLocaleDateString()} {new Date(quizRankings.dateCompleted).toLocaleTimeString()} •{' '}
-                      {quizRankings.playerCount} players
-                    </p>
+              {quizRankings && (
+                <div className="mb-6">
+                  <h4 className="text-xl font-semibold text-gray-900">{quizRankings.quizName}</h4>
+                  <p className="text-gray-600">
+                    {new Date(quizRankings.dateCompleted).toLocaleDateString()} {new Date(quizRankings.dateCompleted).toLocaleTimeString()} •{' '}
+                    {quizRankings.playerCount} players
+                  </p>
+                </div>
+              )}
+
+              <div className="mb-6">
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">Final Rankings</h4>
+                {quizRankings && quizRankings.rankings.length > 0 ? (
+                  <div className="overflow-x-auto mb-6">
+                    <table className="w-full bg-white rounded-lg overflow-hidden border border-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {quizRankings.rankings.map((player, index) => (
+                          <tr key={index} className={`
+                            ${index === 0 ? 'bg-yellow-50' : // Gold for 1st place
+                            index === 1 ? 'bg-gray-50' : // Silver for 2nd place  
+                            index === 2 ? 'bg-orange-50' : 'hover:bg-gray-50'} // Bronze for 3rd place
+                          `}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <span className="font-semibold">#{player.rank}</span>
+                                {index === 0 && <svg className="w-5 h-5 text-yellow-500 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                  <path fillRule="evenodd" d="M10 2C5.582 2 2 5.582 2 10s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 7a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1zm1 4a1 1 0 100 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
+                                </svg>}
+                                {index === 1 && <svg className="w-5 h-5 text-gray-500 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                  <path fillRule="evenodd" d="M10 2C5.582 2 2 5.582 2 10s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" clipRule="evenodd" />
+                                </svg>}
+                                {index === 2 && <svg className="w-5 h-5 text-orange-500 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                  <path fillRule="evenodd" d="M10 2C5.582 2 2 5.582 2 10s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" clipRule="evenodd" />
+                                </svg>}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div>
+                                <div className="font-semibold text-gray-900">{player.playerName}</div>
+                                {player.studentId && (
+                                  <div className="text-sm text-gray-500">ID: {player.studentId}</div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="font-semibold text-blue-600">{player.score} pts</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="bg-blue-50 border border-blue-200 text-blue-800 px-6 py-4 rounded-lg flex items-center">
+                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {quizRankings ? 'No students participated in this quiz.' : 'Loading rankings...'}
                   </div>
                 )}
-
-                <div className="mb-4">
-                  <h4>Final Rankings</h4>
-                  {quizRankings && quizRankings.rankings.length > 0 ? (
-                    <div className="table-responsive mb-3">
-                      <table className="table ranking-table">
-                        <thead>
-                          <tr>
-                            <th>Rank</th>
-                            <th>Player</th>
-                            <th>Score</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {quizRankings.rankings.map((player, index) => (
-                            <tr key={index} className={
-                              index === 0 ? 'table-warning' : // Gold for 1st place
-                              index === 1 ? 'table-secondary' : // Silver for 2nd place  
-                              index === 2 ? 'table-warning' : '' // Bronze for 3rd place
-                            }>
-                              <td>
-                                <strong>#{player.rank}</strong>
-                                {index === 0 && <i className="bi bi-trophy-fill text-warning ms-2"></i>}
-                                {index === 1 && <i className="bi bi-award-fill text-secondary ms-2"></i>}
-                                {index === 2 && <i className="bi bi-award-fill text-warning ms-2"></i>}
-                              </td>
-                              <td>
-                                <strong>{player.playerName}</strong>
-                                {player.studentId && (
-                                  <small className="d-block text-muted">ID: {player.studentId}</small>
-                                )}
-                              </td>
-                              <td>
-                                <strong className="text-primary">{player.score} pts</strong>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="alert alert-info">
-                      <i className="bi bi-info-circle me-2"></i>
-                      {quizRankings ? 'No students participated in this quiz.' : 'Loading rankings...'}
-                    </div>
-                  )}
-                  
-                  <div className="d-flex" style={{ width: '100%' }}>
-                    <button 
-                      className="btn btn-lg btn-primary flex-grow-1 me-2"
-                      onClick={() => navigate('/teacher/dashboard')}
-                      style={{
-                        minWidth: 0,
-                        flexBasis: 0,
-                        flexShrink: 1,
-                        flexGrow: 3
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button 
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+                    onClick={() => navigate('/teacher/dashboard')}
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Start New Quiz
+                  </button>
+                  {quizRankings && (
+                    <button
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+                      onClick={() => {
+                        // Create CSV content
+                        const csvContent = [
+                          ['Rank', 'Player Name', 'Student ID', 'Score'],
+                          ...quizRankings.rankings.map(player => [
+                            player.rank,
+                            player.playerName,
+                            player.studentId || 'N/A',
+                            player.score
+                          ])
+                        ].map(row => row.join(',')).join('\n');
+                        
+                        // Download CSV
+                        const blob = new Blob([csvContent], { type: 'text/csv' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `quiz-results-${quizRankings.roomId}.csv`;
+                        a.click();
+                        window.URL.revokeObjectURL(url);
                       }}
                     >
-                      <i className="bi bi-arrow-repeat me-2"></i>
-                      Start New Quiz
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download CSV
                     </button>
-                    {quizRankings && (
-                      <button
-                        className="btn btn-outline-secondary btn-sm"
-                        style={{
-                          whiteSpace: 'nowrap',
-                          flexBasis: 0,
-                          flexShrink: 1,
-                          flexGrow: 1,
-                          minWidth: '120px'
-                        }}
-                        onClick={() => {
-                          // Create CSV content
-                          const csvContent = [
-                            ['Rank', 'Player Name', 'Student ID', 'Score'],
-                            ...quizRankings.rankings.map(player => [
-                              player.rank,
-                              player.playerName,
-                              player.studentId || 'N/A',
-                              player.score
-                            ])
-                          ].map(row => row.join(',')).join('\n');
-                          
-                          // Download CSV
-                          const blob = new Blob([csvContent], { type: 'text/csv' });
-                          const url = window.URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `quiz-results-${quizRankings.roomId}.csv`;
-                          a.click();
-                          window.URL.revokeObjectURL(url);
-                        }}
-                      >
-                        <i className="bi bi-download me-2"></i>
-                        Download CSV
-                      </button>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -693,29 +727,35 @@ const TeacherQuizRoom = () => {
         subtitle={`Room ID: ${roomId} • Students are ready`}
         showLogout={true}
       >
-        <div className="container">
-          <div className="card">
-          <div className="card-body text-center py-5">
-            <div className="mb-4">
-              <i className="bi bi-play-circle display-1 text-primary"></i>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-white rounded-lg border border-gray-200">
+          <div className="p-8 text-center">
+            <div className="mb-6">
+              <svg className="w-24 h-24 text-blue-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <h3 className="mb-3">Ready to Start Quiz</h3>
-            <p className="text-muted mb-4">Room ID: <strong>{roomId}</strong></p>
-            <p className="text-muted mb-4">Students are waiting for you to begin...</p>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Ready to Start Quiz</h3>
+            <p className="text-gray-600 mb-2">Room ID: <span className="font-semibold">{roomId}</span></p>
+            <p className="text-gray-600 mb-6">Students are waiting for you to begin...</p>
             
-            <div className="d-flex gap-3 justify-content-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
-                className="btn btn-success btn-lg px-5"
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors duration-200 flex items-center justify-center"
                 onClick={startQuiz}
               >
-                <i className="bi bi-play-fill me-2"></i>
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 Start Quiz
               </button>
               <button 
-                className="btn btn-outline-secondary"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-4 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
                 onClick={backToDashboard}
               >
-                <i className="bi bi-arrow-left me-2"></i>
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
                 Back to Dashboard
               </button>
             </div>
@@ -732,108 +772,136 @@ const TeacherQuizRoom = () => {
       subtitle={`Room ID: ${roomId} • ${timeRemaining}s remaining`}
       showLogout={true}
     >
-      <div className="container">
+      <div className="max-w-7xl mx-auto px-4">
 
       {/* Question Progress */}
-      <div className="row mb-4">
-        <div className="col-lg-10 mx-auto">
-          <div className="progress mb-2" style={{ height: '12px' }}>
-            <div 
-              className="progress-bar bg-primary" 
-              style={{ 
-                width: `${((currentQuestion.currentQuestionIndex + 1) / currentQuestion.totalQuestions) * 100}%` 
-              }}
-            ></div>
+      <div className="mb-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Step Progress Bar with Dots */}
+          <div className="flex items-center justify-center mb-3">
+            {Array.from({ length: currentQuestion.totalQuestions }, (_, index) => (
+              <div key={index} className="flex items-center">
+                <div 
+                  className={`w-3 h-3 rounded-full ${
+                    index <= currentQuestion.currentQuestionIndex 
+                      ? 'bg-blue-600'   // Current and completed questions - blue
+                      : 'bg-gray-300'   // Future questions - gray
+                  } transition-colors duration-300`}
+                />
+                {index < currentQuestion.totalQuestions - 1 && (
+                  <div 
+                    className={`w-8 h-0.5 mx-1 ${
+                      index < currentQuestion.currentQuestionIndex 
+                        ? 'bg-blue-600' 
+                        : 'bg-gray-300'
+                    } transition-colors duration-300`}
+                  />
+                )}
+              </div>
+            ))}
           </div>
-          <p className="text-center text-muted mb-0">
+          <p className="text-center text-gray-600 text-sm">
             Question {currentQuestion.currentQuestionIndex + 1} of {currentQuestion.totalQuestions}
           </p>
         </div>
       </div>
 
-      <div className="row">
+      <div className="max-w-4xl mx-auto">
         {/* Current Question */}
-        <div className="col-md-8 offset-md-2">
-          <div className="card">
-            <div 
-              className="card-header bg-primary"
-              style={{ color: '#000000' }}
-            >
-              <div className="d-flex justify-content-between align-items-center">
-                <h4>Question {currentQuestion.currentQuestionIndex + 1}</h4>
-                <div className="h3">{timeRemaining}s</div>
-              </div>
-              <div className="progress">
-                <div
-                  className="timer-bar progress-bar"
-                  style={{ 
-                    width: `${(timeRemaining / currentQuestion.timeLimit) * 100}%`,
-                    backgroundColor: '#3498db'
-                  }}
-                ></div>
+        <div className="bg-white rounded-lg border border-gray-200">
+          <div 
+            className="bg-blue-600 text-white rounded-t-lg px-6 py-4"
+          >
+            <div className="flex justify-between items-center">
+              <h4 className="text-lg font-semibold">Question {currentQuestion.currentQuestionIndex + 1}</h4>
+              <div className="text-right">
+                <div className="text-2xl font-bold">{timeRemaining}s</div>
               </div>
             </div>
-            <div className="card-body">
-              <h3 className="mb-4 text-center">{currentQuestion.question}</h3>
+            <div className="mt-3 bg-white bg-opacity-20 rounded-full h-2">
+              <div
+                className="bg-blue-300 h-2 rounded-full transition-all duration-1000"
+                style={{ 
+                  width: `${(timeRemaining / currentQuestion.timeLimit) * 100}%`
+                }}
+              ></div>
+            </div>
+          </div>
+          <div className="p-6">
+            <h3 className="text-xl font-semibold text-center mb-6">{currentQuestion.question}</h3>
 
-              {/* Answer Options - Teacher View (No interaction) */}
-              <div className="row mb-4">
-                {currentQuestion.options.map((option, index) => {
+            {/* Answer Options - Teacher View (No interaction) */}
+            <div className="teacher-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {currentQuestion.options && currentQuestion.options.length > 0 ? (
+                currentQuestion.options.map((option, index) => {
                   const isCorrect = questionResults && index === questionResults.correctAnswer;
                   
                   return (
-                    <div key={index} className="col-md-6 mb-2">
+                    <div key={index}>
                       <div
-                        className={`option-btn option-${index} btn w-100 text-white ${isCorrect ? 'correct-answer' : ''}`}
-                        style={{ cursor: 'default' }}
+                        className={`option-btn option-${index} w-full text-white ${isCorrect ? 'correct-answer' : ''}`}
+                        style={{ 
+                          cursor: 'default',
+                          minHeight: '96px',
+                          backgroundColor: !isCorrect ? (
+                            index === 0 ? '#ef4444' : // red-500
+                            index === 1 ? '#3b82f6' : // blue-500  
+                            index === 2 ? '#eab308' : // yellow-500
+                            index === 3 ? '#22c55e' : // green-500
+                            '#6b7280' // gray-500 fallback
+                          ) : undefined
+                        }}
                       >
                         {isCorrect && (
-                          <span className="correct-indicator me-2">
-                            <i className="bi bi-check-circle-fill" style={{ fontSize: '1.5rem', color: '#ffffff' }}></i>
+                          <span className="mr-2">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                           </span>
                         )}
                         {option}
                       </div>
                     </div>
                   );
-                })}
-              </div>
+                })
+              ) : (
+                <div className="col-span-2 text-center py-8">
+                  <p className="text-gray-500">Loading options...</p>
+                </div>
+              )}
+            </div>
 
-              <div className="alert alert-info">
-                <i className="bi bi-info-circle"></i> You are in teacher view. Students are answering this question.
-              </div>
-
-              {/* Question Controls */}
-              <div className="mt-4">
-                {!questionResults ? (
-                  <div className="d-flex gap-2">
-                    <div className="alert alert-info flex-grow-1 mb-0">
-                      <i className="bi bi-clock me-2"></i>
-                      Question in progress... Wait for time to expire or all students to answer.
-                    </div>
-                  </div>
-                ) : (
-                  <div className="d-grid">
-                    {currentQuestion.currentQuestionIndex + 1 < currentQuestion.totalQuestions ? (
-                      <button 
-                        className="btn btn-lg btn-primary"
-                        onClick={nextQuestion}
-                      >
-                        <i className="bi bi-arrow-right me-2"></i>
-                        Next Question
-                      </button>
-                    ) : (
-                      <button 
-                        className="btn btn-lg btn-success"
-                        onClick={nextQuestion}
-                      >
-                        <i className="bi bi-trophy me-2"></i>
-                        Finalize Quiz
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+            {/* Question Controls */}
+            <div className="mt-6">
+              {!questionResults ? (
+                <div className="text-center py-4">
+                  {/* No loading indicator needed */}
+                </div>
+              ) : (
+                <div className="w-full">
+                  {currentQuestion.currentQuestionIndex + 1 < currentQuestion.totalQuestions ? (
+                    <button 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-lg font-semibold text-lg transition-colors duration-200 flex items-center justify-center"
+                      onClick={nextQuestion}
+                    >
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                      Next Question
+                    </button>
+                  ) : (
+                    <button 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-semibold text-lg transition-colors duration-200 flex items-center justify-center"
+                      onClick={nextQuestion}
+                    >
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Finalize Quiz
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

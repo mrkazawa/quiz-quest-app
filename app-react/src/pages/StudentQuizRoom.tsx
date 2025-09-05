@@ -316,12 +316,12 @@ export default function StudentQuizRoom() {
         title="Loading..."
         subtitle="Validating your session..."
       >
-        <div className="container mt-5">
+        <div className="max-w-7xl mx-auto px-4 mt-8">
           <div className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
+              <span className="sr-only">Loading...</span>
             </div>
-            <p className="mt-3">Validating session...</p>
+            <p className="mt-4 text-gray-600">Validating session...</p>
           </div>
         </div>
       </Layout>
@@ -333,91 +333,108 @@ export default function StudentQuizRoom() {
     return (
       <Layout 
         title="Answer Submitted"
-        subtitle="Waiting for other students to finish..."
+        subtitle={`Room ID: ${roomId}`}
       >
-        <div className="container">
-          <div className="question-results-container">
-            <div className="question-results-content text-center">
-            <h2 className="mb-4">Answer Submitted!</h2>
-            <div className="mb-4">
-              <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '4rem' }}></i>
-            </div>
-            <p className="lead mb-4">
-              Your answer has been submitted successfully.
-            </p>
-            <p className="text-muted">
-              Waiting for other students to finish...
-            </p>
-            <div className="mt-4">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="text-center">
+              <div className="mb-6">
+                <svg className="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-2">Answer Submitted!</h2>
+                <p className="text-lg text-gray-700">
+                  Your answer has been submitted successfully.
+                </p>
+              </div>
+              
+              <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                <p className="text-blue-800 font-medium">
+                  Waiting for other students to finish...
+                </p>
+              </div>
+
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" role="status">
+                <span className="sr-only">Loading...</span>
               </div>
             </div>
           </div>
-        </div>
         </div>
       </Layout>
     );
   }
 
-  // Result Screen (waiting for next question or showing answer feedback)
+    // Result Screen (waiting for next question or showing answer feedback)
   if (isResultRoute) {
     return (
       <Layout 
         title="Question Results"
-        subtitle="See the correct answer and wait for the next question"
+        subtitle={`Room ID: ${roomId}`}
       >
-        <div className="container">
-          <div className="question-results-container">
-          <div className="question-results-content text-center">
-            {answerResult ? (
-              <>
-                <div className="mb-6">
-                  {answerResult.isCorrect ? (
-                    <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Your answer is correct!
-                    </div>
-                  ) : (
-                    <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Your answer is incorrect!
-                    </div>
-                  )}
-                </div>
-
-                <div className="mb-6">
-                  <h4 className="text-2xl font-bold">Your Score: <span className="text-primary-600">{score}</span></h4>
-                  {streak > 1 && (
-                    <div className="mt-2">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="text-center">
+              {answerResult ? (
+                <>
+                  <div className="mb-6">
+                    {answerResult.isCorrect ? (
+                      <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {streak}x
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
-                <i className="bi bi-exclamation-triangle"></i> No answer in time!
-              </div>
-            )}
+                        Correct Answer! Well done!
+                      </div>
+                    ) : (
+                      <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Incorrect Answer
+                      </div>
+                    )}
+                  </div>
 
-            <div className="mb-4">
-              <div className="spinner-border text-success" role="status">
-                <span className="visually-hidden">Loading...</span>
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                      Your Score: <span className="text-blue-600">{score}</span>
+                    </h3>
+                    {answerResult.isCorrect && (
+                      <p className="text-green-600 font-medium">
+                        +{answerResult.pointsEarned} points earned
+                      </p>
+                    )}
+                    {streak > 1 && (
+                      <div className="mt-3">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                          <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 717 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                          </svg>
+                          {streak}x Streak!
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-6 py-4 rounded-lg mb-6 flex items-center justify-center">
+                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  Time's up! No answer submitted.
+                </div>
+              )}
+
+              <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                <p className="text-blue-800 font-medium">
+                  Waiting for the next question...
+                </p>
               </div>
-              <p className="mt-2">Waiting for the next question...</p>
+
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </Layout>
     );
@@ -428,52 +445,66 @@ export default function StudentQuizRoom() {
     return (
       <Layout 
         title={`Question ${currentQuestion.questionId}`}
-        subtitle={`Room ID: ${roomId} • ${timeLeft}s remaining`}
+        subtitle={`Room ID: ${roomId}`}
       >
-        <div className="container">
-
-        <div className="quiz-question-screen">
-          {/* Timer */}
-          <div className="timer-display">
-            {timeLeft}s
-          </div>
-
-          {/* Question Number and Score */}
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5 className="mb-0">Question {currentQuestionIndex + 1}</h5>
-            {currentQuestionIndex > 0 && (
-              <div className="text-end">
-                <span>Score: {score}</span>
-                {streak > 1 && (
-                  <span className="streak-badge ms-2">
-                    <i className="bi bi-lightning-fill"></i>
-                    {streak}x
-                  </span>
-                )}
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            {/* Progress and Timer */}
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-medium text-gray-700">
+                  Question {currentQuestionIndex + 1}
+                </span>
               </div>
-            )}
-          </div>
+              <div className="timer-display">
+                {timeLeft}s
+              </div>
+            </div>
 
-          {/* Question Text */}
-          <div className="question-text">
-            {currentQuestion.question}
-          </div>
+            {/* Question Text */}
+            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-semibold text-center text-gray-900">
+                {currentQuestion.question}
+              </h2>
+            </div>
 
-          {/* Options - immediate submission on click */}
-          <div className="row">
-            {currentQuestion.options.map((option, index) => (
-              <div key={index} className="col-12 mb-3">
+            {/* Options - 2x2 grid for 4 options */}
+            <div className="student-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {currentQuestion.options?.map((option, index) => (
                 <button
-                  className={`option-btn option-${index} w-100`}
+                  key={index}
+                  className={`option-btn option-${index} ${hasAnswered ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => submitAnswer(index)}
                   disabled={hasAnswered}
                 >
                   {option}
                 </button>
+              )) || (
+                <div className="col-span-full text-center text-gray-500">
+                  No options available
+                </div>
+              )}
+            </div>
+
+            {/* Score display at bottom */}
+            {currentQuestionIndex > 0 && (
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                <div className="text-lg font-semibold text-gray-900">
+                  Current Score: <span className="text-blue-600">{score}</span>
+                </div>
+                {streak > 1 && (
+                  <div className="flex items-center space-x-2">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                      </svg>
+                      {streak}x Streak!
+                    </span>
+                  </div>
+                )}
               </div>
-            ))}
+            )}
           </div>
-        </div>
         </div>
       </Layout>
     );
@@ -485,12 +516,12 @@ export default function StudentQuizRoom() {
       title="Loading Quiz..."
       subtitle="Connecting to quiz room..."
     >
-      <div className="container mt-5">
+      <div className="max-w-7xl mx-auto px-4 mt-8">
         <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
+            <span className="sr-only">Loading...</span>
           </div>
-          <p className="mt-3">Loading quiz...</p>
+          <p className="mt-4 text-gray-600">Loading quiz...</p>
         </div>
       </div>
     </Layout>
