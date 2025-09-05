@@ -372,24 +372,32 @@ export default function StudentQuizRoom() {
           <div className="question-results-content text-center">
             {answerResult ? (
               <>
-                <div className="alert mb-4">
+                <div className="mb-6">
                   {answerResult.isCorrect ? (
-                    <div className="alert-success">
-                      <i className="bi bi-check-circle"></i> Your answer is correct!
+                    <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Your answer is correct!
                     </div>
                   ) : (
-                    <div className="alert-danger">
-                      <i className="bi bi-x-circle"></i> Your answer is incorrect!
+                    <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Your answer is incorrect!
                     </div>
                   )}
                 </div>
 
-                <div className="mb-4">
-                  <h4>Your Score: <span>{score}</span></h4>
+                <div className="mb-6">
+                  <h4 className="text-2xl font-bold">Your Score: <span className="text-primary-600">{score}</span></h4>
                   {streak > 1 && (
-                    <div>
-                      <span className="streak-badge">
-                        <i className="bi bi-lightning-fill"></i>
+                    <div className="mt-2">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                        </svg>
                         {streak}x
                       </span>
                     </div>
@@ -397,7 +405,7 @@ export default function StudentQuizRoom() {
                 </div>
               </>
             ) : (
-              <div className="alert alert-warning mb-4">
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
                 <i className="bi bi-exclamation-triangle"></i> No answer in time!
               </div>
             )}

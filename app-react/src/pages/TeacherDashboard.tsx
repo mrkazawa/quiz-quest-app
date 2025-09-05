@@ -139,12 +139,10 @@ const TeacherDashboard = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="container py-5">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Redirecting...</span>
-          </div>
-          <p className="mt-2">Redirecting to login...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting to login...</p>
         </div>
       </div>
     );
@@ -156,198 +154,188 @@ const TeacherDashboard = () => {
       subtitle="Ready to create a new quiz session?"
       showLogout={true}
     >
-      <div
-        style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}
-      >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Quiz Selection */}
-        <div className="card shadow-sm">
-        <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h3 className="card-title mb-0">
-            <i className="bi bi-collection me-2"></i>
-            Available Quizzes
-          </h3>
-          <div className="btn-group" role="group">
-            <button
-              className="btn btn-light btn-sm border dashboard-action-btn"
-              onClick={() => navigate("/teacher/create-quiz")}
-              title="Create New Quiz"
-            >
-              <i className="bi bi-plus-circle"></i>
-              <span className="d-none d-lg-inline ms-1">Create</span>
-            </button>
-            <button
-              className="btn btn-light btn-sm border dashboard-action-btn"
-              onClick={() => {
-                /* TODO: Implement quiz history */
-              }}
-              title="View Quiz History"
-            >
-              <i className="bi bi-clock-history"></i>
-              <span className="d-none d-lg-inline ms-1">History</span>
-            </button>
-            <button
-              className="btn btn-light btn-sm border dashboard-action-btn"
-              onClick={loadQuizzes}
-              disabled={loading}
-              title="Refresh Quiz List"
-            >
-              <i className="bi bi-arrow-clockwise"></i>
-              <span className="d-none d-lg-inline ms-1">Refresh</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="card-body p-0">
-          {loading && (
-            <div className="text-center py-4">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+              <h3 className="text-xl font-bold text-white flex items-center">
+                <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Available Quizzes
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => navigate("/teacher/create-quiz")}
+                  className="bg-white text-primary-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
+                  title="Create New Quiz"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span className="hidden lg:inline">Create</span>
+                </button>
+                <button
+                  onClick={() => {
+                    /* TODO: Implement quiz history */
+                  }}
+                  className="bg-white text-primary-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
+                  title="View Quiz History"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="hidden lg:inline">History</span>
+                </button>
+                <button
+                  onClick={loadQuizzes}
+                  disabled={loading}
+                  className="bg-white text-primary-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Refresh Quiz List"
+                >
+                  <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="hidden lg:inline">Refresh</span>
+                </button>
               </div>
-              <p className="mt-2 mb-0">Loading quizzes...</p>
             </div>
-          )}
+          </div>
 
-          {error && (
-            <div className="alert alert-danger table-alert">
-              <i className="bi bi-exclamation-triangle me-2"></i>
-              {error}
-            </div>
-          )}
+          <div className="p-6">
+            {loading && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading quizzes...</p>
+              </div>
+            )}
 
-          {!loading && !error && quizzes.length === 0 && (
-            <div className="alert alert-warning table-alert">
-              <i className="bi bi-info-circle me-2"></i>
-              No quizzes available
-            </div>
-          )}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                {error}
+              </div>
+            )}
 
-          {!loading && !error && quizzes.length > 0 && (
-            <div className="table-responsive">
-              <table className="table mb-0">
-                <tbody>
-                  {quizzes.map((quiz) => (
-                    <tr
-                      key={quiz.id}
-                      className="quiz-row border-top border-bottom"
-                    >
-                      <td className="py-3">
-                        <h5 className="mb-1 text-primary fw-bold">
+            {!loading && !error && quizzes.length === 0 && (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                No quizzes available
+              </div>
+            )}
+
+            {!loading && !error && quizzes.length > 0 && (
+              <div className="space-y-4">
+                {quizzes.map((quiz) => (
+                  <div
+                    key={quiz.id}
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                      <div className="flex-1">
+                        <h5 className="text-lg font-semibold text-primary-700 mb-1">
                           {quiz.name}
                         </h5>
                         {quiz.description ? (
-                          <p className="mb-0 text-secondary">
-                            {quiz.description}
-                          </p>
+                          <p className="text-gray-600 text-sm mb-2">{quiz.description}</p>
                         ) : (
-                          <p className="mb-0 text-muted fst-italic">
-                            No description available
-                          </p>
+                          <p className="text-gray-400 text-sm italic mb-2">No description available</p>
                         )}
-                      </td>
-                      <td className="text-center align-middle py-3">
-                        <div className="d-flex flex-column align-items-center justify-content-center d-lg-none">
-                          <span className="badge bg-info fs-6 mb-1">
-                            {quiz.questionCount}
+                        <div className="flex items-center space-x-4">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {quiz.questionCount} questions
                           </span>
-                          <small className="text-muted">questions</small>
                         </div>
-                        <div className="d-none d-lg-flex align-items-center justify-content-center">
-                          <span className="badge bg-info fs-6 me-2">
-                            {quiz.questionCount}
-                          </span>
-                          <small className="text-muted">questions</small>
-                        </div>
-                      </td>
-                      <td className="align-middle actions-col p-0 py-3">
-                        <div className="d-flex justify-content-end gap-2 flex-md-row flex-column pe-2">
-                          <button
-                            className="btn btn-success start-quiz-btn"
-                            onClick={() => createRoom(quiz.id)}
-                            disabled={!isConnected}
-                            title={
-                              !isConnected
-                                ? "Connection required"
-                                : "Start new quiz session"
-                            }
-                            style={{ minWidth: "80px" }}
-                          >
-                            <i className="bi bi-play-circle"></i>
-                            {/* Text for large screens and up */}
-                            <span className="d-none d-lg-block mt-1">
-                              <div>START</div>
-                            </span>
-                            {/* Icon only for small screens - already handled by default */}
-                          </button>
-                          <button
-                            className="btn btn-outline-danger delete-quiz-btn"
-                            onClick={() => deleteQuiz(quiz.id, quiz.name)}
-                            title="Delete quiz"
-                            style={{ minWidth: "80px" }}
-                          >
-                            <i className="bi bi-trash"></i>
-                            {/* Text for large screens and up */}
-                            <span className="d-none d-lg-block mt-1">
-                              <div>DELETE</div>
-                            </span>
-                            {/* Icon only for small screens */}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <button
+                          onClick={() => createRoom(quiz.id)}
+                          disabled={!isConnected}
+                          title={!isConnected ? "Connection required" : "Start new quiz session"}
+                          className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 min-w-20"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m2 2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z" />
+                          </svg>
+                          <span className="hidden lg:inline">START</span>
+                        </button>
+                        <button
+                          onClick={() => deleteQuiz(quiz.id, quiz.name)}
+                          title="Delete quiz"
+                          className="border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 min-w-20"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          <span className="hidden lg:inline">DELETE</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
       </div>
 
       {/* Delete Confirmation Modal */}
       {deleteModal.show && (
         <div 
-          className="modal show d-block" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
           onClick={handleDeleteCancel}
         >
-          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content shadow-lg">
-              <div className="modal-header bg-danger text-white border-0 pb-3">
-                <h5 className="modal-title d-flex align-items-center mb-0">
-                  <i className="bi bi-exclamation-triangle-fill me-2" style={{ fontSize: '1.5rem' }}></i>
-                  Confirm Deletion
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  onClick={handleDeleteCancel}
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body py-4">
-                <div className="text-center">
-                  <div className="mb-3">
-                    <i className="bi bi-trash text-danger" style={{ fontSize: '3rem' }}></i>
-                  </div>
-                  <h6 className="mb-3">Are you sure you want to delete this quiz?</h6>
-                  <div className="bg-light rounded p-3 mb-3">
-                    <div className="fw-bold text-muted mb-1">Quiz Title:</div>
-                    <div className="text-primary fw-bold">{deleteModal.quiz?.name}</div>
-                  </div>
-                  <p className="text-muted mb-0">
-                    <small>This action cannot be undone. All quiz data will be permanently removed.</small>
-                  </p>
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-red-600 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
+              <h5 className="text-lg font-semibold flex items-center mb-0">
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                Confirm Deletion
+              </h5>
+              <button
+                type="button"
+                className="text-white hover:text-gray-200 transition-colors"
+                onClick={handleDeleteCancel}
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="text-center">
+                <div className="mb-4">
+                  <svg className="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                 </div>
+                <h6 className="text-lg font-medium mb-4">Are you sure you want to delete this quiz?</h6>
+                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                  <div className="text-sm text-gray-600 mb-1">Quiz Title:</div>
+                  <div className="text-primary-700 font-semibold">{deleteModal.quiz?.name}</div>
+                </div>
+                <p className="text-gray-500 text-sm mb-0">
+                  This action cannot be undone. All quiz data will be permanently removed.
+                </p>
               </div>
-              <div className="modal-footer border-0 pt-0 justify-content-center">
-                <button
-                  type="button"
-                  className="btn btn-danger btn-lg px-4"
-                  onClick={handleDeleteConfirm}
-                >
-                  <i className="bi bi-trash me-2"></i>
-                  Delete Quiz
-                </button>
-              </div>
+            </div>
+            <div className="px-6 pb-6 flex justify-center">
+              <button
+                type="button"
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                onClick={handleDeleteConfirm}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Delete Quiz</span>
+              </button>
             </div>
           </div>
         </div>

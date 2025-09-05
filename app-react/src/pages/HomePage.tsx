@@ -5,27 +5,30 @@ import TeacherLoginModal from '../components/TeacherLoginModal';
 const HomePage = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   return (
-    <div className="homepage-container">
-      <div className="homepage-content">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center">
+      <div className="max-w-md w-full mx-4">
         <div className="text-center">
           <img
             src="/quiz-quest-logo.png"
             alt="Quiz Quest Logo"
-            className="img-fluid mb-4"
+            className="mx-auto mb-6"
             style={{ maxHeight: '120px' }}
           />
 
-          <h2 className="mb-4">Welcome!</h2>
-          <p className="lead mb-4">Choose your role to get started:</p>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Welcome!</h2>
+          <p className="text-lg text-gray-600 mb-8">Choose your role to get started:</p>
 
-          <div className="d-grid gap-3 mx-auto home-buttons">
+          <div className="space-y-4">
             <button 
               onClick={() => setShowLoginModal(true)}
-              className="btn btn-lg btn-primary"
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-4 rounded-lg text-lg font-semibold transition-colors duration-200"
             >
               I'M A TEACHER
             </button>
-            <Link to="/student/join" className="btn btn-lg btn-success">
+            <Link 
+              to="/student/join" 
+              className="block w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 text-center"
+            >
               I'M A STUDENT
             </Link>
           </div>

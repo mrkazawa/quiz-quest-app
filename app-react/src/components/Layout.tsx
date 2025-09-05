@@ -1,41 +1,37 @@
-import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 
 interface LayoutProps {
   children: React.ReactNode;
-  title?: string;
+  title: string;
   subtitle?: string;
   showLogout?: boolean;
   showBack?: boolean;
   backTo?: string;
-  roomId?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ 
-  children,
-  title,
-  subtitle,
-  showLogout = false,
-  showBack = false,
-  backTo,
-  roomId
-}) => {
+const Layout = ({ 
+  children, 
+  title, 
+  subtitle, 
+  showLogout = false, 
+  showBack = false, 
+  backTo = '/' 
+}: LayoutProps) => {
   return (
-    <div className="app-with-layout">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header 
         title={title}
         subtitle={subtitle}
         showLogout={showLogout}
         showBack={showBack}
         backTo={backTo}
-        roomId={roomId}
       />
-      <div className="app-content">
-        <main className="main-content">
-          {children}
-        </main>
-      </div>
+      
+      <main className="flex-1 py-6">
+        {children}
+      </main>
+      
       <Footer />
     </div>
   );

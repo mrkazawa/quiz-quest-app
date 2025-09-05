@@ -1,26 +1,17 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
-  title?: string;
+  title: string;
   subtitle?: string;
   showLogout?: boolean;
   showBack?: boolean;
   backTo?: string;
-  roomId?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  title,
-  subtitle,
-  showLogout = false,
-  showBack = false,
-  backTo,
-  roomId
-}) => {
-  const { logout } = useAuth();
+const Header = ({ title, subtitle, showLogout = false, showBack = false, backTo = '/' }: HeaderProps) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -28,54 +19,46 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleBack = () => {
-    if (backTo) {
-      navigate(backTo);
-    } else {
-      navigate(-1);
-    }
+    navigate(backTo);
   };
 
   return (
-    <header className="header-component bg-dark text-white py-3 shadow-sm">
-      <div className="container-fluid">
-        <div className="row align-items-center">
-          <div className="col-auto">
+    <header className="bg-gradient-to-r from-slate-800 to-slate-700 text-white shadow-lg sticky top-0 z-50 border-b border-slate-600">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Left section */}
+          <div className="flex items-center space-x-4">
             {showBack && (
-              <button 
-                className="btn btn-link text-white p-0 me-3"
+              <button
                 onClick={handleBack}
-                style={{ textDecoration: 'none' }}
+                className="p-2 rounded-lg hover:bg-slate-700 transition-colors duration-200 flex items-center space-x-2"
               >
-                <i className="bi bi-arrow-left fs-4"></i>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="hidden sm:inline">Back</span>
               </button>
             )}
-          </div>
-          
-          <div className="col">
-            <div className="text-center">
-              {title && (
-                <h4 className="mb-0 text-white fw-semibold">{title}</h4>
-              )}
+            
+            <div className="flex flex-col">
+              <h1 className="text-xl font-bold text-white">{title}</h1>
               {subtitle && (
-                <p className="mb-0 text-white-50 small">{subtitle}</p>
-              )}
-              {roomId && !title && (
-                <div>
-                  <small className="text-white-50">Room ID</small>
-                  <h5 className="mb-0 text-white fw-bold">{roomId}</h5>
-                </div>
+                <p className="text-sm text-slate-300">{subtitle}</p>
               )}
             </div>
           </div>
 
-          <div className="col-auto">
+          {/* Right section */}
+          <div className="flex items-center space-x-4">
             {showLogout && (
               <button
-                className="btn btn-outline-light btn-sm"
                 onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
               >
-                <i className="bi bi-box-arrow-right me-2"></i>
-                <span className="d-none d-md-inline">Logout</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className="hidden sm:inline">Logout</span>
               </button>
             )}
           </div>
