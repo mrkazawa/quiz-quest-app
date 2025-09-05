@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket.ts';
 import type { NewQuestionData } from '../types/socket.ts';
 import type { QuestionResults, PlayerAnswer } from '../types/quiz.ts';
+import Layout from '../components/Layout';
 
 interface Question {
   questionId: string;
@@ -311,36 +312,32 @@ export default function StudentQuizRoom() {
 
   if (!sessionValid) {
     return (
-      <div className="container mt-5">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+      <Layout 
+        title="Loading..."
+        subtitle="Validating your session..."
+      >
+        <div className="container mt-5">
+          <div className="text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-3">Validating session...</p>
           </div>
-          <p className="mt-3">Validating session...</p>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   // Submit Screen (waiting for others to answer)
   if (isSubmitRoute) {
     return (
-      <div className="container mt-3">
-        {/* Header Logo */}
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
-        
-        <div className="question-results-container">
-          <div className="question-results-content text-center">
+      <Layout 
+        title="Answer Submitted"
+        subtitle="Waiting for other students to finish..."
+      >
+        <div className="container">
+          <div className="question-results-container">
+            <div className="question-results-content text-center">
             <h2 className="mb-4">Answer Submitted!</h2>
             <div className="mb-4">
               <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '4rem' }}></i>
@@ -358,28 +355,20 @@ export default function StudentQuizRoom() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </Layout>
     );
   }
 
   // Result Screen (waiting for next question or showing answer feedback)
   if (isResultRoute) {
     return (
-      <div className="container mt-3">
-        {/* Header Logo */}
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
-        
-        <div className="question-results-container">
+      <Layout 
+        title="Question Results"
+        subtitle="See the correct answer and wait for the next question"
+      >
+        <div className="container">
+          <div className="question-results-container">
           <div className="question-results-content text-center">
             {answerResult ? (
               <>
@@ -421,26 +410,19 @@ export default function StudentQuizRoom() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </Layout>
     );
   }
 
   // Question Screen
   if (isQuestionRoute && currentQuestion) {
     return (
-      <div className="container mt-3">
-        {/* Header Logo */}
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
+      <Layout 
+        title={`Question ${currentQuestion.questionId}`}
+        subtitle={`Room ID: ${roomId} • ${timeLeft}s remaining`}
+      >
+        <div className="container">
 
         <div className="quiz-question-screen">
           {/* Timer */}
@@ -484,19 +466,25 @@ export default function StudentQuizRoom() {
             ))}
           </div>
         </div>
-      </div>
+        </div>
+      </Layout>
     );
   }
 
   // Loading/validation state
   return (
-    <div className="container mt-5">
-      <div className="text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+    <Layout 
+      title="Loading Quiz..."
+      subtitle="Connecting to quiz room..."
+    >
+      <div className="container mt-5">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading quiz...</p>
         </div>
-        <p className="mt-3">Loading quiz...</p>
       </div>
-    </div>
+    </Layout>
   );
 }

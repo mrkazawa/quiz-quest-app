@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
+import Layout from "../components/Layout";
 
 interface QuizData {
   setName: string;
@@ -16,7 +17,7 @@ interface QuizData {
 }
 
 const TeacherCreateQuiz = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
   // Additional authentication check - redirect if not authenticated
@@ -214,11 +215,6 @@ Make sure:
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="container py-5">
@@ -233,27 +229,14 @@ Make sure:
   }
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1rem 1.5rem" }}>
-      {/* Header */}
-      <div className="mb-4">
-        <div className="d-flex justify-content-between align-items-center">
-          <div>
-            <h1 className="mb-1">Create New Quiz</h1>
-            <p className="text-muted mb-0">
-              Create a new quiz by pasting JSON format or use ChatGPT to generate one
-            </p>
-          </div>
-          <div>
-            <button
-              className="btn btn-outline-danger btn-sm"
-              onClick={handleLogout}
-            >
-              <i className="bi bi-box-arrow-right"></i>
-              <span className="d-none d-md-inline ms-2">Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
+    <Layout 
+      title="Create New Quiz"
+      subtitle="Paste your quiz JSON or use our AI prompt to generate one"
+      showLogout={true} 
+      showBack={true} 
+      backTo="/teacher/dashboard"
+    >
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
 
       {/* Main Content - Removed padding from card body */}
       <div className="card shadow-sm">
@@ -440,7 +423,8 @@ Make sure:
           ></button>
         </div>
       )}
-    </div>
+      </div>
+    </Layout>
   );
 };
 

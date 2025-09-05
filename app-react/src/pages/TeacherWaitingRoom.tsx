@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSocket } from '../hooks/useSocket.js';
 import { useAuth } from '../hooks/useAuth.js';
+import Layout from '../components/Layout';
 
 interface StudentInfo {
   socketId: string;
@@ -218,143 +219,130 @@ const TeacherWaitingRoom = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="row mb-4">
-        <div className="col">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h1 className="mb-1">Waiting Room</h1>
-              <p className="text-muted mb-0">{roomInfo.quizName}</p>
-            </div>
-            <div>
-              <button 
-                className="btn btn-outline-secondary me-2"
-                onClick={() => navigate('/teacher/dashboard')}
-              >
-                <i className="bi bi-arrow-left me-2"></i>
-                Back to Dashboard
-              </button>
-              <button 
-                className="btn btn-outline-danger"
-                onClick={deleteRoom}
-              >
-                <i className="bi bi-trash me-2"></i>
-                Delete Room
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="row">
-        {/* Room Info & Controls */}
-        <div className="col-lg-4 mb-4">
-          <div className="card">
-            <div className="card-header">
-              <h4 className="card-title mb-0">
-                <i className="bi bi-door-open me-2"></i>
-                Room Details
-              </h4>
-            </div>
-            <div className="card-body">
-              <div className="mb-3">
-                <label className="form-label fw-bold">Room ID</label>
-                <div className="input-group">
-                  <input 
-                    type="text" 
-                    className="form-control fw-bold fs-4 text-center" 
-                    value={roomId} 
-                    readOnly 
-                  />
-                  <button 
-                    className="btn btn-outline-secondary"
-                    onClick={copyRoomLink}
-                  >
-                    <i className="bi bi-clipboard"></i>
-                  </button>
-                </div>
+    <Layout 
+      title={`Waiting Room - ${roomInfo.quizName}`}
+      subtitle={`Room ID: ${roomId} • Waiting for students to join`}
+      showLogout={true} 
+      showBack={true} 
+      backTo="/teacher/dashboard"
+    >
+      <div className="container-fluid">
+        <div className="row">
+          {/* Room Info & Controls */}
+          <div className="col-lg-4 mb-4">
+            <div className="card">
+              <div className="card-header">
+                <h4 className="card-title mb-0">
+                  <i className="bi bi-door-open me-2"></i>
+                  Room Details
+                </h4>
               </div>
-
-              <div className="mb-3">
-                <label className="form-label fw-bold">Join URL</label>
-                <div className="input-group">
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={`${window.location.origin}/student/join/${roomId}`}
-                    readOnly 
-                  />
-                  <button 
-                    className="btn btn-outline-secondary"
-                    onClick={copyRoomLink}
-                  >
-                    <i className="bi bi-clipboard"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div className="mb-3 text-center">
-                <label className="form-label fw-bold">QR Code</label>
-                <div className="border rounded p-3 bg-white">
-                  <QRCodeSVG 
-                    value={`${window.location.origin}/student/join/${roomId}`}
-                    size={200}
-                    level="H"
-                    includeMargin={true}
-                  />
-                </div>
-                <small className="text-muted">Students can scan this QR code to join</small>
-              </div>
-
-              <div className="d-grid gap-2">
-                <button 
-                  className="btn btn-success btn-lg"
-                  onClick={startQuiz}
-                  disabled={students.length === 0}
-                >
-                  <i className="bi bi-play-circle me-2"></i>
-                  Start Quiz ({students.length} students)
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Students List */}
-        <div className="col-lg-8">
-          <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h4 className="card-title mb-0">
-                <i className="bi bi-people me-2"></i>
-                Joined Students ({students.length})
-              </h4>
-            </div>
-            <div className="card-body">
-              {students.length === 0 ? (
-                <div className="text-center py-5">
-                  <i className="bi bi-people display-1 text-muted"></i>
-                  <h5 className="text-muted mt-3">Waiting for students to join...</h5>
-                  <p className="text-muted">Share the Room ID or URL with your students</p>
-                </div>
-              ) : (
-                <div className="d-flex flex-wrap gap-2 justify-content-center">
-                  {students.map((student) => (
-                    <span 
-                      key={student.socketId}
-                      className="badge bg-light text-dark border border-primary fs-6 px-3 py-2"
-                      style={{ fontWeight: 500, whiteSpace: 'nowrap' }}
+              <div className="card-body">
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Room ID</label>
+                  <div className="input-group">
+                    <input 
+                      type="text" 
+                      className="form-control fw-bold fs-4 text-center" 
+                      value={roomId} 
+                      readOnly 
+                    />
+                    <button 
+                      className="btn btn-outline-secondary"
+                      onClick={copyRoomLink}
                     >
-                      {student.name}
-                    </span>
-                  ))}
+                      <i className="bi bi-clipboard"></i>
+                    </button>
+                  </div>
                 </div>
-              )}
+
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Join URL</label>
+                  <div className="input-group">
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={`${window.location.origin}/student/join/${roomId}`}
+                      readOnly 
+                    />
+                    <button 
+                      className="btn btn-outline-secondary"
+                      onClick={copyRoomLink}
+                    >
+                      <i className="bi bi-clipboard"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mb-3 text-center">
+                  <label className="form-label fw-bold">QR Code</label>
+                  <div className="border rounded p-3 bg-white">
+                    <QRCodeSVG 
+                      value={`${window.location.origin}/student/join/${roomId}`}
+                      size={200}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                  <small className="text-muted">Students can scan this QR code to join</small>
+                </div>
+
+                <div className="d-grid gap-2">
+                  <button 
+                    className="btn btn-success btn-lg"
+                    onClick={startQuiz}
+                    disabled={students.length === 0}
+                  >
+                    <i className="bi bi-play-circle me-2"></i>
+                    Start Quiz ({students.length} students)
+                  </button>
+                  <button 
+                    className="btn btn-outline-danger"
+                    onClick={deleteRoom}
+                  >
+                    <i className="bi bi-trash me-2"></i>
+                    Delete Room
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Students List */}
+          <div className="col-lg-8">
+            <div className="card">
+              <div className="card-header d-flex justify-content-between align-items-center">
+                <h4 className="card-title mb-0">
+                  <i className="bi bi-people me-2"></i>
+                  Joined Students ({students.length})
+                </h4>
+              </div>
+              <div className="card-body">
+                {students.length === 0 ? (
+                  <div className="text-center py-5">
+                    <i className="bi bi-people display-1 text-muted"></i>
+                    <h5 className="text-muted mt-3">Waiting for students to join...</h5>
+                    <p className="text-muted">Share the Room ID or URL with your students</p>
+                  </div>
+                ) : (
+                  <div className="d-flex flex-wrap gap-2 justify-content-center">
+                    {students.map((student) => (
+                      <span 
+                        key={student.socketId}
+                        className="badge bg-light text-dark border border-primary fs-6 px-3 py-2"
+                        style={{ fontWeight: 500, whiteSpace: 'nowrap' }}
+                      >
+                        {student.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

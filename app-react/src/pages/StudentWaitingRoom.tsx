@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket.js';
+import Layout from '../components/Layout';
 
 interface PlayerInfo {
   id: string;
@@ -266,71 +267,63 @@ const StudentWaitingRoom = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="row mb-4">
-        <div className="col">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h1 className="mb-1">Waiting for Quiz to Start</h1>
-              <p className="text-muted mb-0">Room ID: <strong>{roomId}</strong></p>
-              {quizName && <p className="text-muted mb-0">Quiz: {quizName}</p>}
-            </div>
-            <div>
-              <button 
-                className="btn btn-outline-danger"
-                onClick={leaveRoom}
-              >
-                <i className="bi bi-box-arrow-left me-2"></i>
-                Leave Room
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <Layout 
+      title="Waiting Room"
+      subtitle={quizName ? `Quiz: ${quizName} • Waiting for quiz to start` : "Waiting for quiz to start"}
+    >
+      <div className="container-fluid">
 
-      {/* Players List */}
-      <div className="row">
-        <div className="col-lg-10 mx-auto">
-          <div className="card">
-            <div className="card-header text-center">
-              <h4 className="card-title mb-0">
-                <i className="bi bi-people me-2"></i>
-                Students in Room ({players.length})
-              </h4>
-            </div>
-            <div className="card-body">
-              {players.length === 0 ? (
-                <div className="text-center py-5">
-                  <i className="bi bi-person-plus display-1 text-muted"></i>
-                  <h5 className="text-muted mt-3">You're the first student here!</h5>
-                  <p className="text-muted">Waiting for other students to join...</p>
-                </div>
-              ) : (
-                <div className="d-flex flex-wrap gap-2 justify-content-center">
-                  {players.map((player) => (
-                    <span 
-                      key={player.id}
-                      className="badge bg-light text-dark border border-primary fs-6 px-3 py-2"
-                      style={{ fontWeight: 500, whiteSpace: 'nowrap' }}
-                    >
-                      {player.name}
-                    </span>
-                  ))}
-                </div>
-              )}
+        {/* Players List */}
+        <div className="row">
+          <div className="col-lg-10 mx-auto">
+            <div className="card">
+              <div className="card-header text-center">
+                <h4 className="card-title mb-0">
+                  <i className="bi bi-people me-2"></i>
+                  Students in Room ({players.length})
+                </h4>
+              </div>
+              <div className="card-body">
+                {players.length === 0 ? (
+                  <div className="text-center py-5">
+                    <i className="bi bi-person-plus display-1 text-muted"></i>
+                    <h5 className="text-muted mt-3">You're the first student here!</h5>
+                    <p className="text-muted">Waiting for other students to join...</p>
+                  </div>
+                ) : (
+                  <div className="d-flex flex-wrap gap-2 justify-content-center">
+                    {players.map((player) => (
+                      <span 
+                        key={player.id}
+                        className="badge bg-light text-dark border border-primary fs-6 px-3 py-2"
+                        style={{ fontWeight: 500, whiteSpace: 'nowrap' }}
+                      >
+                        {player.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-              <div className="text-center mt-4">
-                <div className="alert alert-info">
-                  <i className="bi bi-clock me-2"></i>
-                  Waiting for teacher to start the quiz...
+                <div className="text-center mt-4">
+                  <div className="alert alert-info">
+                    <i className="bi bi-clock me-2"></i>
+                    Waiting for teacher to start the quiz...
+                  </div>
+                  
+                  <button 
+                    className="btn btn-outline-danger"
+                    onClick={leaveRoom}
+                  >
+                    <i className="bi bi-box-arrow-left me-2"></i>
+                    Leave Room
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

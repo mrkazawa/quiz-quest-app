@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket.js';
 import { useAuth } from '../hooks/useAuth.js';
 import type { QuestionResults } from '../types/quiz.ts';
+import Layout from '../components/Layout';
 
 interface QuestionData {
   question: string;
@@ -337,47 +338,46 @@ const TeacherQuizRoom = () => {
 
   if (loading) {
     return (
-      <div className="container py-5">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+      <Layout 
+        title="Quiz Room"
+        subtitle="Loading quiz..."
+        showLogout={true}
+      >
+        <div className="container py-5">
+          <div className="text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-2">
+              {!socket ? 'Connecting...' : 
+               !socket.connected ? 'Connecting to quiz room...' : 
+               'Loading quiz...'}
+            </p>
           </div>
-          <p className="mt-2">
-            {!socket ? 'Connecting...' : 
-             !socket.connected ? 'Connecting to quiz room...' : 
-             'Loading quiz...'}
-          </p>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   // Handle result route refresh - show result view even without full data
   if (isResultRoute && questionId) {
     return (
-      <div className="container mt-3">
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
-
-        <div className="row">
-          <div className="col-md-8 offset-md-2">
-            <div className="card">
-              <div className="card-header bg-success text-white">
-                <h4 className="mb-0">
-                  <i className="bi bi-bar-chart-fill me-2"></i>
-                  Question {questionId} Results
-                </h4>
-              </div>
-              <div className="card-body">
+      <Layout 
+        title={`Question ${questionId} Results`}
+        subtitle="Review student answers and continue to next question"
+        showLogout={true}
+      >
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 offset-md-2">
+              <div className="card">
+                <div className="card-header bg-success text-white">
+                  <h4 className="mb-0">
+                    <i className="bi bi-bar-chart-fill me-2"></i>
+                    Question {questionId} Results
+                  </h4>
+                </div>
+                <div className="card-body">
                 {questionResults && questionResults.question && questionResults.options ? (
                   <div>
                     {/* Question Display */}
@@ -524,45 +524,45 @@ const TeacherQuizRoom = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </Layout>
     );
   }
 
   if (error) {
     return (
-      <div className="container py-5">
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle me-2"></i>
-          {error}
-          <button 
-            className="btn btn-primary ms-3"
-            onClick={() => navigate('/teacher/dashboard')}
-          >
-            Back to Dashboard
-          </button>
+      <Layout 
+        title="Quiz Room Error"
+        subtitle="There was an error accessing the quiz room"
+        showLogout={true}
+      >
+        <div className="container py-5">
+          <div className="alert alert-danger">
+            <i className="bi bi-exclamation-triangle me-2"></i>
+            {error}
+            <button 
+              className="btn btn-primary ms-3"
+              onClick={() => navigate('/teacher/dashboard')}
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (quizEnded) {
     return (
-      <div className="container mt-3">
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
-
-        <div className="row">
-          <div className="col-md-8 offset-md-2">
-            <div className="card">
+      <Layout 
+        title="Quiz Complete"
+        subtitle="View final rankings and download results"
+        showLogout={true}
+      >
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 offset-md-2">
+              <div className="card">
               <div className="card-body">
                 <div className="alert alert-success mb-4">
                   <i className="bi bi-check-circle-fill me-2"></i>
@@ -681,25 +681,20 @@ const TeacherQuizRoom = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </Layout>
     );
   }
 
   if (!currentQuestion) {
     return (
-      <div className="container mt-3">
-        <div className="text-center mt-3 mb-4">
-          <img
-            src="/quiz-quest-logo-horizontal.png"
-            alt="Quiz Quest"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: 'auto'
-            }}
-          />
-        </div>
-        <div className="card">
+      <Layout 
+        title="Ready to Start Quiz"
+        subtitle={`Room ID: ${roomId} • Students are ready`}
+        showLogout={true}
+      >
+        <div className="container">
+          <div className="card">
           <div className="card-body text-center py-5">
             <div className="mb-4">
               <i className="bi bi-play-circle display-1 text-primary"></i>
@@ -726,24 +721,18 @@ const TeacherQuizRoom = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="container mt-3">
-      {/* Header Logo */}
-      <div className="text-center mt-3 mb-4">
-        <img
-          src="/quiz-quest-logo-horizontal.png"
-          alt="Quiz Quest"
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            height: 'auto'
-          }}
-        />
-      </div>
+    <Layout 
+      title={`Question ${currentQuestion?.currentQuestionIndex ? currentQuestion.currentQuestionIndex + 1 : 1}`}
+      subtitle={`Room ID: ${roomId} • ${timeRemaining}s remaining`}
+      showLogout={true}
+    >
+      <div className="container">
 
       {/* Question Progress */}
       <div className="row mb-4">
@@ -849,7 +838,8 @@ const TeacherQuizRoom = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

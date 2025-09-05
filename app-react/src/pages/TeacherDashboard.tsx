@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
 import { useSocket } from "../hooks/useSocket.js";
+import Layout from "../components/Layout";
 
 interface SimpleQuiz {
   id: string;
@@ -11,7 +12,7 @@ interface SimpleQuiz {
 }
 
 const TeacherDashboard = () => {
-  const { isAuthenticated, teacherId, logout } = useAuth();
+  const { isAuthenticated, teacherId } = useAuth();
   const { socket, isConnected } = useSocket();
   const navigate = useNavigate();
 
@@ -136,11 +137,6 @@ const TeacherDashboard = () => {
     setDeleteModal({ show: false, quiz: null });
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="container py-5">
@@ -155,32 +151,16 @@ const TeacherDashboard = () => {
   }
 
   return (
-    <div
-      style={{ maxWidth: "1200px", margin: "0 auto", padding: "1rem 1.5rem" }}
+    <Layout 
+      title="Teacher Dashboard" 
+      subtitle="Ready to create a new quiz session?"
+      showLogout={true}
     >
-      {/* Header */}
-      <div className="mb-4">
-        <div className="d-flex justify-content-between align-items-center">
-          <div>
-            <h1 className="mb-1">Teacher Dashboard</h1>
-            <p className="text-muted mb-0">
-              Welcome! Ready to create a new quiz session?
-            </p>
-          </div>
-          <div>
-            <button
-              className="btn btn-outline-danger btn-sm"
-              onClick={handleLogout}
-            >
-              <i className="bi bi-box-arrow-right"></i>
-              <span className="d-none d-md-inline ms-2">Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Quiz Selection */}
-      <div className="card shadow-sm">
+      <div
+        style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}
+      >
+        {/* Quiz Selection */}
+        <div className="card shadow-sm">
         <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
           <h3 className="card-title mb-0">
             <i className="bi bi-collection me-2"></i>
@@ -372,7 +352,8 @@ const TeacherDashboard = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </Layout>
   );
 };
 
