@@ -309,9 +309,9 @@ const TeacherWaitingRoom = () => {
                   <p className="text-xs text-gray-500 mt-2">Students can scan this QR code to join</p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 text-center">
                   <button 
-                    className={`w-full px-4 py-3 rounded-lg font-semibold text-white transition-colors duration-200 flex items-center justify-center ${
+                    className={`inline-flex items-center px-6 py-3 rounded-lg font-semibold text-white transition-colors duration-200 ${
                       students.length === 0 
                         ? 'bg-gray-400 cursor-not-allowed' 
                         : 'bg-green-600 hover:bg-green-700'

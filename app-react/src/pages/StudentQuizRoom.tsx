@@ -429,7 +429,7 @@ export default function StudentQuizRoom() {
         title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
-        <div className="max-w-7xl mx-auto px-4 mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
               <span className="sr-only">Loading...</span>
@@ -448,7 +448,7 @@ export default function StudentQuizRoom() {
         title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="text-center">
               <div className="mb-6">
@@ -688,9 +688,8 @@ export default function StudentQuizRoom() {
         title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="max-w-4xl mx-auto">
           {/* Current Question */}
           <div className="bg-white rounded-lg border border-gray-200">
             <div 
@@ -795,7 +794,6 @@ export default function StudentQuizRoom() {
             </div>
           </div>
         </div>
-        </div>
       </Layout>
     );
   }
@@ -807,7 +805,7 @@ export default function StudentQuizRoom() {
         title={roomInfo?.quizName || "Quiz Room"}
         subtitle={`Room ID: ${roomId}`}
       >
-        <div className="max-w-7xl mx-auto px-4 mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
               <span className="sr-only">Loading...</span>
@@ -825,7 +823,7 @@ export default function StudentQuizRoom() {
       title={roomInfo?.quizName || "Quiz Room"}
       subtitle={`Room ID: ${roomId}`}
     >
-      <div className="max-w-7xl mx-auto px-4 mt-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
             <span className="sr-only">Loading...</span>

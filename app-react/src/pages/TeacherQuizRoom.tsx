@@ -421,7 +421,7 @@ const TeacherQuizRoom = () => {
         subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status">
               <span className="sr-only">Loading...</span>
@@ -445,8 +445,7 @@ const TeacherQuizRoom = () => {
         subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-lg border border-gray-200">
               <div className="p-6">
               {questionResults && questionResults.question && questionResults.options ? (
@@ -679,7 +678,6 @@ const TeacherQuizRoom = () => {
             </div>
           </div>
         </div>
-        </div>
 
         {/* End Quiz Confirmation Modal */}
         {showEndQuizModal && (
@@ -751,7 +749,7 @@ const TeacherQuizRoom = () => {
         subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
             <div className="flex items-center">
               <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -778,8 +776,7 @@ const TeacherQuizRoom = () => {
         subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-6">
               <div className="mb-6">
@@ -889,7 +886,6 @@ const TeacherQuizRoom = () => {
             </div>
           </div>
         </div>
-        </div>
       </Layout>
     );
   }
@@ -901,7 +897,7 @@ const TeacherQuizRoom = () => {
         subtitle={`Room ID: ${roomId}`}
         showLogout={true}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg border border-gray-200">
           <div className="p-8 text-center">
             <div className="mb-6">
@@ -946,8 +942,7 @@ const TeacherQuizRoom = () => {
       subtitle={`Room ID: ${roomId}`}
       showLogout={true}
     >
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Current Question */}
         <div className="bg-white rounded-lg border border-gray-200">
           <div 
@@ -1074,7 +1069,6 @@ const TeacherQuizRoom = () => {
             </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* End Quiz Confirmation Modal */}
