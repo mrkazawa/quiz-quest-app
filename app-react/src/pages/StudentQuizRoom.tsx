@@ -690,7 +690,7 @@ export default function StudentQuizRoom() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* Current Question */}
+          {/* Question Display and Answer Options - Combined div */}
           <div className="bg-white rounded-lg border border-gray-200">
             <div 
               className="bg-blue-600 text-white rounded-t-lg px-6 py-4"
@@ -711,18 +711,23 @@ export default function StudentQuizRoom() {
               </div>
             </div>
             <div className="p-6">
-              <h3 className="text-xl font-semibold text-center mb-6">{currentQuestion.question}</h3>
+              {/* Question Display */}
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-semibold mb-4">{currentQuestion.question}</h3>
+              </div>
 
               {/* Answer Options - Student View (With interaction) */}
-              <div className="student-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="student-view grid grid-cols-1 md:grid-cols-2 gap-4">
                 {currentQuestion?.options?.map((option, index) => (
                   <button
                     key={index}
-                    className={`option-btn option-${index} w-full text-white ${hasAnswered ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`option-btn option-${index} w-full text-white flex items-center justify-center ${hasAnswered ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
                     onClick={() => submitAnswer(index)}
                     disabled={hasAnswered}
                     style={{ 
-                      minHeight: '96px',
+                      height: '100px',
+                      fontSize: '1.1rem',
+                      padding: '12px',
                       backgroundColor: (
                         index === 0 ? '#ef4444' : // red-500
                         index === 1 ? '#3b82f6' : // blue-500  
@@ -732,65 +737,48 @@ export default function StudentQuizRoom() {
                       )
                     }}
                   >
-                    {option}
+                    <span className="text-center">{option}</span>
                   </button>
                 )) || (
-                  <div className="col-span-full text-center text-gray-500">
+                  <div className="col-span-full text-center text-gray-500 py-8">
                     Loading options...
                   </div>
                 )}
               </div>
+            </div>
+          </div>
 
-              {/* Question Progress - Moved below options */}
-              <div className="mb-6">
-                <div className="max-w-4xl mx-auto">
-                  {/* Step Progress Bar with Dots */}
-                  <div className="flex items-center justify-center mb-3">
-                    {Array.from({ length: totalQuestions }, (_, index) => (
-                      <div key={index} className="flex items-center">
+          {/* Quiz Progress - Separate div */}
+          <div className="bg-white rounded-lg border border-gray-200 mt-6">
+            <div className="p-6">
+              <div className="max-w-4xl mx-auto">
+                {/* Step Progress Bar with Dots */}
+                <div className="flex items-center justify-center mb-3">
+                  {Array.from({ length: totalQuestions }, (_, index) => (
+                    <div key={index} className="flex items-center">
+                      <div 
+                        className={`w-3 h-3 rounded-full ${
+                          index <= currentQuestionIndex 
+                            ? 'bg-blue-600'   // Current and completed questions - blue
+                            : 'bg-gray-300'   // Future questions - gray
+                        } transition-colors duration-300`}
+                      />
+                      {index < totalQuestions - 1 && (
                         <div 
-                          className={`w-3 h-3 rounded-full ${
-                            index <= currentQuestionIndex 
-                              ? 'bg-blue-600'   // Current and completed questions - blue
-                              : 'bg-gray-300'   // Future questions - gray
+                          className={`w-8 h-0.5 mx-1 ${
+                            index < currentQuestionIndex 
+                              ? 'bg-blue-600' 
+                              : 'bg-gray-300'
                           } transition-colors duration-300`}
                         />
-                        {index < totalQuestions - 1 && (
-                          <div 
-                            className={`w-8 h-0.5 mx-1 ${
-                              index < currentQuestionIndex 
-                                ? 'bg-blue-600' 
-                                : 'bg-gray-300'
-                            } transition-colors duration-300`}
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-center text-gray-600 text-sm">
-                    Question {currentQuestionIndex + 1} of {totalQuestions}
-                  </p>
-                </div>
-              </div>
-
-              {/* Score display at bottom */}
-              {currentQuestionIndex > 0 && (
-                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                  <div className="text-lg font-semibold text-gray-900">
-                    Current Score: <span className="text-blue-600">{score}</span>
-                  </div>
-                  {streak > 1 && (
-                    <div className="flex items-center space-x-2">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 717 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                        </svg>
-                        {streak}x Streak!
-                      </span>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              )}
+                <p className="text-center text-gray-600 text-sm">
+                  Question {currentQuestionIndex + 1} of {totalQuestions}
+                </p>
+              </div>
             </div>
           </div>
         </div>

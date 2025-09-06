@@ -974,7 +974,7 @@ const TeacherQuizRoom = () => {
             </div>
           </div>
           <div className="p-6">
-            <h3 className="text-xl font-semibold text-center mb-6">{currentQuestion.question}</h3>
+            <h3 className="text-2xl font-semibold text-center mb-6">{currentQuestion.question}</h3>
 
             {/* Answer Options - Teacher View (No interaction) */}
             <div className="teacher-view grid grid-cols-1 md:grid-cols-2 gap-4">
