@@ -23,6 +23,7 @@ const TeacherWaitingRoom = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBackModal, setShowBackModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   console.log('TeacherWaitingRoom render:', { roomId, socket: !!socket, isAuthenticated, loading });
 
@@ -184,6 +185,14 @@ const TeacherWaitingRoom = () => {
     setShowBackModal(false);
   };
 
+  const openQRModal = () => {
+    setShowQRModal(true);
+  };
+
+  const closeQRModal = () => {
+    setShowQRModal(false);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -298,7 +307,11 @@ const TeacherWaitingRoom = () => {
 
                 <div className="mb-6 text-center">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">QR Code</label>
-                  <div className="border border-gray-200 rounded-lg p-4 bg-white inline-block">
+                  <div 
+                    className="border border-gray-200 rounded-lg p-4 bg-white inline-block cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                    onClick={openQRModal}
+                    title="Click to enlarge QR code"
+                  >
                     <QRCodeSVG 
                       value={`${window.location.origin}/student/join/${roomId}`}
                       size={160}
@@ -306,7 +319,7 @@ const TeacherWaitingRoom = () => {
                       includeMargin={true}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Students can scan this QR code to join</p>
+                  <p className="text-xs text-gray-500 mt-2">Students can scan this QR code to join • Click to enlarge</p>
                 </div>
 
                 <div className="space-y-3 text-center">
@@ -415,6 +428,51 @@ const TeacherWaitingRoom = () => {
                 </svg>
                 <span>Delete Room & Leave</span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enlarged QR Code Modal */}
+      {showQRModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" 
+          onClick={closeQRModal}
+        >
+          <div className="bg-white rounded-lg max-w-lg w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
+              <h5 className="text-lg font-semibold flex items-center mb-0">
+                <i className="bi bi-qr-code mr-2"></i>
+                QR Code - Room {roomId}
+              </h5>
+              <button
+                type="button"
+                className="text-white hover:text-gray-200 transition-colors"
+                onClick={closeQRModal}
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-8 text-center">
+              <div className="bg-white border-2 border-gray-200 rounded-lg p-6 inline-block shadow-lg">
+                <QRCodeSVG 
+                  value={`${window.location.origin}/student/join/${roomId}`}
+                  size={300}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+              <div className="mt-6">
+                <p className="text-gray-600 text-sm mb-2">
+                  Students can scan this QR code to join the quiz room
+                </p>
+                <p className="text-gray-500 text-xs">
+                  URL: {window.location.origin}/student/join/{roomId}
+                </p>
+              </div>
             </div>
           </div>
         </div>
