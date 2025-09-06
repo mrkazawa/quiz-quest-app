@@ -4,6 +4,8 @@ import { useSocket } from '../hooks/useSocket.ts';
 import type { NewQuestionData } from '../types/socket.ts';
 import type { QuestionResults, PlayerAnswer } from '../types/quiz.ts';
 import Layout from '../components/Layout';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 interface Question {
   questionId: string;
@@ -18,6 +20,8 @@ interface AnswerResult {
   pointsEarned: number;
   streak: number;
   totalScore: number;
+  selectedAnswer: number | null;
+  selectedAnswerText: string;
 }
 
 interface QuizState {
@@ -51,6 +55,7 @@ export default function StudentQuizRoom() {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null);
   const [score, setScore] = useState<number>(0);
+  const [questionStartScore, setQuestionStartScore] = useState<number>(0);
   const [streak, setStreak] = useState<number>(0);
   const [hasAnswered, setHasAnswered] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -187,6 +192,9 @@ export default function StudentQuizRoom() {
         questionExpired: serverQuestionExpired,
       } = data;
 
+      // Track score at start of question for points calculation
+      setQuestionStartScore(serverScore || 0);
+
       // Update question state
       setCurrentQuestion({
         questionId: newQuestionId.toString(),
@@ -233,15 +241,26 @@ export default function StudentQuizRoom() {
       const playerAnswer = data.playerAnswers?.find((a: PlayerAnswer) => a.playerId === socket?.id);
       
       if (playerAnswer) {
+        // Calculate points earned this question
+        const pointsEarned = (playerAnswer.score || 0) - questionStartScore;
+        
+        // Get selected answer text
+        const selectedAnswerText = playerAnswer.answerId !== null && data.options 
+          ? data.options[playerAnswer.answerId] 
+          : 'No answer selected';
+        
         setAnswerResult({
           isCorrect: playerAnswer.isCorrect,
-          pointsEarned: 0, // Not in PlayerAnswer interface
-          streak: 0, // Not in PlayerAnswer interface  
+          pointsEarned: pointsEarned,
+          streak: playerAnswer.streak || 0,
           totalScore: playerAnswer.score || 0,
+          selectedAnswer: playerAnswer.answerId,
+          selectedAnswerText: selectedAnswerText,
         });
         
-        // Update scores
+        // Update scores and streak
         setScore(playerAnswer.score || 0);
+        setStreak(playerAnswer.streak || 0);
         
         // Save session state
         saveSession({
@@ -308,7 +327,7 @@ export default function StudentQuizRoom() {
       socket.off('room_deleted', handleRoomDeleted);
       socket.off('join_error', handleJoinError);
     };
-  }, [socket, roomId, navigate, questionId, saveSession, score]);
+  }, [socket, roomId, navigate, questionId, saveSession, score, questionStartScore]);
 
   // Timer effect
   useEffect(() => {
@@ -404,12 +423,16 @@ export default function StudentQuizRoom() {
     // Result Screen (waiting for next question or showing answer feedback)
   if (isResultRoute) {
     return (
-      <Layout 
-        title={roomInfo?.quizName || "Quiz Room"}
-        subtitle={`Room ID: ${roomId}`}
-      >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header 
+          title={roomInfo?.quizName || "Quiz Room"}
+          subtitle={`Room ID: ${roomId}`} 
+          showLogout={false} 
+          showBack={false} 
+          backTo="/"
+        />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full max-w-2xl mx-4">
             <div className="text-center">
               {answerResult ? (
                 <>
@@ -431,22 +454,52 @@ export default function StudentQuizRoom() {
                     )}
                   </div>
 
+                  {/* Show selected answer */}
+                  <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900 mb-2 text-center">Your Answer:</h4>
+                    <div className="flex items-center justify-center">
+                      {answerResult.selectedAnswer !== null ? (
+                        <>
+                          {(() => {
+                            // Define colors for each option (same as teacher quiz room)
+                            const colors = {
+                              0: { bg: 'bg-red-500', text: 'text-red-700', light: 'bg-red-100' },
+                              1: { bg: 'bg-blue-500', text: 'text-blue-700', light: 'bg-blue-100' },
+                              2: { bg: 'bg-yellow-500', text: 'text-yellow-700', light: 'bg-yellow-100' },
+                              3: { bg: 'bg-green-500', text: 'text-green-700', light: 'bg-green-100' }
+                            };
+                            const colorSet = colors[answerResult.selectedAnswer as keyof typeof colors] || { bg: 'bg-gray-500', text: 'text-gray-700', light: 'bg-gray-100' };
+                            
+                            return (
+                              <>
+                                <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${colorSet.bg} text-white text-sm font-semibold mr-3`}>
+                                  {answerResult.selectedAnswer + 1}
+                                </span>
+                                <span className="font-medium text-gray-900">{answerResult.selectedAnswerText}</span>
+                              </>
+                            );
+                          })()}
+                        </>
+                      ) : (
+                        <span className="text-gray-700">No answer selected</span>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="mb-6">
                     <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                       Your Score: <span className="text-blue-600">{score}</span>
                     </h3>
-                    {answerResult.isCorrect && (
-                      <p className="text-green-600 font-medium">
-                        +{answerResult.pointsEarned} points earned
-                      </p>
-                    )}
-                    {streak > 1 && (
+                    <p className="text-green-600 font-medium">
+                      +{answerResult.pointsEarned} points earned
+                    </p>
+                    {answerResult.streak > 1 && (
                       <div className="mt-3">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 717 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
                           </svg>
-                          {streak}x Streak!
+                          {answerResult.streak}x Streak!
                         </span>
                       </div>
                     )}
@@ -461,19 +514,21 @@ export default function StudentQuizRoom() {
                 </div>
               )}
 
-              <div className="bg-blue-50 rounded-lg p-4 mb-6">
+              {/* Loading circle first, then waiting message */}
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-4">
                 <p className="text-blue-800 font-medium">
                   Waiting for the next question...
                 </p>
               </div>
-
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" role="status">
-                <span className="sr-only">Loading...</span>
-              </div>
             </div>
           </div>
-        </div>
-      </Layout>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
