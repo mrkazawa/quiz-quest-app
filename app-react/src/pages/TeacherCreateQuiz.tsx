@@ -236,7 +236,7 @@ Make sure:
       showBack={true} 
       backTo="/teacher/dashboard"
     >
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Content Card */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {/* Help Section */}
@@ -321,15 +321,15 @@ Make sure:
             >
               {/* Modal Header */}
               <div className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <h3 className="text-lg font-semibold flex items-center min-w-0 flex-1 mr-4">
+                  <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" />
                   </svg>
-                  How to Create Your Quiz with ChatGPT
+                  <span className="truncate whitespace-nowrap overflow-hidden text-ellipsis">How to Create Your Quiz with ChatGPT</span>
                 </h3>
                 <button
                   onClick={() => setShowHelpModal(false)}
-                  className="text-white hover:text-gray-200 transition-colors"
+                  className="text-white hover:text-gray-200 transition-colors flex-shrink-0"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -339,7 +339,7 @@ Make sure:
 
               {/* Modal Body */}
               <div className="p-6 max-h-[calc(90vh-140px)] overflow-y-auto">
-                <div className="mb-4">
+                <div className="mb-0">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <div className="flex items-start">
                       <svg className="w-5 h-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -370,7 +370,8 @@ Make sure:
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <span>JSON Template</span>
+                  <span className="hidden sm:inline">JSON Template</span>
+                  <span className="sm:hidden">Download</span>
                 </a>
                 <button
                   onClick={handleCopyPrompt}
@@ -387,7 +388,8 @@ Make sure:
                         : "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                     } />
                   </svg>
-                  <span>{copyButtonText}</span>
+                  <span className="hidden sm:inline">{copyButtonText}</span>
+                  <span className="sm:hidden">{copyButtonText === "Copied!" ? "Copied!" : "Copy"}</span>
                 </button>
               </div>
             </div>

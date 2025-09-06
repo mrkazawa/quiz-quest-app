@@ -46,9 +46,9 @@ const Header = ({ title, subtitle, showLogout = false, showBack = false, backTo 
             )}
             
             <div className="flex flex-col min-w-0 flex-1">
-              <h1 className="text-xl font-bold text-white truncate">{title}</h1>
+              <h1 className="text-xl font-bold text-white truncate whitespace-nowrap overflow-hidden text-ellipsis">{title}</h1>
               {subtitle && (
-                <p className="text-sm text-slate-300 truncate">{subtitle}</p>
+                <p className="text-sm text-slate-300 truncate whitespace-nowrap overflow-hidden text-ellipsis">{subtitle}</p>
               )}
             </div>
           </div>
