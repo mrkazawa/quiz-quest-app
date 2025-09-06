@@ -7,19 +7,18 @@ WORKDIR /app
 # Copy root package.json for orchestration
 COPY package*.json ./
 
-# Copy API package.json and install API dependencies
+# Copy API and client package.json files
 COPY api/package*.json ./api/
-RUN cd api && npm install --production
-
-# Copy client package.json and install frontend dependencies
 COPY client/package*.json ./client/
-RUN cd client && npm install
+
+# Install all dependencies using npm scripts
+RUN npm run install:all
 
 # Copy the rest of the app
 COPY . .
 
 # Build the React app
-RUN cd client && npm run build
+RUN npm run build:client
 
 # Install openssh-client for SSH forwarding
 RUN apk add --no-cache openssh

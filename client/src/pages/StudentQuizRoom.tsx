@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useSocket } from '../hooks/useSocket.ts';
-import type { NewQuestionData } from '../types/socket.ts';
-import type { QuestionResults, PlayerAnswer } from '../types/quiz.ts';
+import { useSocket } from '../hooks/useSocket';
+import type { NewQuestionData } from '../types/socket';
+import type { QuestionResults, PlayerAnswer } from '../types/quiz';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import Footer from '../components/Footer';

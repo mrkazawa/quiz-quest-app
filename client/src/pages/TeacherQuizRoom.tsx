@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useSocket } from '../hooks/useSocket.js';
-import { useAuth } from '../hooks/useAuth.js';
-import type { QuestionResults } from '../types/quiz.ts';
+import { useSocket } from '../hooks/useSocket';
+import { useAuth } from '../hooks/useAuth';
+import type { QuestionResults } from '../types/quiz';
 import Layout from '../components/Layout';
 
 interface QuestionData {

@@ -126,8 +126,13 @@ quiz-quest/
 ```bash
 # Clone and install
 git clone <repository-url>
-cd quiz-quest
-npm install
+cd quiz-quest-app
+
+# Option 1: Use deploy script (recommended)
+./deploy.sh
+
+# Option 2: Manual installation
+npm run install:all
 
 # Start the application
 npm start
