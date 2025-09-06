@@ -63,11 +63,14 @@ export default function StudentQuizRoom() {
   const [sessionValid, setSessionValid] = useState<boolean>(false);
   const [waitingForNext, setWaitingForNext] = useState<boolean>(false);
   const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null);
+  const [studentRanking, setStudentRanking] = useState<{rank: number, totalPlayers: number} | null>(null);
+  const [loadingRanking, setLoadingRanking] = useState(true);
 
   // Get current route state
   const isQuestionRoute = location.pathname.includes('/question/');
   const isSubmitRoute = location.pathname.includes('/submit/');
   const isResultRoute = location.pathname.includes('/result/');
+  const isFinalRoute = location.pathname.includes('/final');
 
   // Mark waitingForNext as used for state tracking
   console.log('Waiting state:', waitingForNext); // Used for debugging state
@@ -114,7 +117,13 @@ export default function StudentQuizRoom() {
       return;
     }
 
-    // Validate session first
+    // Skip session validation for final route since quiz has ended
+    if (isFinalRoute) {
+      console.log('Final route - skipping session validation');
+      return;
+    }
+
+    // Validate session first for other routes
     if (!validateSession()) {
       return;
     }
@@ -144,7 +153,7 @@ export default function StudentQuizRoom() {
       // On question page - custom logic for question state
       console.log('Question route - would request question state');
     }
-  }, [roomId, questionId, location.pathname, socket, navigate, isQuestionRoute, isSubmitRoute, isResultRoute, validateSession]);
+  }, [roomId, questionId, location.pathname, socket, navigate, isQuestionRoute, isSubmitRoute, isResultRoute, isFinalRoute, validateSession]);
 
   // Socket event handlers
   useEffect(() => {
@@ -277,12 +286,17 @@ export default function StudentQuizRoom() {
     const handleQuizEnded = (data: { message?: string; historyId?: string }) => {
       console.log('Quiz ended:', data);
       
-      // Clear session since quiz is completed
-      localStorage.removeItem('studentSession');
-      localStorage.removeItem('finalScore');
+      // Save final data to session for final page
+      const finalData = {
+        finalScore: score,
+        historyId: data.historyId,
+        roomId: roomId,
+        quizName: roomInfo?.quizName
+      };
+      localStorage.setItem('finalQuizData', JSON.stringify(finalData));
       
-      // Navigate directly to join page
-      navigate('/student/join');
+      // Navigate to final page instead of join page
+      navigate(`/student/room/${roomId}/final`);
     };
 
     const handleJoinError = (message: string) => {
@@ -327,7 +341,7 @@ export default function StudentQuizRoom() {
       socket.off('room_deleted', handleRoomDeleted);
       socket.off('join_error', handleJoinError);
     };
-  }, [socket, roomId, navigate, questionId, saveSession, score, questionStartScore]);
+  }, [socket, roomId, navigate, questionId, saveSession, score, questionStartScore, roomInfo?.quizName]);
 
   // Timer effect
   useEffect(() => {
@@ -349,6 +363,49 @@ export default function StudentQuizRoom() {
 
     return () => clearInterval(timer);
   }, [timeLeft, isQuestionRoute, hasAnswered, saveSession]);
+
+  // Fetch ranking data for final page
+  useEffect(() => {
+    if (isFinalRoute) {
+      const fetchRanking = async () => {
+        const finalData = localStorage.getItem('finalQuizData');
+        const parsedFinalData = finalData ? JSON.parse(finalData) : null;
+        
+        if (parsedFinalData?.historyId) {
+          try {
+            const response = await fetch(`/api/quiz-history/${parsedFinalData.historyId}`);
+            const historyData = await response.json();
+            
+            // Find current student's ranking
+            const currentStudentId = getStoredSession()?.studentId;
+            const currentPlayerName = getStoredSession()?.playerName;
+            
+            if (historyData.rankings && (currentStudentId || currentPlayerName)) {
+              const playerRanking = historyData.rankings.find((ranking: { studentId: string; playerName: string; rank: number }) => 
+                ranking.studentId === currentStudentId || ranking.playerName === currentPlayerName
+              );
+              
+              if (playerRanking) {
+                setStudentRanking({
+                  rank: playerRanking.rank,
+                  totalPlayers: historyData.rankings.length
+                });
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching ranking:', error);
+          }
+        }
+        setLoadingRanking(false);
+      };
+      
+      fetchRanking();
+    } else {
+      // Reset ranking state when not on final route
+      setLoadingRanking(true);
+      setStudentRanking(null);
+    }
+  }, [isFinalRoute]);
 
   const submitAnswer = (optionIndex: number) => {
     if (hasAnswered || !socket || !currentQuestion || !roomId) return;
@@ -524,6 +581,98 @@ export default function StudentQuizRoom() {
                   Waiting for the next question...
                 </p>
               </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Final Results Screen
+  if (isFinalRoute) {
+    // Get saved final data
+    const finalData = localStorage.getItem('finalQuizData');
+    const parsedFinalData = finalData ? JSON.parse(finalData) : null;
+    
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header 
+          title={parsedFinalData?.quizName || "Quiz Completed"}
+          subtitle={`Room ID: ${roomId}`} 
+          showLogout={false} 
+          showBack={false} 
+          backTo="/"
+        />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 w-full max-w-lg mx-4">
+            <div className="text-center">
+              {/* Success Message */}
+              <div className="mb-8">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Quiz Completed!</h2>
+                <p className="text-gray-600">Great job on completing the quiz.</p>
+              </div>
+
+              {/* Final Score */}
+              <div className="mb-6 p-6 bg-blue-50 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Your Final Score</h3>
+                <div className="text-4xl font-bold text-blue-600 mb-2">
+                  {parsedFinalData?.finalScore || score} 
+                  <span className="text-lg text-gray-500 ml-2">pts</span>
+                </div>
+              </div>
+
+              {/* Ranking Information */}
+              <div className="mb-8 p-6 bg-yellow-50 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Your Ranking</h3>
+                {loadingRanking ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-600"></div>
+                    <span className="ml-2 text-gray-600">Loading ranking...</span>
+                  </div>
+                ) : studentRanking ? (
+                  <div>
+                    <div className="text-3xl font-bold text-yellow-600 mb-1">
+                      #{studentRanking.rank}
+                    </div>
+                    <p className="text-gray-600">
+                      out of {studentRanking.totalPlayers} player{studentRanking.totalPlayers !== 1 ? 's' : ''}
+                    </p>
+                    {studentRanking.rank === 1 && (
+                      <div className="mt-2">
+                        <svg className="w-6 h-6 text-yellow-500 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                          <path fillRule="evenodd" d="M10 2C5.582 2 2 5.582 2 10s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-medium text-yellow-600">Winner!</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-gray-600">Ranking not available</p>
+                )}
+              </div>
+
+              {/* Join Another Quiz Button */}
+              <button 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+                onClick={() => {
+                  // Clear final data and navigate to join page
+                  localStorage.removeItem('finalQuizData');
+                  localStorage.removeItem('studentSession');
+                  navigate('/student/join');
+                }}
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Join Another Quiz
+              </button>
             </div>
           </div>
         </main>

@@ -782,23 +782,6 @@ const TeacherQuizRoom = () => {
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-6">
-              <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg mb-6 flex items-center">
-                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Quiz has ended successfully! Results have been saved to history.
-              </div>
-
-              {quizRankings && (
-                <div className="mb-6">
-                  <h4 className="text-xl font-semibold text-gray-900">{quizRankings.quizName}</h4>
-                  <p className="text-gray-600">
-                    {new Date(quizRankings.dateCompleted).toLocaleDateString()} {new Date(quizRankings.dateCompleted).toLocaleTimeString()} •{' '}
-                    {quizRankings.playerCount} players
-                  </p>
-                </div>
-              )}
-
               <div className="mb-6">
                 <h4 className="text-xl font-semibold text-gray-900 mb-4">Final Rankings</h4>
                 {quizRankings && quizRankings.rankings.length > 0 ? (
@@ -812,7 +795,7 @@ const TeacherQuizRoom = () => {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {quizRankings.rankings.map((player, index) => (
+                        {quizRankings.rankings.slice(0, 10).map((player, index) => (
                           <tr key={index} className={`
                             ${index === 0 ? 'bg-yellow-50' : // Gold for 1st place
                             index === 1 ? 'bg-gray-50' : // Silver for 2nd place  

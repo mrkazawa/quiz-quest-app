@@ -63,6 +63,7 @@ function App() {
               <Route path="/student/room/:roomId/question/:questionId" element={<StudentQuizRoom />} />
               <Route path="/student/room/:roomId/submit/:questionId" element={<StudentQuizRoom />} />
               <Route path="/student/room/:roomId/result/:questionId" element={<StudentQuizRoom />} />
+              <Route path="/student/room/:roomId/final" element={<StudentQuizRoom />} />
               
               {/* Catch-all route for 404 */}
               <Route path="*" element={<NotFound />} />
