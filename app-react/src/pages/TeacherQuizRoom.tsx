@@ -446,8 +446,9 @@ const TeacherQuizRoom = () => {
         showLogout={true}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white rounded-lg border border-gray-200">
-              <div className="p-6">
+          {/* Question Display and Answer Options - Combined div */}
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="p-6">
               {questionResults && questionResults.question && questionResults.options ? (
                 <div>
                   {/* Question Display */}
@@ -456,7 +457,7 @@ const TeacherQuizRoom = () => {
                   </div>
 
                   {/* Answer Options with Correct Answer Highlighted - 2x2 Grid */}
-                  <div className="teacher-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="teacher-view grid grid-cols-1 md:grid-cols-2 gap-4">
                     {questionResults.options.map((option: string, index: number) => {
                       const isCorrect = index === questionResults.correctAnswer;
                       
@@ -491,138 +492,6 @@ const TeacherQuizRoom = () => {
                       );
                     })}
                   </div>
-
-                  {/* Progress indicator below options */}
-                  {questionResults.currentQuestionIndex !== undefined && questionResults.totalQuestions !== undefined && (
-                    <div className="mb-6">
-                      <div className="max-w-4xl mx-auto">
-                        {/* Step Progress Bar with Dots */}
-                        <div className="flex items-center justify-center mb-3">
-                          {Array.from({ length: questionResults.totalQuestions }, (_, index) => (
-                            <div key={index} className="flex items-center">
-                              <div 
-                                className={`w-3 h-3 rounded-full ${
-                                  index <= questionResults.currentQuestionIndex 
-                                    ? 'bg-blue-600'   // Current and completed questions - blue
-                                    : 'bg-gray-300'   // Future questions - gray
-                                } transition-colors duration-300`}
-                              />
-                              {index < questionResults.totalQuestions - 1 && (
-                                <div 
-                                  className={`w-8 h-0.5 mx-1 ${
-                                    index < questionResults.currentQuestionIndex 
-                                      ? 'bg-blue-600' 
-                                      : 'bg-gray-300'
-                                  } transition-colors duration-300`}
-                                />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                        <p className="text-center text-gray-600 text-sm">
-                          Question {questionResults.currentQuestionIndex + 1} of {questionResults.totalQuestions}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Answer Distribution Bar Chart */}
-                  {questionResults.playerAnswers.length > 0 && (
-                    <div className="mt-6">
-                      <h5 className="text-lg font-semibold mb-4 flex items-center">
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        Answer Distribution ({questionResults.playerAnswers.length} students)
-                      </h5>
-                      <div className="space-y-4">
-                        {questionResults.options.map((option: string, index: number) => {
-                          // Count how many students chose this option
-                          const optionCount = questionResults.playerAnswers.filter(answer => answer.answerId === index).length;
-                          const totalAnswers = questionResults.playerAnswers.length;
-                          const percentage = totalAnswers > 0 ? (optionCount / totalAnswers) * 100 : 0;
-                          const isCorrect = index === questionResults.correctAnswer;
-                          
-                          // Define colors for each option
-                          const colors = {
-                            0: { bg: 'bg-red-500', text: 'text-red-700', light: 'bg-red-100' },
-                            1: { bg: 'bg-blue-500', text: 'text-blue-700', light: 'bg-blue-100' },
-                            2: { bg: 'bg-yellow-500', text: 'text-yellow-700', light: 'bg-yellow-100' },
-                            3: { bg: 'bg-green-500', text: 'text-green-700', light: 'bg-green-100' }
-                          };
-                          const colorSet = colors[index as keyof typeof colors] || { bg: 'bg-gray-500', text: 'text-gray-700', light: 'bg-gray-100' };
-                          
-                          return (
-                            <div key={index} className="relative">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center">
-                                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${colorSet.bg} text-white text-sm font-semibold mr-3`}>
-                                    {index + 1}
-                                  </span>
-                                  <span className="font-medium text-gray-900">{option}</span>
-                                  {isCorrect && (
-                                    <svg className="w-5 h-5 text-green-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                  )}
-                                </div>
-                                <div className="flex items-center">
-                                  <span className={`text-sm font-semibold ${colorSet.text} mr-2`}>
-                                    {optionCount} student{optionCount !== 1 ? 's' : ''}
-                                  </span>
-                                  <span className="text-sm text-gray-500">
-                                    ({percentage.toFixed(1)}%)
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-3">
-                                <div 
-                                  className={`h-3 rounded-full ${colorSet.bg} transition-all duration-500 ease-out`}
-                                  style={{ width: `${percentage}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                        
-                        {/* Show "No Answer" if there are any */}
-                        {(() => {
-                          const noAnswerCount = questionResults.playerAnswers.filter(answer => answer.answerId === null).length;
-                          if (noAnswerCount > 0) {
-                            const totalAnswers = questionResults.playerAnswers.length;
-                            const percentage = (noAnswerCount / totalAnswers) * 100;
-                            return (
-                              <div className="relative">
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="flex items-center">
-                                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-500 text-white text-sm font-semibold mr-3">
-                                      ⏱
-                                    </span>
-                                    <span className="font-medium text-gray-900">No Answer</span>
-                                  </div>
-                                  <div className="flex items-center">
-                                    <span className="text-sm font-semibold text-gray-700 mr-2">
-                                      {noAnswerCount} student{noAnswerCount !== 1 ? 's' : ''}
-                                    </span>
-                                    <span className="text-sm text-gray-500">
-                                      ({percentage.toFixed(1)}%)
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-3">
-                                  <div 
-                                    className="h-3 rounded-full bg-gray-500 transition-all duration-500 ease-out"
-                                    style={{ width: `${percentage}%` }}
-                                  ></div>
-                                </div>
-                              </div>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -634,8 +503,149 @@ const TeacherQuizRoom = () => {
                   <p className="text-gray-600">The quiz is still active. Use "Next Question" to continue.</p>
                 </div>
               )}
-              
-              <div className="text-center mt-6">
+            </div>
+          </div>
+
+          {/* Progress Bar - Separate div */}
+          {questionResults && questionResults.currentQuestionIndex !== undefined && questionResults.totalQuestions !== undefined && (
+            <div className="bg-white rounded-lg border border-gray-200 mt-6">
+              <div className="p-6">
+                <div className="max-w-4xl mx-auto">
+                  {/* Step Progress Bar with Dots */}
+                  <div className="flex items-center justify-center mb-3">
+                    {Array.from({ length: questionResults.totalQuestions }, (_, index) => (
+                      <div key={index} className="flex items-center">
+                        <div 
+                          className={`w-3 h-3 rounded-full ${
+                            index <= questionResults.currentQuestionIndex 
+                              ? 'bg-blue-600'   // Current and completed questions - blue
+                              : 'bg-gray-300'   // Future questions - gray
+                          } transition-colors duration-300`}
+                        />
+                        {index < questionResults.totalQuestions - 1 && (
+                          <div 
+                            className={`w-8 h-0.5 mx-1 ${
+                              index < questionResults.currentQuestionIndex 
+                                ? 'bg-blue-600' 
+                                : 'bg-gray-300'
+                            } transition-colors duration-300`}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-center text-gray-600 text-sm">
+                    Question {questionResults.currentQuestionIndex + 1} of {questionResults.totalQuestions}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Answer Distribution - Separate div */}
+          {questionResults && questionResults.playerAnswers.length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 mt-6">
+              <div className="p-6">
+                <h5 className="text-lg font-semibold mb-4 flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Answer Distribution ({questionResults.playerAnswers.length} students)
+                </h5>
+                <div className="space-y-4">
+                  {questionResults.options && questionResults.options.map((option: string, index: number) => {
+                    // Count how many students chose this option
+                    const optionCount = questionResults.playerAnswers.filter(answer => answer.answerId === index).length;
+                    const totalAnswers = questionResults.playerAnswers.length;
+                    const percentage = totalAnswers > 0 ? (optionCount / totalAnswers) * 100 : 0;
+                    const isCorrect = index === questionResults.correctAnswer;
+                    
+                    // Define colors for each option
+                    const colors = {
+                      0: { bg: 'bg-red-500', text: 'text-red-700', light: 'bg-red-100' },
+                      1: { bg: 'bg-blue-500', text: 'text-blue-700', light: 'bg-blue-100' },
+                      2: { bg: 'bg-yellow-500', text: 'text-yellow-700', light: 'bg-yellow-100' },
+                      3: { bg: 'bg-green-500', text: 'text-green-700', light: 'bg-green-100' }
+                    };
+                    const colorSet = colors[index as keyof typeof colors] || { bg: 'bg-gray-500', text: 'text-gray-700', light: 'bg-gray-100' };
+                    
+                    return (
+                      <div key={index} className="relative">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${colorSet.bg} text-white text-sm font-semibold mr-3`}>
+                              {index + 1}
+                            </span>
+                            <span className="font-medium text-gray-900">{option}</span>
+                            {isCorrect && (
+                              <svg className="w-5 h-5 text-green-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex items-center">
+                            <span className={`text-sm font-semibold ${colorSet.text} mr-2`}>
+                              {optionCount} student{optionCount !== 1 ? 's' : ''}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              ({percentage.toFixed(1)}%)
+                            </span>
+                          </div>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div 
+                            className={`h-3 rounded-full ${colorSet.bg} transition-all duration-500 ease-out`}
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Show "No Answer" if there are any */}
+                  {(() => {
+                    const noAnswerCount = questionResults.playerAnswers.filter(answer => answer.answerId === null).length;
+                    if (noAnswerCount > 0) {
+                      const totalAnswers = questionResults.playerAnswers.length;
+                      const percentage = (noAnswerCount / totalAnswers) * 100;
+                      return (
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center">
+                              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-500 text-white text-sm font-semibold mr-3">
+                                ⏱
+                              </span>
+                              <span className="font-medium text-gray-900">No Answer</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-sm font-semibold text-gray-700 mr-2">
+                                {noAnswerCount} student{noAnswerCount !== 1 ? 's' : ''}
+                              </span>
+                              <span className="text-sm text-gray-500">
+                                ({percentage.toFixed(1)}%)
+                              </span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div 
+                              className="h-3 rounded-full bg-gray-500 transition-all duration-500 ease-out"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons - Separate div */}
+          <div className="bg-white rounded-lg border border-gray-200 mt-6">
+            <div className="p-6">
+              <div className="text-center">
                 <div className="flex flex-wrap gap-3 justify-center">
                   <button 
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
@@ -967,7 +977,7 @@ const TeacherQuizRoom = () => {
             <h3 className="text-xl font-semibold text-center mb-6">{currentQuestion.question}</h3>
 
             {/* Answer Options - Teacher View (No interaction) */}
-            <div className="teacher-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="teacher-view grid grid-cols-1 md:grid-cols-2 gap-4">
               {currentQuestion.options && currentQuestion.options.length > 0 ? (
                 currentQuestion.options.map((option, index) => {
                   const isCorrect = questionResults && index === questionResults.correctAnswer;
@@ -1006,37 +1016,39 @@ const TeacherQuizRoom = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
 
-            {/* Question Progress - Moved below options */}
-            <div className="mb-6">
-              <div className="max-w-4xl mx-auto">
-                {/* Step Progress Bar with Dots */}
-                <div className="flex items-center justify-center mb-3">
-                  {Array.from({ length: currentQuestion.totalQuestions }, (_, index) => (
-                    <div key={index} className="flex items-center">
+        {/* Question Progress - Separate div */}
+        <div className="bg-white rounded-lg border border-gray-200 mt-6">
+          <div className="p-6">
+            <div className="max-w-4xl mx-auto">
+              {/* Step Progress Bar with Dots */}
+              <div className="flex items-center justify-center mb-3">
+                {Array.from({ length: currentQuestion.totalQuestions }, (_, index) => (
+                  <div key={index} className="flex items-center">
+                    <div 
+                      className={`w-3 h-3 rounded-full ${
+                        index <= currentQuestion.currentQuestionIndex 
+                          ? 'bg-blue-600'   // Current and completed questions - blue
+                          : 'bg-gray-300'   // Future questions - gray
+                      } transition-colors duration-300`}
+                    />
+                    {index < currentQuestion.totalQuestions - 1 && (
                       <div 
-                        className={`w-3 h-3 rounded-full ${
-                          index <= currentQuestion.currentQuestionIndex 
-                            ? 'bg-blue-600'   // Current and completed questions - blue
-                            : 'bg-gray-300'   // Future questions - gray
+                        className={`w-8 h-0.5 mx-1 ${
+                          index < currentQuestion.currentQuestionIndex 
+                            ? 'bg-blue-600' 
+                            : 'bg-gray-300'
                         } transition-colors duration-300`}
                       />
-                      {index < currentQuestion.totalQuestions - 1 && (
-                        <div 
-                          className={`w-8 h-0.5 mx-1 ${
-                            index < currentQuestion.currentQuestionIndex 
-                              ? 'bg-blue-600' 
-                              : 'bg-gray-300'
-                          } transition-colors duration-300`}
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-center text-gray-600 text-sm">
-                  Question {currentQuestion.currentQuestionIndex + 1} of {currentQuestion.totalQuestions}
-                </p>
+                    )}
+                  </div>
+                ))}
               </div>
+              <p className="text-center text-gray-600 text-sm">
+                Question {currentQuestion.currentQuestionIndex + 1} of {currentQuestion.totalQuestions}
+              </p>
             </div>
 
             {/* Question Controls */}
