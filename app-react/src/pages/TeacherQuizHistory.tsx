@@ -87,29 +87,8 @@ const TeacherQuizHistory = () => {
       showBack={true}
       backTo="/teacher/dashboard"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-white flex items-center">
-                <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Past Quizzes
-              </h3>
-              <button
-                onClick={loadQuizHistory}
-                disabled={loading}
-                className="bg-white text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span className="hidden lg:inline">Refresh</span>
-              </button>
-            </div>
-          </div>
-
           <div className="p-6">
             {loading && (
               <div className="text-center py-8">
@@ -147,15 +126,22 @@ const TeacherQuizHistory = () => {
                       className="flex-1 p-4 cursor-pointer"
                       onClick={() => viewHistoryDetail(item.roomId)}
                     >
-                      <div className="flex flex-col space-y-2">
+                      <div className="space-y-2">
+                        {/* Quiz Title */}
                         <h5 className="text-lg font-semibold text-blue-700">
                           {item.quizName}
                         </h5>
-                        <div className="text-sm text-gray-500 space-y-1">
-                          <div>Room ID: {getDisplayRoomId(item.roomId)}</div>
-                          <div>Completed: {formatDate(item.dateCompleted)}</div>
-                        </div>
-                        <div>
+                        
+                        {/* Metadata - All on one line */}
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                          <div className="flex items-center">
+                            <span className="font-medium">Room ID:</span>
+                            <span className="ml-1">{getDisplayRoomId(item.roomId)}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <span className="font-medium">Completed:</span>
+                            <span className="ml-1">{formatDate(item.dateCompleted)}</span>
+                          </div>
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             {item.playerCount} players
                           </span>
