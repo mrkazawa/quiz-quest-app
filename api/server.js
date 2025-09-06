@@ -242,17 +242,23 @@ io.on("connection", (socket) => {
       };
     }
 
-    socket.emit("joined_room", {
+    // Get quiz info for the quiz name
+    const quizSet = questionSets[rooms[roomId].quizId];
+    const joinedRoomData = {
       roomId,
       questionId: rooms[roomId].questionId,
       isActive: rooms[roomId].isActive,
+      quizName: quizSet ? quizSet.name : rooms[roomId].quizId,
       players: Object.values(rooms[roomId].players).map((p) => ({
         id: p.socketId,
         name: p.name,
         studentId: p.studentId,
         score: p.score,
       })),
-    });
+    };
+    
+    console.log(`Sending joined_room event with quizName: ${joinedRoomData.quizName} to student ${playerName}`);
+    socket.emit("joined_room", joinedRoomData);
 
     // If quiz is active, send current question and player state to this student only
     if (rooms[roomId].isActive && rooms[roomId].currentQuestionIndex >= 0) {

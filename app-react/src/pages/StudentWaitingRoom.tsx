@@ -18,13 +18,14 @@ const StudentWaitingRoom = () => {
   
   // Get initial players from navigation state if available
   const initialPlayers = location.state?.initialPlayers || [];
+  const initialQuizName = location.state?.quizName || '';
   const [players, setPlayers] = useState<PlayerInfo[]>(initialPlayers);
   const [loading, setLoading] = useState(true);
-  const [quizName] = useState('');
+  const [quizName, setQuizName] = useState(initialQuizName);
   const [error, setError] = useState<string | null>(null);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
 
-  console.log('StudentWaitingRoom render:', { roomId, socket: !!socket, loading });
+  console.log('StudentWaitingRoom render:', { roomId, socket: !!socket, loading, quizName, initialQuizName });
 
   useEffect(() => {
     // Wait for both socket and roomId to be available
@@ -74,6 +75,8 @@ const StudentWaitingRoom = () => {
           score: 0
         }));
         setPlayers(playerList);
+        console.log('Setting quiz name from room_info:', data.quizName);
+        setQuizName(data.quizName);
         setLoading(false);
       };
 
@@ -86,9 +89,15 @@ const StudentWaitingRoom = () => {
       };
 
       // Handle initial room join confirmation with player list
-      const handleJoinedRoom = (data: { roomId: string; questionId?: number; isActive: boolean; players: PlayerInfo[] }) => {
+      const handleJoinedRoom = (data: { roomId: string; questionId?: number; isActive: boolean; players: PlayerInfo[]; quizName?: string }) => {
         console.log('Joined room confirmed:', data);
         setPlayers(data.players);
+        if (data.quizName) {
+          console.log('Setting quiz name from joined_room:', data.quizName);
+          setQuizName(data.quizName);
+        } else {
+          console.warn('No quizName received in joined_room event');
+        }
         setLoading(false);
       };
 
@@ -279,13 +288,13 @@ const StudentWaitingRoom = () => {
 
   return (
     <Layout 
-      title="Waiting Room"
-      subtitle={quizName ? `Quiz: ${quizName} • Waiting for quiz to start` : "Waiting for quiz to start"}
+      title={`Waiting Room - ${quizName || 'Quiz'}`}
+      subtitle={`Room ID: ${roomId}`}
     >
       <div className="max-w-4xl mx-auto px-4">
         {/* Players List */}
         <div className="bg-white rounded-lg border border-gray-200">
-          <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-t-lg px-6 py-4 text-center">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-t-lg px-6 py-4 text-center">
             <h4 className="text-xl font-semibold mb-0 flex items-center justify-center">
               <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -293,7 +302,7 @@ const StudentWaitingRoom = () => {
               Students in Room ({players.length})
             </h4>
           </div>
-          <div className="p-6">
+          <div className="p-6 flex flex-col min-h-[400px]">
             {players.length === 0 ? (
               <div className="text-center py-12">
                 <svg className="w-20 h-20 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -315,16 +324,21 @@ const StudentWaitingRoom = () => {
               </div>
             )}
 
-            <div className="text-center mt-6">
-              <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-4 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-end space-y-6 flex-1">
+              {/* Loading Circle */}
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              
+              {/* Alert Message */}
+              <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Waiting for teacher to start the quiz...
               </div>
               
+              {/* Leave Room Button */}
               <button 
-                className="border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 mx-auto"
+                className="border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
                 onClick={leaveRoom}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

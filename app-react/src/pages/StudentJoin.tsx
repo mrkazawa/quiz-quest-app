@@ -14,6 +14,7 @@ interface JoinedRoomData {
   questionId?: number;
   isActive: boolean;
   players: PlayerInfo[];
+  quizName?: string;
 }
 
 const StudentJoin = () => {
@@ -63,9 +64,12 @@ const StudentJoin = () => {
       if (data.isActive) {
         navigate(`/student/room/${data.roomId}/quiz`);
       } else {
-        // Pass initial players data to waiting room
+        // Pass initial players data and quiz name to waiting room
         navigate(`/student/room/${data.roomId}/waiting`, {
-          state: { initialPlayers: data.players },
+          state: { 
+            initialPlayers: data.players,
+            quizName: data.quizName
+          },
         });
       }
     };
