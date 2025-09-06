@@ -346,14 +346,16 @@ Make sure:
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
                       <div className="text-blue-800">
-                        <p className="font-semibold">Instructions:</p>
-                        <p className="mt-1">Copy this prompt to ChatGPT along with your teaching materials. Make sure to replace <code className="bg-blue-100 px-1 py-0.5 rounded text-blue-900 font-mono text-sm">[YOUR TOPIC/MATERIALS]</code> with your actual content.</p>
+                        <p className="font-semibold">
+                          <span>Instructions: </span>
+                          <span className="font-normal">Copy this prompt to ChatGPT along with your teaching materials. Make sure to replace <code className="bg-blue-100 px-1 py-0.5 rounded text-blue-900 font-mono text-sm">[YOUR TOPIC/MATERIALS]</code> with your actual content.</span>
+                        </p>
                       </div>
                     </div>
                   </div>
                   <textarea
                     className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-lg font-mono text-sm resize-none"
-                    rows={15}
+                    rows={8}
                     readOnly
                     value={chatgptPrompt}
                   />
