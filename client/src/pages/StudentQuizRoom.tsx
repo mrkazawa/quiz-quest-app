@@ -56,7 +56,6 @@ export default function StudentQuizRoom() {
   const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null);
   const [score, setScore] = useState<number>(0);
   const [questionStartScore, setQuestionStartScore] = useState<number>(0);
-  const [streak, setStreak] = useState<number>(0);
   const [hasAnswered, setHasAnswered] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
@@ -103,7 +102,6 @@ export default function StudentQuizRoom() {
     
     // Restore state from session
     setScore(session.currentScore || 0);
-    setStreak(session.currentStreak || 0);
     setCurrentQuestionIndex(session.currentQuestionIndex || 0);
     setHasAnswered(session.hasAnswered || false);
     
@@ -215,7 +213,6 @@ export default function StudentQuizRoom() {
 
       setTimeLeft(remainingTime || timeLimit);
       setScore(serverScore || 0);
-      setStreak(serverStreak || 0);
       setCurrentQuestionIndex(serverQuestionIndex || 0);
       setTotalQuestions(serverTotalQuestions || 0);
       setHasAnswered(serverHasAnswered || false);
@@ -269,7 +266,6 @@ export default function StudentQuizRoom() {
         
         // Update scores and streak
         setScore(playerAnswer.score || 0);
-        setStreak(playerAnswer.streak || 0);
         
         // Save session state
         saveSession({

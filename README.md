@@ -70,7 +70,17 @@ quiz-quest/
 │   ├── server.js           # Main Express server and Socket.IO logic
 │   ├── package.json        # API dependencies and scripts
 │   └── README.md           # API documentation
-├── app/                     # Client-side code
+├── client/                 # React TypeScript implementation
+│   ├── index.html          # Main React app entry point
+│   ├── package.json        # Frontend dependencies
+│   ├── vite.config.ts      # Vite configuration
+│   ├── src/                # React source code
+│   │   ├── components/     # Reusable components
+│   │   ├── pages/          # Page components
+│   │   ├── hooks/          # Custom React hooks
+│   │   └── types/          # TypeScript type definitions
+│   └── dist/               # Built production files
+├── app/                     # Legacy client-side code (backup)
 │   ├── index.html          # Main landing page
 │   ├── teacher.html        # Teacher interface
 │   ├── student.html        # Student interface

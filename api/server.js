@@ -82,7 +82,7 @@ app.get("/api/quiz-history/:id", (req, res) => {
 });
 
 // Serve static files from the React build directory
-app.use(express.static(path.join(__dirname, "../app-react/dist")));
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 // Load questions from all JSON files in the questions directory
 const questionSets = {};
@@ -1562,7 +1562,7 @@ function renderTemplate(templatePath, req, additionalData = {}) {
 
 // Update routes to serve React app
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../app-react/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
 // Catchall handler: send back React's index.html file for any non-API routes
@@ -1573,7 +1573,7 @@ app.get("*", (req, res) => {
   }
   
   // For all other routes, serve the React app
-  res.sendFile(path.join(__dirname, "../app-react/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
 // Start the server

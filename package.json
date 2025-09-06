@@ -6,12 +6,12 @@
   "scripts": {
     "start": "npm run build:client && cd api && npm start",
     "dev:api": "cd api && npm run dev",
-    "dev:client": "cd app-react && npm run dev",
+    "dev:client": "cd client && npm run dev",
     "dev:all": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
-    "build:client": "cd app-react && npm run build",
+    "build:client": "cd client && npm run build",
     "install:all": "npm run install:api && npm run install:client",
     "install:api": "cd api && npm install",
-    "install:client": "cd app-react && npm install"
+    "install:client": "cd client && npm install"
   },
   "keywords": [
     "quiz",

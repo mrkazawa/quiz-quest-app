@@ -11,15 +11,15 @@ COPY package*.json ./
 COPY api/package*.json ./api/
 RUN cd api && npm install --production
 
-# Copy app-react package.json and install frontend dependencies
-COPY app-react/package*.json ./app-react/
-RUN cd app-react && npm install
+# Copy client package.json and install frontend dependencies
+COPY client/package*.json ./client/
+RUN cd client && npm install
 
 # Copy the rest of the app
 COPY . .
 
 # Build the React app
-RUN cd app-react && npm run build
+RUN cd client && npm run build
 
 # Install openssh-client for SSH forwarding
 RUN apk add --no-cache openssh

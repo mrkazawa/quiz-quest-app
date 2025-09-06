@@ -5,7 +5,7 @@ echo "🚀 Deploying Quiz Quest React App..."
 # Install dependencies
 echo "📦 Installing dependencies..."
 npm install
-cd app-react && npm install && cd ..
+cd client && npm install && cd ..
 
 # Build React app
 echo "🔨 Building React app..."

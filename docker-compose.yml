@@ -10,6 +10,6 @@ services:
     volumes:
       - ./questions:/app/questions
       - ./api:/app/api
-      - ./app-react/dist:/app/app-react/dist
+      - ./client/dist:/app/client/dist
       - ./app:/app/app-legacy      # Keep as backup
     restart: unless-stopped
