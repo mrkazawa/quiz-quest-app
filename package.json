@@ -2,16 +2,16 @@
   "name": "quiz-quest",
   "version": "1.0.0",
   "description": "A simple multiple choice quiz application like Kahoot",
-  "main": "api/server.js",
+  "private": true,
   "scripts": {
-    "start": "node api/server.js",
-    "dev": "nodemon api/server.js",
+    "start": "npm run build:client && cd api && npm start",
+    "dev:api": "cd api && npm run dev",
     "dev:client": "cd app-react && npm run dev",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:client\"",
-    "build": "cd app-react && npm run build",
+    "dev:all": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
     "build:client": "cd app-react && npm run build",
-    "install:client": "cd app-react && npm install",
-    "deploy": "npm run build && npm start"
+    "install:all": "npm run install:api && npm run install:client",
+    "install:api": "cd api && npm install",
+    "install:client": "cd app-react && npm install"
   },
   "keywords": [
     "quiz",
@@ -21,15 +21,7 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
-    "express": "^4.18.2",
-    "express-session": "^1.18.1",
-    "socket.io": "^4.7.2"
-  },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "nodemon": "^3.0.1"
+    "concurrently": "^9.2.1"
   }
 }
