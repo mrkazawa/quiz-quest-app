@@ -119,7 +119,7 @@ const TeacherQuizHistoryDetail = () => {
       showBack={true}
       backTo="/teacher/history"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-6">
             {loading && (
