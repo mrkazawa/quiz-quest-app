@@ -282,12 +282,21 @@ export default function StudentQuizRoom() {
       }
     };
 
+    // Handle room deletion
+    const handleRoomDeleted = (data?: { message?: string }) => {
+      console.log('Room deleted:', data);
+      localStorage.removeItem('studentSession');
+      alert(data?.message || 'Room was deleted by teacher');
+      navigate('/student/join');
+    };
+
     // Register event listeners
     socket.on('room_info', handleRoomInfo);
     socket.on('joined_room', handleJoinedRoom);
     socket.on('new_question', handleNewQuestion);
     socket.on('question_ended', handleQuestionEnded);
     socket.on('quiz_ended', handleQuizEnded);
+    socket.on('room_deleted', handleRoomDeleted);
     socket.on('join_error', handleJoinError);
 
     return () => {
@@ -296,6 +305,7 @@ export default function StudentQuizRoom() {
       socket.off('new_question', handleNewQuestion);
       socket.off('question_ended', handleQuestionEnded);
       socket.off('quiz_ended', handleQuizEnded);
+      socket.off('room_deleted', handleRoomDeleted);
       socket.off('join_error', handleJoinError);
     };
   }, [socket, roomId, navigate, questionId, saveSession, score]);

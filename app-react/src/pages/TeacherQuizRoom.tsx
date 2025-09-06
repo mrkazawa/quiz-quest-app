@@ -57,6 +57,7 @@ const TeacherQuizRoom = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quizEnded, setQuizEnded] = useState(false);
+  const [showEndQuizModal, setShowEndQuizModal] = useState(false);
 
   // Get current route state
   const isQuestionRoute = location.pathname.includes('/question/');
@@ -386,13 +387,21 @@ const TeacherQuizRoom = () => {
   };
 
   const endQuiz = () => {
+    setShowEndQuizModal(true);
+  };
+
+  const handleEndQuizConfirm = () => {
     if (!socket || !roomId) return;
     
-    if (confirm('Are you sure you want to end the quiz? This cannot be undone.')) {
-      console.log('Ending quiz for room:', roomId);
-      // For now, just delete the room to end the quiz
-      socket.emit('delete_room', { roomId });
-    }
+    console.log('Ending quiz for room:', roomId);
+    // Delete the room to end the quiz - this will redirect students to join page
+    socket.emit('delete_room', { roomId });
+    // Navigate teacher to dashboard
+    navigate('/teacher/dashboard');
+  };
+
+  const handleEndQuizCancel = () => {
+    setShowEndQuizModal(false);
   };
 
   const backToDashboard = () => {
@@ -439,14 +448,6 @@ const TeacherQuizRoom = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-lg border border-gray-200">
-              <div className="bg-green-600 text-white rounded-t-lg px-6 py-4">
-                <h4 className="text-xl font-semibold mb-0 flex items-center">
-                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Question {questionId} Results
-                </h4>
-              </div>
               <div className="p-6">
               {questionResults && questionResults.question && questionResults.options ? (
                 <div>
@@ -456,7 +457,7 @@ const TeacherQuizRoom = () => {
                   </div>
 
                   {/* Answer Options with Correct Answer Highlighted - 2x2 Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="teacher-view grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {questionResults.options.map((option: string, index: number) => {
                       const isCorrect = index === questionResults.correctAnswer;
                       
@@ -468,7 +469,14 @@ const TeacherQuizRoom = () => {
                               cursor: 'default',
                               height: '100px',
                               fontSize: '1.1rem',
-                              padding: '12px'
+                              padding: '12px',
+                              backgroundColor: (
+                                index === 0 ? '#ef4444' : // red-500
+                                index === 1 ? '#3b82f6' : // blue-500  
+                                index === 2 ? '#eab308' : // yellow-500
+                                index === 3 ? '#22c55e' : // green-500
+                                '#6b7280' // gray-500 fallback
+                              )
                             }}
                           >
                             {isCorrect && (
@@ -519,71 +527,100 @@ const TeacherQuizRoom = () => {
                     </div>
                   )}
 
-                  {/* Player Results Table */}
+                  {/* Answer Distribution Bar Chart */}
                   {questionResults.playerAnswers.length > 0 && (
                     <div className="mt-6">
                       <h5 className="text-lg font-semibold mb-4 flex items-center">
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        Student Results ({questionResults.playerAnswers.length} students)
+                        Answer Distribution ({questionResults.playerAnswers.length} students)
                       </h5>
-                      <div className="overflow-x-auto">
-                        <table className="w-full bg-white rounded-lg overflow-hidden border border-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Their Answer</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
-                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {questionResults.playerAnswers
-                              .sort((a, b) => b.score - a.score) // Sort by score descending
-                              .map((answer, index) => (
-                              <tr key={index} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div>
-                                    <div className="font-semibold text-gray-900">{answer.playerName}</div>
-                                    {answer.studentId && (
-                                      <div className="text-sm text-gray-500">ID: {answer.studentId}</div>
-                                    )}
+                      <div className="space-y-4">
+                        {questionResults.options.map((option: string, index: number) => {
+                          // Count how many students chose this option
+                          const optionCount = questionResults.playerAnswers.filter(answer => answer.answerId === index).length;
+                          const totalAnswers = questionResults.playerAnswers.length;
+                          const percentage = totalAnswers > 0 ? (optionCount / totalAnswers) * 100 : 0;
+                          const isCorrect = index === questionResults.correctAnswer;
+                          
+                          // Define colors for each option
+                          const colors = {
+                            0: { bg: 'bg-red-500', text: 'text-red-700', light: 'bg-red-100' },
+                            1: { bg: 'bg-blue-500', text: 'text-blue-700', light: 'bg-blue-100' },
+                            2: { bg: 'bg-yellow-500', text: 'text-yellow-700', light: 'bg-yellow-100' },
+                            3: { bg: 'bg-green-500', text: 'text-green-700', light: 'bg-green-100' }
+                          };
+                          const colorSet = colors[index as keyof typeof colors] || { bg: 'bg-gray-500', text: 'text-gray-700', light: 'bg-gray-100' };
+                          
+                          return (
+                            <div key={index} className="relative">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center">
+                                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${colorSet.bg} text-white text-sm font-semibold mr-3`}>
+                                    {index + 1}
+                                  </span>
+                                  <span className="font-medium text-gray-900">{option}</span>
+                                  {isCorrect && (
+                                    <svg className="w-5 h-5 text-green-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                  )}
+                                </div>
+                                <div className="flex items-center">
+                                  <span className={`text-sm font-semibold ${colorSet.text} mr-2`}>
+                                    {optionCount} student{optionCount !== 1 ? 's' : ''}
+                                  </span>
+                                  <span className="text-sm text-gray-500">
+                                    ({percentage.toFixed(1)}%)
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3">
+                                <div 
+                                  className={`h-3 rounded-full ${colorSet.bg} transition-all duration-500 ease-out`}
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        
+                        {/* Show "No Answer" if there are any */}
+                        {(() => {
+                          const noAnswerCount = questionResults.playerAnswers.filter(answer => answer.answerId === null).length;
+                          if (noAnswerCount > 0) {
+                            const totalAnswers = questionResults.playerAnswers.length;
+                            const percentage = (noAnswerCount / totalAnswers) * 100;
+                            return (
+                              <div className="relative">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center">
+                                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-500 text-white text-sm font-semibold mr-3">
+                                      ⏱
+                                    </span>
+                                    <span className="font-medium text-gray-900">No Answer</span>
                                   </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {answer.answerId !== null ? (
-                                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${answer.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                      Option {answer.answerId + 1}
+                                  <div className="flex items-center">
+                                    <span className="text-sm font-semibold text-gray-700 mr-2">
+                                      {noAnswerCount} student{noAnswerCount !== 1 ? 's' : ''}
                                     </span>
-                                  ) : (
-                                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">No answer</span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {answer.isCorrect ? (
-                                    <span className="text-green-600 font-semibold flex items-center">
-                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
-                                      Correct
+                                    <span className="text-sm text-gray-500">
+                                      ({percentage.toFixed(1)}%)
                                     </span>
-                                  ) : (
-                                    <span className="text-red-600 font-semibold flex items-center">
-                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
-                                      Wrong
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                  <span className="font-semibold text-blue-600">{answer.score} pts</span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                                  </div>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                  <div 
+                                    className="h-3 rounded-full bg-gray-500 transition-all duration-500 ease-out"
+                                    style={{ width: `${percentage}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     </div>
                   )}
@@ -637,21 +674,72 @@ const TeacherQuizRoom = () => {
                     </svg>
                     End Quiz
                   </button>
-                  <button 
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
-                    onClick={backToDashboard}
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m0 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10M9 21h6" />
-                    </svg>
-                    Dashboard
-                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
         </div>
+
+        {/* End Quiz Confirmation Modal */}
+        {showEndQuizModal && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
+            onClick={handleEndQuizCancel}
+          >
+            <div className="bg-white rounded-lg max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-red-600 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
+                <h5 className="text-lg font-semibold flex items-center mb-0">
+                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  End Quiz
+                </h5>
+                <button
+                  type="button"
+                  className="text-white hover:text-gray-200 transition-colors"
+                  onClick={handleEndQuizCancel}
+                  aria-label="Close"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="text-center">
+                  <div className="mb-4">
+                    <svg className="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                    </svg>
+                  </div>
+                  <h6 className="text-lg font-medium mb-4">Are you sure you want to end the quiz?</h6>
+                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div className="text-sm text-gray-600 mb-1">Room ID:</div>
+                    <div className="text-red-700 font-semibold">{roomId}</div>
+                  </div>
+                  <p className="text-gray-500 text-sm mb-0">
+                    This will permanently end the quiz and disconnect all students. This action cannot be undone.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 pb-6 flex justify-center">
+                <button
+                  type="button"
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                  onClick={handleEndQuizConfirm}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                  </svg>
+                  <span>End Quiz & Return to Dashboard</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </Layout>
     );
   }
@@ -1005,6 +1093,66 @@ const TeacherQuizRoom = () => {
         </div>
       </div>
       </div>
+
+      {/* End Quiz Confirmation Modal */}
+      {showEndQuizModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
+          onClick={handleEndQuizCancel}
+        >
+          <div className="bg-white rounded-lg max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-red-600 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
+              <h5 className="text-lg font-semibold flex items-center mb-0">
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                End Quiz
+              </h5>
+              <button
+                type="button"
+                className="text-white hover:text-gray-200 transition-colors"
+                onClick={handleEndQuizCancel}
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="text-center">
+                <div className="mb-4">
+                  <svg className="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                  </svg>
+                </div>
+                <h6 className="text-lg font-medium mb-4">Are you sure you want to end the quiz?</h6>
+                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                  <div className="text-sm text-gray-600 mb-1">Room ID:</div>
+                  <div className="text-red-700 font-semibold">{roomId}</div>
+                </div>
+                <p className="text-gray-500 text-sm mb-0">
+                  This will permanently end the quiz and disconnect all students. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="px-6 pb-6 flex justify-center">
+              <button
+                type="button"
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                onClick={handleEndQuizConfirm}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
+                <span>End Quiz & Return to Dashboard</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
