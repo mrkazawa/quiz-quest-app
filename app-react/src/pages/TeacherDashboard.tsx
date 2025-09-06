@@ -177,9 +177,7 @@ const TeacherDashboard = () => {
                   <span className="hidden lg:inline">Create</span>
                 </button>
                 <button
-                  onClick={() => {
-                    /* TODO: Implement quiz history */
-                  }}
+                  onClick={() => navigate("/teacher/history")}
                   className="bg-white text-primary-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
                   title="View Quiz History"
                 >

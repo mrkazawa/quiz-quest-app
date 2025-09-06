@@ -11,6 +11,8 @@ import StudentWaitingRoom from './pages/StudentWaitingRoom.tsx';
 import StudentQuizRoom from './pages/StudentQuizRoom.tsx';
 import TeacherQuizRoom from './pages/TeacherQuizRoom.tsx';
 import TeacherCreateQuiz from './pages/TeacherCreateQuiz.tsx';
+import TeacherQuizHistory from './pages/TeacherQuizHistory.tsx';
+import TeacherQuizHistoryDetail from './pages/TeacherQuizHistoryDetail.tsx';
 import './styles.css'; // Use original styles
 import './App.css';
 
@@ -53,6 +55,16 @@ function App() {
               <Route path="/teacher/create-quiz" element={
                 <ProtectedRoute>
                   <TeacherCreateQuiz />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher/history" element={
+                <ProtectedRoute>
+                  <TeacherQuizHistory />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher/history/:roomId" element={
+                <ProtectedRoute>
+                  <TeacherQuizHistoryDetail />
                 </ProtectedRoute>
               } />
               
