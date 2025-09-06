@@ -186,7 +186,7 @@ const TeacherWaitingRoom = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p className="mt-2 text-gray-600">
@@ -201,7 +201,7 @@ const TeacherWaitingRoom = () => {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
             <i className="bi bi-exclamation-triangle mr-2"></i>
@@ -220,7 +220,7 @@ const TeacherWaitingRoom = () => {
 
   if (!roomInfo) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
             <i className="bi bi-info-circle mr-2"></i>
@@ -246,12 +246,12 @@ const TeacherWaitingRoom = () => {
       backTo="/teacher/dashboard"
       onBackClick={handleBackClick}
     >
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Room Info & Controls */}
           <div>
             <div className="bg-white rounded-lg border border-gray-200">
-              <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-t-lg px-6 py-4">
+              <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-t-lg px-6 py-4">
                 <h4 className="text-xl font-semibold mb-0 flex items-center">
                   <i className="bi bi-door-open mr-2"></i>
                   Room Details
@@ -263,7 +263,7 @@ const TeacherWaitingRoom = () => {
                   <div className="flex">
                     <input 
                       type="text" 
-                      className="flex-1 px-3 py-2 text-2xl font-bold border border-gray-300 rounded-l-lg bg-gray-50 text-gray-800 focus:outline-none" 
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-800 text-sm focus:outline-none" 
                       value={roomId} 
                       readOnly 
                     />
@@ -330,7 +330,7 @@ const TeacherWaitingRoom = () => {
           {/* Students List */}
           <div>
             <div className="bg-white rounded-lg border border-gray-200">
-              <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-t-lg px-6 py-4">
+              <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-t-lg px-6 py-4">
                 <h4 className="text-xl font-semibold mb-0 flex items-center">
                   <i className="bi bi-people mr-2"></i>
                   Joined Students ({students.length})
