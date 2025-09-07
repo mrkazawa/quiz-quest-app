@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { useAuth } from '../hooks/useAuth';
-import type { QuestionResults } from '../types/quiz';
+import type { QuestionResults, QuizHistory } from '../types/quiz';
 import Layout from '../components/Layout';
 
 interface QuestionData {
@@ -13,22 +13,6 @@ interface QuestionData {
   questionId: number;
   currentQuestionIndex: number;
   totalQuestions: number;
-}
-
-interface QuizRankings {
-  id: string;
-  roomId: string;
-  quizId: string;
-  quizName: string;
-  dateCompleted: string;
-  playerCount: number;
-  rankings: Array<{
-    rank: number;
-    playerId: string;
-    playerName: string;
-    studentId: string;
-    score: number;
-  }>;
 }
 
 interface RoomInfo {
@@ -52,7 +36,7 @@ const TeacherQuizRoom = () => {
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [questionResults, setQuestionResults] = useState<QuestionResults | null>(null);
-  const [quizRankings, setQuizRankings] = useState<QuizRankings | null>(null);
+  const [quizRankings, setQuizRankings] = useState<QuizHistory | null>(null);
   const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -149,14 +133,31 @@ const TeacherQuizRoom = () => {
       setQuizEnded(true);
       
       // Try to load quiz rankings for the final page
-      fetch(`/api/quiz-history/${roomId}`)
-        .then(response => response.json())
-        .then((quizData: QuizRankings) => {
+      fetch(`/api/quiz-history/${roomId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+        .then(response => {
+          console.log('Quiz history fetch response status:', response.status);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((quizData: QuizHistory) => {
           console.log('Loaded quiz rankings on refresh:', quizData);
           setQuizRankings(quizData);
         })
         .catch(error => {
           console.error('Error loading quiz rankings on refresh:', error);
+          // If quiz history fetch fails, try to get data from socket
+          if (socket && socket.connected && teacherId) {
+            console.log('Attempting to rejoin room and get rankings...');
+            socket.emit('join_teacher_room', { roomId, teacherId });
+          }
         });
     } else {
       console.log('Unknown route state, staying in loading...');
@@ -215,18 +216,8 @@ const TeacherQuizRoom = () => {
         console.log('Quiz completed:', data);
         setQuizEnded(true);
         
-        // If we have a historyId, fetch the final rankings
-        if (data.historyId) {
-          fetch(`/api/quiz-history/${data.historyId}`)
-            .then(response => response.json())
-            .then((quizData: QuizRankings) => {
-              console.log('Loaded quiz rankings:', quizData);
-              setQuizRankings(quizData);
-            })
-            .catch(error => {
-              console.error('Error loading quiz rankings:', error);
-            });
-        }
+        // Quiz rankings will be sent via 'quiz_rankings' socket event
+        // No need to fetch via HTTP API here
         
         // Navigate to final results
         navigate(`/teacher/room/${roomId}/final`);
@@ -236,20 +227,10 @@ const TeacherQuizRoom = () => {
       const handleTeacherJoinedCompletedRoom = (data: { roomId: string; isCompleted: boolean; historyId: string }) => {
         console.log('Teacher joined completed room:', data);
         setQuizEnded(true);
+        setLoading(false);
         
-        // Fetch the final rankings from history
-        fetch(`/api/quiz-history/${data.historyId}`)
-          .then(response => response.json())
-          .then((quizData: QuizRankings) => {
-            console.log('Loaded quiz rankings from completed room:', quizData);
-            setQuizRankings(quizData);
-            setLoading(false);
-          })
-          .catch(error => {
-            console.error('Error loading quiz rankings from completed room:', error);
-            setError('Failed to load quiz results');
-            setLoading(false);
-          });
+        // The quiz rankings will be sent via socket event 'quiz_rankings'
+        // No need to fetch via HTTP API here
       };
 
       // Handle room errors
@@ -282,6 +263,13 @@ const TeacherQuizRoom = () => {
         setError(`Error advancing to next question: ${message}`);
       };
 
+      // Handle quiz rankings (final results)
+      const handleQuizRankings = (quizData: QuizHistory) => {
+        console.log('Received quiz rankings via socket:', quizData);
+        setQuizRankings(quizData);
+        setLoading(false);
+      };
+
       socket.on('room_info', handleRoomInfo);
       socket.on('new_question', handleNewQuestion);
       socket.on('player_answered', handlePlayerAnswered);
@@ -289,6 +277,7 @@ const TeacherQuizRoom = () => {
       socket.on('player_joined', handlePlayerJoined);
       socket.on('player_left', handlePlayerLeft);
       socket.on('quiz_ended', handleQuizCompleted);
+      socket.on('quiz_rankings', handleQuizRankings);
       socket.on('teacher_joined_completed_room', handleTeacherJoinedCompletedRoom);
       socket.on('room_error', handleRoomError);
       socket.on('join_error', handleJoinError);
@@ -302,6 +291,7 @@ const TeacherQuizRoom = () => {
         socket.off('player_joined', handlePlayerJoined);
         socket.off('player_left', handlePlayerLeft);
         socket.off('quiz_ended', handleQuizCompleted);
+        socket.off('quiz_rankings', handleQuizRankings);
         socket.off('teacher_joined_completed_room', handleTeacherJoinedCompletedRoom);
         socket.off('room_error', handleRoomError);
         socket.off('join_error', handleJoinError);

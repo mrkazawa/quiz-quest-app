@@ -1,4 +1,4 @@
-import type { QuestionResults } from './quiz.ts';
+import type { QuestionResults, QuizHistory } from './quiz.ts';
 
 // Student info for room management
 export interface StudentInfo {
@@ -33,6 +33,7 @@ export interface ServerToClientEvents {
   new_question: (data: NewQuestionData) => void;
   question_ended: (data: QuestionResults) => void;
   quiz_ended: (data: { message?: string; historyId?: string }) => void;
+  quiz_rankings: (data: QuizHistory) => void;
   answer_result: (data: { isCorrect: boolean; pointsEarned: number; streak: number; totalScore: number }) => void;
   answer_error: (message: string) => void;
   next_error: (message: string) => void;

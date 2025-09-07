@@ -1,14 +1,26 @@
 ````markdown
 # Quiz Quest API
 
-This folder contains the server-side code for the Quiz Quest application.
+This folder contains the server-side code for the Quiz Quest application, built with modern Express.js architecture.
 
-## Structure
+## 📁 Structure
 
-- `server.js` - Main Express.js server with Socket.IO for real-time communication
-- `package.json` - API-specific dependencies and scripts
+```
+api/
+├── server.js              # Main entry point
+├── package.json
+└── src/
+    ├── app.js             # Main application class
+    ├── config/            # Configuration files
+    ├── controllers/       # Request handlers
+    ├── services/          # Business logic layer
+    ├── routes/            # API route definitions
+    ├── middleware/        # Custom middleware
+    ├── socket/            # Socket.IO configuration
+    └── utils/             # Utility functions
+```
 
-## Running the API
+## 🚀 Running the API
 
 ### From the API folder:
 ```bash

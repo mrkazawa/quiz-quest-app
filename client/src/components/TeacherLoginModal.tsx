@@ -48,6 +48,7 @@ const TeacherLoginModal: React.FC<TeacherLoginModalProps> = ({ show, onHide }) =
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ password }),
       });
 
