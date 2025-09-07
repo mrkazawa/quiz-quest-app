@@ -4,13 +4,14 @@
   "description": "A simple multiple choice quiz application like Kahoot",
   "private": true,
   "scripts": {
-    "start": "npm run build:client && cd api && npm start",
-    "dev:api": "cd api && npm run dev",
+    "start": "npm run build:client && cd api-ts && npm run build && npm start",
+    "dev:api": "cd api-ts && npm run dev",
     "dev:client": "cd client && npm run dev",
     "dev:all": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
     "build:client": "cd client && npm run build",
+    "build:api": "cd api-ts && npm run build",
     "install:all": "npm run install:api && npm run install:client",
-    "install:api": "cd api && npm install",
+    "install:api": "cd api-ts && npm install",
     "install:client": "cd client && npm install"
   },
   "keywords": [
