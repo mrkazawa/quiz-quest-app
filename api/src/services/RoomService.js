@@ -44,10 +44,25 @@ class RoomService {
 
   deleteRoom(roomId) {
     if (this.rooms[roomId]) {
+      const room = this.rooms[roomId];
+      
       // Clear any active timers
-      if (this.rooms[roomId].timer) {
-        clearTimeout(this.rooms[roomId].timer);
+      if (room.timer) {
+        clearTimeout(room.timer);
+        room.timer = null;
       }
+      
+      // Clear deletion timer if exists
+      if (room.deletionTimer) {
+        clearTimeout(room.deletionTimer);
+        room.deletionTimer = null;
+      }
+      
+      // Clean up references to prevent memory leaks
+      room.players = {};
+      room.socketToStudent = {};
+      room.results = {};
+      
       delete this.rooms[roomId];
       return true;
     }

@@ -4,7 +4,30 @@ const path = require("path");
 class QuizService {
   constructor() {
     this.questionSets = {};
+    this.fileWatchCache = new Map(); // Cache for file modification times
     this.loadQuestions();
+    
+    // Set up file watching for automatic reload in development
+    if (process.env.NODE_ENV !== 'production') {
+      this.setupFileWatcher();
+    }
+  }
+
+  setupFileWatcher() {
+    const questionsDir = path.join(__dirname, "../../../questions");
+    
+    try {
+      if (fs.existsSync(questionsDir)) {
+        fs.watch(questionsDir, (eventType, filename) => {
+          if (filename && filename.endsWith('.json')) {
+            console.log(`📁 Quiz file ${filename} changed, reloading...`);
+            setTimeout(() => this.loadQuestions(), 100); // Debounce
+          }
+        });
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not set up file watcher:', error.message);
+    }
   }
 
   loadQuestions() {
