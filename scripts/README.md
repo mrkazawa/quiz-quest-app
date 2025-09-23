@@ -73,8 +73,15 @@ npm start
 ### Development with External Access
 
 ```bash
-npm run dev:custom
-./scripts/localhost-run.sh 5173    # Tunnel the client dev server
+npm run dev:all                     # Start both servers (robust)
+./scripts/localhost-run.sh 5173     # Tunnel the client dev server
+```
+
+**Alternative:**
+
+```bash
+npm run dev:servers                 # Same as dev:all (alias)
+./scripts/localhost-run.sh 5173     # Tunnel the client dev server
 ```
 
 ## Notes

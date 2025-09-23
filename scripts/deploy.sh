@@ -1,6 +1,27 @@
 #!/bin/bash
 
-echo "🚀 Deploying Quiz Quest Full-Stack App..."
+echo "🚀 Deploying Quiz Quest Full-Stack Aechecho ""
+echo "✅ Deployment complete!"
+echo ""
+echo "� Production workflow (modern):"
+echo "   npm run build    # Build everything"
+echo "   npm start        # Run production server"
+echo ""
+echo "�🔧 Development mode:"
+echo "   npm run dev      # Start both dev servers"
+echo "   npm run dev:all  # Same as above (explicit)"
+echo ""
+echo "🔧 Individual operations:"
+echo "   npm run dev:api       # API server only"
+echo "   npm run dev:client    # Client server only"
+echo "   npm run build:api     # Build API only"
+echo "   npm run build:client  # Build client only"opment mode:"
+echo "   npm run dev:all       # Robust development servers"
+echo "   npm run dev:servers   # Same as above (alias)"
+echo ""
+echo "� Individual servers:"
+echo "   npm run dev:api       # API server only"
+echo "   npm run dev:client    # Client server only""
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
@@ -42,6 +63,9 @@ else
     echo "❌ Failed to build React client"
     exit 1
 fi
+
+# Alternative: Build everything at once
+echo "💡 Alternative: Use 'npm run build' to build both API and client"
 
 # Test server startup
 echo "🧪 Testing server startup..."

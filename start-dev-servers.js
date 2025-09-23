@@ -1,9 +1,28 @@
 #!/usr/bin/env node
 
+/**
+ * Quiz Quest Development Servers Launcher
+ * 
+ * This script starts both the API server (TypeScript) and client server (React/Vite)
+ * concurrently with proper signal handling for clean shutdown.
+ * 
+ * Usage: npm run dev:servers
+ * 
+ * Features:
+ * - Starts API server on port 3000 (api-ts)
+ * - Starts client dev server on port 5173 (client)
+ * - Proper process cleanup on Ctrl+C
+ * - Color-coded output [API] and [CLIENT]
+ * - Graceful shutdown with timeout protection
+ */
+
 const { spawn } = require('child_process');
 const path = require('path');
 
-console.log('🚀 Starting Quiz Quest Development Servers...\n');
+console.log('🚀 Starting Quiz Quest Development Servers...');
+console.log('📡 API Server: http://localhost:3000');
+console.log('🌐 Client Server: http://localhost:5173');
+console.log('');
 
 // Track process state
 let apiClosed = false;
@@ -90,4 +109,7 @@ clientProcess.on('exit', (code) => {
   }
 });
 
-console.log('✅ Both servers starting... Press Ctrl+C to stop both servers.\n');
+console.log('✅ Development servers are starting...');
+console.log('💡 Press Ctrl+C to stop both servers');
+console.log('📋 API logs prefixed with [API], Client logs with [CLIENT]');
+console.log('');

@@ -4,17 +4,15 @@
   "description": "A simple multiple choice quiz application like Kahoot",
   "private": true,
   "scripts": {
-    "start": "npm run build:client && cd api-ts && npm run build && npm start",
-    "dev:api": "cd api-ts && npm run dev",
-    "dev:client": "cd client && npm run dev",
-    "dev:all": "concurrently --kill-others-on-fail --kill-others --kill-signal SIGTERM \"npm run dev:api\" \"npm run dev:client\"",
-    "dev:all:safe": "concurrently --kill-others-on-fail --kill-others --kill-signal SIGTERM --prefix-colors \"bgBlue.bold,bgMagenta.bold\" --names \"API,CLIENT\" \"npm run dev:api\" \"npm run dev:client\"",
-    "dev:custom": "node dev-server.js",
-    "build:client": "cd client && npm run build",
+    "start": "cd api-ts && npm start",
+    "build": "npm run build:all",
+    "build:all": "npm run build:api && npm run build:client",
     "build:api": "cd api-ts && npm run build",
-    "install:all": "npm run install:api && npm run install:client",
-    "install:api": "cd api-ts && npm install",
-    "install:client": "cd client && npm install"
+    "build:client": "cd client && npm run build",
+    "dev": "npm run dev:all",
+    "dev:all": "node start-dev-servers.js",
+    "dev:api": "cd api-ts && npm run dev",
+    "dev:client": "cd client && npm run dev"
   },
   "keywords": [
     "quiz",
@@ -23,8 +21,5 @@
     "socket.io"
   ],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  }
+  "license": "ISC"
 }
