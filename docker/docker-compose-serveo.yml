@@ -1,0 +1,56 @@
+# Quiz Quest with Serveo.net Tunneling
+# Uses the quiz-quest-app image from Docker Hub with Serveo tunneling
+
+services:
+  quiz-quest-serveo:
+    image: yoktian/quiz-quest-app:latest # Change 'mrkazawa' to your Docker Hub username
+    container_name: quiz-quest-serveo
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - TEACHER_PASSWORD=${TEACHER_PASSWORD:-admin}
+      - SERVEO_ENABLED=true
+      - SERVEO_SUBDOMAIN=${SERVEO_SUBDOMAIN:-}
+      - SERVEO_PORT=3000
+    volumes:
+      # Mount questions directory for custom quiz content
+      - ../questions:/app/questions:ro
+      # Optional: Mount SSH keys for persistent Serveo subdomain
+      - ~/.ssh:/home/quizquest/.ssh:ro
+    restart: unless-stopped
+    networks:
+      - quiz-quest-network
+    # Override the default command to include Serveo tunneling
+    command: >
+      sh -c "
+        npm start &
+        sleep 10 &&
+        echo '🌐 Starting Serveo tunnel...' &&
+        cd /app &&
+        if [ -n \"$$SERVEO_SUBDOMAIN\" ]; then
+          /app/scripts/serveo.sh $$SERVEO_SUBDOMAIN
+        else
+          /app/scripts/serveo.sh
+        fi
+      "
+
+networks:
+  quiz-quest-network:
+    driver: bridge
+# Usage Examples:
+#
+# Basic Serveo deployment:
+#   docker-compose -f docker-compose-serveo.yml up -d
+#
+# With custom subdomain (requires SSH key setup):
+#   SERVEO_SUBDOMAIN=myquiz docker-compose -f docker-compose-serveo.yml up -d
+#
+# With custom teacher password:
+#   TEACHER_PASSWORD=mysecret docker-compose -f docker-compose-serveo.yml up -d
+#
+# View logs to see the Serveo URL:
+#   docker-compose -f docker-compose-serveo.yml logs -f
+#
+# Stop the service:
+#   docker-compose -f docker-compose-serveo.yml down

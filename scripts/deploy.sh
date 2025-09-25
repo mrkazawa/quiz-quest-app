@@ -1,91 +1,70 @@
-#!/bin/bash
+#!/bin/sh
 
-echo "🚀 Deploying Quiz Quest Full-Stack Aechecho ""
-echo "✅ Deployment complete!"
+echo "🚀 Deploying Quiz Quest Application"
+echo "=================================="
 echo ""
-echo "� Production workflow (modern):"
-echo "   npm run build    # Build everything"
-echo "   npm start        # Run production server"
-echo ""
-echo "�🔧 Development mode:"
-echo "   npm run dev      # Start both dev servers"
-echo "   npm run dev:all  # Same as above (explicit)"
-echo ""
-echo "🔧 Individual operations:"
-echo "   npm run dev:api       # API server only"
-echo "   npm run dev:client    # Client server only"
-echo "   npm run build:api     # Build API only"
-echo "   npm run build:client  # Build client only"opment mode:"
-echo "   npm run dev:all       # Robust development servers"
-echo "   npm run dev:servers   # Same as above (alias)"
-echo ""
-echo "� Individual servers:"
-echo "   npm run dev:api       # API server only"
-echo "   npm run dev:client    # Client server only""
 
 # Check if Node.js is installed
-if ! command -v node &> /dev/null; then
+if ! command -v node >/dev/null 2>&1; then
     echo "❌ Node.js is not installed. Please install Node.js first."
     exit 1
 fi
 
 # Check if npm is installed
-if ! command -v npm &> /dev/null; then
+if ! command -v npm >/dev/null 2>&1; then
     echo "❌ npm is not installed. Please install npm first."
     exit 1
 fi
 
-echo "✅ Node.js $(node --version) and npm $(npm --version) detected"
+NODE_VERSION=$(node --version)
+NPM_VERSION=$(npm --version)
+echo "✅ Node.js $NODE_VERSION and npm $NPM_VERSION detected"
 
 # Install dependencies for all projects
 echo "📦 Installing dependencies..."
-if npm run install:all; then
-    echo "✅ Dependencies installed successfully"
+echo "   Installing API dependencies..."
+cd api-ts && npm ci && cd .. || { echo "❌ Failed to install API dependencies"; exit 1; }
+
+echo "   Installing client dependencies..."
+cd client && npm ci && cd .. || { echo "❌ Failed to install client dependencies"; exit 1; }
+
+echo "✅ Dependencies installed successfully"
+
+# Build everything using the modern npm scripts
+echo "🔨 Building application..."
+if npm run build; then
+    echo "✅ Application built successfully"
 else
-    echo "❌ Failed to install dependencies"
+    echo "❌ Failed to build application"
     exit 1
 fi
 
-# Build API TypeScript
-echo "🔨 Building API TypeScript..."
-if npm run build:api; then
-    echo "✅ API TypeScript built successfully"
-else
-    echo "❌ Failed to build API TypeScript"
-    exit 1
-fi
-
-# Build React client
-echo "🔨 Building React client..."
-if npm run build:client; then
-    echo "✅ React client built successfully"
-else
-    echo "❌ Failed to build React client"
-    exit 1
-fi
-
-# Alternative: Build everything at once
-echo "💡 Alternative: Use 'npm run build' to build both API and client"
-
-# Test server startup
+# Test server startup (optional)
 echo "🧪 Testing server startup..."
-timeout 5s npm start || echo "✅ Server test completed"
+if command -v timeout >/dev/null 2>&1; then
+    timeout 5s npm start || echo "✅ Server test completed"
+else
+    echo "⚠️  timeout command not available, skipping server test"
+fi
 
 echo ""
-echo "✅ Deployment complete!"
+echo "🎉 Deployment Complete!"
+echo "======================"
 echo ""
-echo "🌐 Production server (API serves client):"
-echo "   npm start"
+echo "🚀 Production workflow:"
+echo "   npm start        # Run production server"
 echo ""
-echo "🔧 Development mode (separate servers):"
-echo "   npm run dev:all"
+echo "🔧 Development workflow:"
+echo "   npm run dev      # Start development servers"
 echo ""
-echo "� Custom development server (recommended):"
-echo "   npm run dev:custom"
+echo "🌐 External access tunnels:"
+echo "   ./scripts/serveo.sh          # Using Serveo.net"
+echo "   ./scripts/localhost-run.sh   # Using localhost.run"
 echo ""
-echo "� External access tunnels:"
-echo "   ./scripts/serveo.sh      # Using Serveo"
-echo "   ./scripts/localhost-run.sh  # Using localhost.run"
+echo "� Docker deployment:"
+echo "   docker compose -f docker/docker-compose-native.yml up -d"
+echo "   docker compose -f docker/docker-compose-serveo.yml up -d"
 echo ""
-echo "📋 Production server runs on http://localhost:3000"
-echo "📋 Development client runs on http://localhost:5173 (proxies to API on :3000)"
+echo "📋 URLs:"
+echo "   Production: http://localhost:3000"
+echo "   Development: http://localhost:5173 (client) + http://localhost:3000 (API)"

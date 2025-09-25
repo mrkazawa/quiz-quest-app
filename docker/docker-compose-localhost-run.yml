@@ -1,0 +1,49 @@
+# Quiz Quest with localhost.run Tunneling
+# Uses the quiz-quest-app image from Docker Hub with localhost.run tunneling
+
+services:
+  quiz-quest-localhost-run:
+    image: yoktian/quiz-quest-app:latest # Change 'mrkazawa' to your Docker Hub username
+    container_name: quiz-quest-localhost-run
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - TEACHER_PASSWORD=${TEACHER_PASSWORD:-admin}
+      - LOCALHOST_RUN_ENABLED=true
+      - LOCALHOST_RUN_PORT=3000
+    volumes:
+      # Mount questions directory for custom quiz content
+      - ../questions:/app/questions:ro
+    restart: unless-stopped
+    networks:
+      - quiz-quest-network
+    # Override the default command to include localhost.run tunneling
+    command: >
+      sh -c "
+        npm start &
+        sleep 10 &&
+        echo '🌐 Starting localhost.run tunnel...' &&
+        cd /app &&
+        /app/scripts/localhost-run.sh
+      "
+
+networks:
+  quiz-quest-network:
+    driver: bridge
+# Usage Examples:
+#
+# Deploy with localhost.run tunneling:
+#   docker-compose -f docker-compose-localhost-run.yml up -d
+#
+# With custom teacher password:
+#   TEACHER_PASSWORD=mysecret docker-compose -f docker-compose-localhost-run.yml up -d
+#
+# View logs to get the generated localhost.run URL:
+#   docker-compose -f docker-compose-localhost-run.yml logs -f
+#
+# The URL will be displayed in the logs like:
+#   "Your site is available at https://abc123.lhr.life"
+#
+# Stop the service:
+#   docker-compose -f docker-compose-localhost-run.yml down
