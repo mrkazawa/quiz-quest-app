@@ -2,6 +2,7 @@ import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import corsConfig from '../config/cors';
 import { TypedServer, TypedSocket } from '../types/socket';
+import logger from '../utils/logger';
 
 // Import socket handlers
 import * as roomHandlersModule from './handlers/roomHandlers';
@@ -43,7 +44,7 @@ function initializeSocket(server: HttpServer, sessionMiddleware: any): TypedServ
 
   // Connection handler
   io.on('connection', (socket: TypedSocket) => {
-    console.log(`🔌 User connected: ${socket.id} from ${socket.handshake.address}`);
+    logger.debug(`🔌 User connected: ${socket.id} from ${socket.handshake.address}`);
 
     // Register all socket event handlers
     roomHandlers.register(socket, io);
@@ -52,12 +53,12 @@ function initializeSocket(server: HttpServer, sessionMiddleware: any): TypedServ
 
     // Error handling
     socket.on('error', (error: Error) => {
-      console.error(`❌ Socket error for ${socket.id}:`, error);
+      logger.error(`❌ Socket error for ${socket.id}:`, error);
     });
 
     // Disconnect handler
     socket.on('disconnect', (reason: string) => {
-      console.log(`🔌 User disconnected: ${socket.id} (${reason})`);
+      logger.debug(`🔌 User disconnected: ${socket.id} (${reason})`);
       
       // Handle cleanup in respective handlers
       roomHandlers.handleDisconnect(socket, io);

@@ -2,6 +2,7 @@ import { TypedSocket, TypedServer } from '../../types/socket';
 import RoomService from '../../services/RoomService';
 import HistoryService from '../../services/HistoryService';
 import QuizService from '../../services/QuizService';
+import logger from '../../utils/logger';
 
 function register(socket: TypedSocket, io: TypedServer): void {
   // Teacher starts the quiz
@@ -81,7 +82,7 @@ function handleStartQuiz(socket: TypedSocket, io: TypedServer, data: any): void 
     });
   }
 
-  console.log(`🚀 Quiz started in room ${roomId}`);
+  logger.info(`Quiz started in room ${roomId}`);
 
   // Set timer for question
   RoomService.setQuestionTimer(roomId, (roomId: string, ioInstance: any) => endQuestion(roomId, ioInstance), currentQuestionObj.timeLimit, io);
@@ -95,7 +96,7 @@ function handleSubmitAnswer(socket: TypedSocket, io: TypedServer, data: any): vo
     
     socket.emit('answer_result', result);
 
-    console.log(`✅ Answer submitted in room ${roomId}`);
+    logger.debug(`Answer submitted in room ${roomId} by socket ${socket.id}`);
 
     // Check if all players answered
     const allAnswered = RoomService.checkAllPlayersAnswered(roomId);
@@ -109,13 +110,13 @@ function handleSubmitAnswer(socket: TypedSocket, io: TypedServer, data: any): vo
     }
 
   } catch (error) {
-    console.error('Error submitting answer:', error);
+    logger.error('Error submitting answer:', error);
     socket.emit('answer_error', (error as Error).message);
   }
 }
 
 function handleNextQuestion(socket: TypedSocket, io: TypedServer, roomId: string): void {
-  console.log(`➡️ Teacher advancing to next question in room ${roomId}`);
+  logger.debug(`Teacher advancing to next question in room ${roomId}`);
   
   const room = RoomService.getRoom(roomId);
   if (!room) {
@@ -148,7 +149,7 @@ function endQuestion(roomId: string, io: TypedServer): any {
   // Emit question ended event to all players in the room
   io.to(roomId).emit('question_ended', questionResults);
 
-  console.log(`⏰ Question ended in room ${roomId}`);
+  logger.debug(`Question ended in room ${roomId}`);
   
   return questionResults;
 }
@@ -156,30 +157,30 @@ function endQuestion(roomId: string, io: TypedServer): any {
 function moveToNextQuestion(roomId: string, io: TypedServer): void {
   const result = RoomService.moveToNextQuestion(roomId);
   if (!result) {
-    console.log(`❌ Cannot move to next question in room ${roomId}`);
+    logger.warn(`Cannot move to next question in room ${roomId}`);
     return;
   }
 
   if (result.completed) {
-    console.log(`🏁 Quiz completed in room ${roomId}`);
+    logger.info(`Quiz completed in room ${roomId}`);
     endQuiz(roomId, io);
     return;
   }
 
   const room = RoomService.getRoom(roomId);
   if (!room) {
-    console.log(`❌ Room ${roomId} not found`);
+    logger.warn(`Room ${roomId} not found when moving to next question`);
     return;
   }
 
   const nextQuestionObj = RoomService.getCurrentQuestion(roomId);
   if (!nextQuestionObj) {
-    console.log(`❌ Next question not found for room ${roomId}`);
+    logger.warn(`Next question not found for room ${roomId}`);
     return;
   }
 
   const currentIndex = result.currentQuestionIndex ?? room.currentQuestionIndex;
-  console.log(`➡️ Moving to question ${currentIndex + 1}/${result.totalQuestions} in room ${roomId}`);
+  logger.info(`Moving to question ${currentIndex + 1}/${result.totalQuestions} in room ${roomId}`);
 
   // Send to all students
   Object.values(room.players).forEach((player: any) => {
@@ -218,15 +219,15 @@ function moveToNextQuestion(roomId: string, io: TypedServer): void {
 }
 
 function endQuiz(roomId: string, io: TypedServer): void {
-  console.log(`🏁 Starting endQuiz for room ${roomId}`);
+  logger.info(`Starting endQuiz for room ${roomId}`);
   
   const room = RoomService.getRoom(roomId);
   if (!room) {
-    console.log(`❌ Room ${roomId} not found in endQuiz`);
+    logger.warn(`Room ${roomId} not found in endQuiz`);
     return;
   }
 
-  console.log(`📊 Room ${roomId} has ${Object.keys(room.players).length} players`);
+  logger.debug(`Room ${roomId} has ${Object.keys(room.players).length} players`);
   
   room.isActive = false;
 
@@ -241,15 +242,15 @@ function endQuiz(roomId: string, io: TypedServer): void {
       score: p.score,
     }));
 
-  console.log(`🏆 Generated ${rankings.length} rankings for room ${roomId}`);
+  logger.debug(`Generated ${rankings.length} rankings for room ${roomId}`);
 
   // Save to history
   const quizSet = QuizService.getQuizById(room.quizId);
   const quizName = quizSet ? quizSet.name : room.quizId;
   
-  console.log(`💾 Saving history for room ${roomId} with quiz: ${quizName}`);
+  logger.debug(`Saving history for room ${roomId} with quiz: ${quizName}`);
   const historyResult = HistoryService.saveQuizHistory(roomId, room, quizName);
-  console.log(`💾 History save result:`, historyResult);
+  logger.verbose('History save result:', historyResult);
 
   // Send quiz ended event with minimal info (same as original)
   io.to(roomId).emit('quiz_ended', { historyId: roomId });
@@ -265,10 +266,10 @@ function endQuiz(roomId: string, io: TypedServer): void {
     rankings: rankings,
   };
 
-  console.log(`📤 Sending quiz_rankings to room ${roomId}:`, quizRankings);
+  logger.verbose('Sending quiz_rankings to room:', { roomId, quizRankings });
   io.to(roomId).emit('quiz_rankings', quizRankings);
 
-  console.log(`🏁 Quiz ended in room ${roomId}, saved as history ${roomId}`);
+  logger.info(`Quiz ended in room ${roomId}, saved as history ${roomId}`);
 
   // Mark room as completed
   room.isCompleted = true;
@@ -276,7 +277,7 @@ function endQuiz(roomId: string, io: TypedServer): void {
 
   // Set cleanup timer
   room.deletionTimer = setTimeout(() => {
-    console.log(`🧹 Cleaning up completed room ${roomId}`);
+    logger.debug(`Cleaning up completed room ${roomId}`);
     RoomService.deleteRoom(roomId);
   }, 5 * 60 * 1000); // 5 minutes
 }
@@ -322,7 +323,7 @@ function handleGetQuizRankings(socket: TypedSocket, io: TypedServer, data: any):
     }
   }
 
-  console.log(`📊 Sent quiz rankings for room ${roomId}`);
+  logger.debug(`Sent quiz rankings for room ${roomId}`);
 }
 
 export default {

@@ -2,6 +2,7 @@ import { TypedSocket, TypedServer } from '../../types/socket';
 import RoomService from '../../services/RoomService';
 import HistoryService from '../../services/HistoryService';
 import QuizService from '../../services/QuizService';
+import logger from '../../utils/logger';
 
 function register(socket: TypedSocket, io: TypedServer): void {
   // Teacher creates a room
@@ -26,12 +27,12 @@ function register(socket: TypedSocket, io: TypedServer): void {
 }
 
 function handleCreateRoom(socket: TypedSocket, io: TypedServer, data: any): void {
-  console.log('🏗️ Received create_room event:', data);
+  logger.debug('Received create_room event:', data);
   const { quizId, teacherId } = data;
 
   const questionSet = QuizService.getQuizById(quizId);
   if (!questionSet) {
-    console.log('❌ Quiz not found:', quizId);
+    logger.warn('Quiz not found:', quizId);
     socket.emit('room_error', 'Quiz not found');
     return;
   }
@@ -52,9 +53,9 @@ function handleCreateRoom(socket: TypedSocket, io: TypedServer, data: any): void
     socket.join(roomId);
     socket.emit('room_created', { roomId, quizId });
 
-    console.log(`🏗️ Teacher created room ${roomId} for quiz ${quizId}`);
+    logger.info(`Teacher created room ${roomId} for quiz ${quizId}`);
   } catch (error) {
-    console.error('❌ Error creating room:', error);
+    logger.error('Error creating room:', error);
     socket.emit('room_error', 'Failed to create room');
   }
 }
@@ -76,7 +77,7 @@ function handleTeacherJoinRoom(socket: TypedSocket, io: TypedServer, data: any):
       // Also send the quiz rankings immediately for final results view
       socket.emit('quiz_rankings', historyItem);
       
-      console.log(`👨‍🏫 Teacher joined completed room ${roomId} from history`);
+      logger.info(`Teacher joined completed room ${roomId} from history`);
       return;
     }
 
@@ -116,7 +117,7 @@ function handleTeacherJoinRoom(socket: TypedSocket, io: TypedServer, data: any):
 
     socket.emit('quiz_rankings', quizRankings);
     
-    console.log(`👨‍🏫 Teacher joined completed room ${roomId} for final results`);
+    logger.info(`Teacher joined completed room ${roomId} for final results`);
     return;
   }
 
@@ -133,7 +134,7 @@ function handleTeacherJoinRoom(socket: TypedSocket, io: TypedServer, data: any):
   RoomService.updateTeacherSession(socket.id, teacherId);
   socket.join(roomId);
 
-  console.log(`👨‍🏫 Teacher ${teacherId} joined room ${roomId}`);
+  logger.info(`Teacher ${teacherId} joined room ${roomId}`);
 
   // Send room info
   socket.emit('teacher_joined_room', {
@@ -204,7 +205,7 @@ function handleTeacherRejoinActiveQuiz(socket: TypedSocket, room: any, roomId: s
 }
 
 function handleGetRoomInfo(socket: TypedSocket, io: TypedServer, data: any): void {
-  console.log('📊 Received get_room_info event:', data);
+  logger.debug('Received get_room_info event:', data);
   const { roomId } = data;
 
   const room = RoomService.getRoom(roomId);
@@ -232,7 +233,7 @@ function handleGetRoomInfo(socket: TypedSocket, io: TypedServer, data: any): voi
     }))
   });
 
-  console.log(`📊 Room info sent for room ${roomId}`);
+  logger.debug(`Room info sent for room ${roomId}`);
 }
 
 function handleDeleteRoom(socket: TypedSocket, io: TypedServer, data: any): void {
@@ -255,7 +256,7 @@ function handleDeleteRoom(socket: TypedSocket, io: TypedServer, data: any): void
 
   // Delete the room
   RoomService.deleteRoom(roomId);
-  console.log(`🗑️ Room ${roomId} was deleted by teacher`);
+  logger.info(`Room ${roomId} was deleted by teacher`);
 }
 
 function handleDisconnect(socket: TypedSocket, io: TypedServer): void {
@@ -269,7 +270,7 @@ function handleDisconnect(socket: TypedSocket, io: TypedServer): void {
     const room = RoomService.getRoom(roomId);
 
     if (room && room.hostId === socket.id) {
-      console.log(`👨‍🏫 Teacher disconnected from room ${roomId}`);
+      logger.info(`Teacher disconnected from room ${roomId}`);
 
       if (!room.isActive) {
         // Waiting room - allow teacher to rejoin
@@ -283,7 +284,7 @@ function handleDisconnect(socket: TypedSocket, io: TypedServer): void {
               message: "Room closed due to teacher inactivity"
             });
             RoomService.deleteRoom(roomId);
-            console.log(`🗑️ Room ${roomId} deleted due to teacher inactivity`);
+            logger.info(`Room ${roomId} deleted due to teacher inactivity`);
           }
         }, 5 * 60 * 1000); // 5 minutes
       } else {
@@ -298,7 +299,7 @@ function handleDisconnect(socket: TypedSocket, io: TypedServer): void {
               message: "Host disconnected"
             });
             RoomService.deleteRoom(roomId);
-            console.log(`🗑️ Room ${roomId} deleted - teacher didn't rejoin active quiz`);
+            logger.info(`Room ${roomId} deleted - teacher didn't rejoin active quiz`);
           }
         }, 30 * 1000); // 30 seconds
       }

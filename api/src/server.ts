@@ -1,4 +1,5 @@
 import * as AppModule from "./app";
+import logger from "./utils/logger";
 
 // Initialize the application
 const App = AppModule.default;
@@ -10,37 +11,38 @@ const io = app.getIO();
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`🌐 CORS origins configured`);
-  console.log(`📁 Static files served from client/dist`);
+  logger.info(`🚀 Server running on port ${PORT}`);
+  logger.info(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
+  logger.info(`📝 Log Level: ${logger.getLevel()}`);
+  logger.debug(`🌐 CORS origins configured`);
+  logger.debug(`📁 Static files served from client/dist`);
 });
 
 // Graceful shutdown handling
 function gracefulShutdown(signal: string) {
-  console.log(`${signal} received, shutting down gracefully`);
+  logger.info(`${signal} received, shutting down gracefully`);
 
   // Close Socket.IO server first
   if (io) {
     io.close(() => {
-      console.log("Socket.IO server closed");
+      logger.debug("Socket.IO server closed");
     });
   }
 
   // Then close HTTP server
   server.close((err) => {
     if (err) {
-      console.error("Error during server shutdown:", err);
+      logger.error("Error during server shutdown:", err);
       process.exit(1);
     }
-    console.log("HTTP server closed");
-    console.log("Process terminated");
+    logger.info("HTTP server closed");
+    logger.info("Process terminated");
     process.exit(0);
   });
 
   // Force exit after 5 seconds if graceful shutdown fails
   setTimeout(() => {
-    console.error("Forced shutdown after timeout");
+    logger.error("Forced shutdown after timeout");
     process.exit(1);
   }, 5000);
 }

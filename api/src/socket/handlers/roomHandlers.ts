@@ -1,6 +1,7 @@
 import { TypedSocket, TypedServer } from '../../types/socket';
 import RoomService from '../../services/RoomService';
 import QuizService from '../../services/QuizService';
+import logger from '../../utils/logger';
 
 function register(socket: TypedSocket, io: TypedServer): void {
   // Student joins a quiz room
@@ -49,7 +50,7 @@ function handleStudentJoinRoom(socket: TypedSocket, io: TypedServer, data: any):
       })),
     };
 
-    console.log(`📥 Student ${playerName} joined room ${roomId}`);
+    logger.info(`📥 Student ${playerName} (${studentId}) joined room ${roomId}`);
     socket.emit('joined_room', joinedRoomData);
 
     // Handle rejoining active quiz
@@ -71,7 +72,7 @@ function handleStudentJoinRoom(socket: TypedSocket, io: TypedServer, data: any):
     });
 
   } catch (error) {
-    console.error('Error handling student join:', error);
+    logger.error('Error handling student join:', error);
     socket.emit('join_error', (error as Error).message);
   }
 }
@@ -150,7 +151,7 @@ function handleStudentLeaveRoom(socket: TypedSocket, io: TypedServer, roomId: st
 
   const result = RoomService.removePlayerFromRoom(roomId, socket.id);
   if (result) {
-    console.log(`📤 Student left room ${roomId}`);
+    logger.info(`📤 Student left room ${roomId}`);
     
     io.to(roomId).emit('player_left', {
       playerId: socket.id,
@@ -177,7 +178,7 @@ function handleDisconnect(socket: TypedSocket, io: TypedServer): void {
 
     if (studentId && room.players[studentId]) {
       const player = room.players[studentId];
-      console.log(`📤 Student ${player.name} disconnected from room ${roomId}`);
+      logger.debug(`📤 Student ${player.name} disconnected from room ${roomId}`);
 
       // Remove socket mapping but keep player data for reconnection
       delete room.socketToStudent[socket.id];

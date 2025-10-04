@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
+import logger from '../utils/logger';
 
 let morgan: any;
 
 try {
   morgan = require('morgan');
 } catch (error) {
-  console.warn('⚠️ morgan not available, using console logging');
+  logger.warn('morgan not available, using console logging');
   morgan = () => (req: Request, res: Response, next: NextFunction) => {
-    console.log(`${req.method} ${req.url}`);
+    logger.http(`${req.method} ${req.url}`);
     next();
   };
   morgan.token = () => {};
@@ -38,8 +39,8 @@ const requestLogger = morgan(logFormat, {
   skip: process.env.NODE_ENV === 'production' ? skipLog : false,
   stream: {
     write: (message: string) => {
-      // Use console.log for development, could integrate with proper logging service
-      console.log(message.trim());
+      // Use logger.http for HTTP request logging
+      logger.http(message.trim());
     }
   }
 });

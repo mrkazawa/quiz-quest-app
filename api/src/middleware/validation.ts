@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+import logger from '../utils/logger';
 
 let rateLimit: any;
 
 try {
   rateLimit = require('express-rate-limit');
 } catch (error) {
-  console.warn('⚠️ express-rate-limit not available, using no-op middleware');
+  logger.warn('express-rate-limit not available, using no-op middleware');
   rateLimit = () => (req: Request, res: Response, next: NextFunction) => next();
 }
 

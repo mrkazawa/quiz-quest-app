@@ -1,4 +1,5 @@
 // Error tracking and monitoring utilities
+import logger from './logger';
 
 interface ErrorLogEntry {
   timestamp: string;
@@ -40,7 +41,7 @@ class ErrorMonitor {
       uptime: Date.now() - this.startTime,
     };
 
-    console.error('❌ Error logged:', JSON.stringify(logEntry, null, 2));
+    logger.error('Error logged:', logEntry);
 
     // In production, you could send this to an external monitoring service
     if (process.env.NODE_ENV === 'production') {
