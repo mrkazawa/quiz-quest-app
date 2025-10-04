@@ -30,7 +30,7 @@ let clientClosed = false;
 
 // Start API server
 const apiProcess = spawn('npm', ['run', 'dev'], {
-  cwd: path.join(__dirname, 'api-ts'),
+  cwd: path.join(__dirname, 'api'),
   stdio: ['pipe', 'pipe', 'pipe'],
   shell: true
 });

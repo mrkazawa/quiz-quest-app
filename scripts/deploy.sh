@@ -23,7 +23,7 @@ echo "✅ Node.js $NODE_VERSION and npm $NPM_VERSION detected"
 # Install dependencies for all projects
 echo "📦 Installing dependencies..."
 echo "   Installing API dependencies..."
-cd api-ts && npm ci && cd .. || { echo "❌ Failed to install API dependencies"; exit 1; }
+cd api && npm ci && cd .. || { echo "❌ Failed to install API dependencies"; exit 1; }
 
 echo "   Installing client dependencies..."
 cd client && npm ci && cd .. || { echo "❌ Failed to install client dependencies"; exit 1; }

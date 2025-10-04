@@ -1,8 +1,8 @@
 # Quiz Quest
 
-A real-time multiple choice quiz application similar to Kahoot, built with **React TypeScript** and **Node.js**. This application allows teachers to create quiz rooms and enables students to join and participate in real-time with modern URL routing, session management, and detailed analytics.
+A real-time multiple choice quiz application similar to Kahoot, built with **React TypeScript** and **Node.js TypeScript**. This application allows teachers to create quiz rooms and enables students to join and participate in real-time with modern URL routing, session management, and detailed analytics.
 
-**🚀 Modern Stack:** React 19 + TypeScript + Vite + Socket.IO + Bootstrap 5
+**🚀 Modern Stack:** React 19 + TypeScript + Vite + Node.js + TypeScript + Socket.IO + Bootstrap 5
 
 ## Features
 
@@ -66,8 +66,19 @@ A real-time multiple choice quiz application similar to Kahoot, built with **Rea
 
 ```shell
 quiz-quest/
-├── api/                     # Server-side code
-│   ├── server.js           # Main Express server and Socket.IO logic
+├── api/                     # Server-side TypeScript code
+│   ├── src/
+│   │   ├── server.ts       # Main Express server entry point
+│   │   ├── app.ts          # Express application configuration
+│   │   ├── types/          # TypeScript type definitions
+│   │   ├── controllers/    # Route controllers
+│   │   ├── services/       # Business logic layer
+│   │   ├── routes/         # API route definitions
+│   │   ├── middleware/     # Custom middleware
+│   │   ├── socket/         # Socket.IO configuration
+│   │   └── utils/          # Utility functions
+│   ├── dist/               # Compiled JavaScript output
+│   ├── tsconfig.json       # TypeScript configuration
 │   ├── package.json        # API dependencies and scripts
 │   └── README.md           # API documentation
 ├── client/                 # React TypeScript implementation
@@ -106,8 +117,9 @@ quiz-quest/
 
 ### Key Components
 
-- **API Layer** (`api/`): Express.js with Socket.IO for real-time communication
-- **Client Layer** (`app/`): Vanilla JavaScript with hash-based routing
+- **API Layer** (`api/`): Express.js + TypeScript with Socket.IO for real-time communication
+- **Client Layer** (`client/`): React 19 + TypeScript with hash-based routing
+- **Legacy Client** (`app/`): Vanilla JavaScript implementation (kept for reference)
 - **Data Storage**: In-memory session management with persistent quiz history
 - **Question Management**: JSON-based quiz definitions with metadata support
 - **Authentication**: Session-based teacher authentication with configurable passwords

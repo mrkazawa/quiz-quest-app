@@ -1,0 +1,28 @@
+# Quiz Questions Folder
+
+This folder stores quiz JSON files created through the teacher interface.
+
+The application will automatically create quiz files here when teachers:
+1. Create new quizzes through the "Create Quiz" feature
+2. Import quiz JSON files
+
+Files are named with the pattern: `{quizId}.json`
+
+## Example Quiz File Structure:
+```json
+{
+  "setName": "General Knowledge",
+  "setDescription": "A quiz about general knowledge",
+  "roomId": "quiz123",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the capital of France?",
+      "options": ["London", "Berlin", "Paris", "Madrid"],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "points": 100
+    }
+  ]
+}
+```

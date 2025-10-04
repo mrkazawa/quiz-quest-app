@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy package.json files for dependency caching
 COPY package*.json ./
-COPY api-ts/package*.json ./api-ts/
+COPY api/package*.json ./api/
 COPY client/package*.json ./client/
 
 # Install dependencies
@@ -18,14 +18,14 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY api-ts/package*.json ./api-ts/
+COPY api/package*.json ./api/
 COPY client/package*.json ./client/
 
 # Install all dependencies (including dev)
-RUN cd api-ts && npm ci && cd ../client && npm ci
+RUN cd api && npm ci && cd ../client && npm ci
 
 # Copy source code
-COPY api-ts/ ./api-ts/
+COPY api/ ./api/
 COPY client/ ./client/
 
 # Build both API and client
@@ -45,17 +45,17 @@ WORKDIR /app
 
 # Copy package.json files
 COPY --chown=quizquest:nodejs package*.json ./
-COPY --chown=quizquest:nodejs api-ts/package*.json ./api-ts/
+COPY --chown=quizquest:nodejs api/package*.json ./api/
 
 # Install only production dependencies
-RUN cd api-ts && npm ci --only=production && npm cache clean --force
+RUN cd api && npm ci --only=production && npm cache clean --force
 
 # Copy built application from builder stage
-COPY --from=builder --chown=quizquest:nodejs /app/api-ts/dist ./api-ts/dist
+COPY --from=builder --chown=quizquest:nodejs /app/api/dist ./api/dist
 COPY --from=builder --chown=quizquest:nodejs /app/client/dist ./client/dist
 
-# Copy runtime assets
-COPY --chown=quizquest:nodejs questions/ ./questions/
+# Copy runtime assets (make questions optional since it's created dynamically)
+RUN mkdir -p ./questions
 COPY --chown=quizquest:nodejs scripts/ ./scripts/
 
 # Make scripts executable

@@ -1,8 +1,9 @@
 # Dependencies
 node_modules/
 
-# Quiz data
-questions/
+# Quiz data - ignore quiz JSON files but keep the folder structure
+questions/*.json
+!questions/.gitkeep
 
 # Logs
 logs
