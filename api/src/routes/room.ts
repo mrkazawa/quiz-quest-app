@@ -13,7 +13,7 @@ try {
 
 const router = express.Router();
 
-// Room management routes - rate limit applied to active room checks
-router.get('/active-rooms', rateLimits.roomCreation, RoomController.getActiveRooms);
+// Room management routes - rate limiting removed for prototype
+router.get('/active-rooms', RoomController.getActiveRooms);
 
 export default router;

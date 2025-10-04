@@ -14,9 +14,9 @@ try {
 
 const router = express.Router();
 
-// Quiz management routes
+// Quiz management routes - rate limiting removed for prototype
 router.get('/quizzes', QuizController.getAllQuizzes);
-router.post('/create-quiz', rateLimits.quizCreation, QuizController.createQuiz);
+router.post('/create-quiz', QuizController.createQuiz);
 router.delete('/quiz/:quizId', QuizController.deleteQuiz);
 router.get('/quiz-template', QuizController.downloadTemplate);
 

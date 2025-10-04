@@ -14,8 +14,8 @@ try {
 
 const router = express.Router();
 
-// Teacher authentication routes with rate limiting
-router.post('/verify-teacher', rateLimits.auth, AuthController.verifyTeacher);
+// Teacher authentication routes - rate limiting removed for prototype
+router.post('/verify-teacher', AuthController.verifyTeacher);
 router.get('/logout', AuthController.logout);
 
 // Language preference routes

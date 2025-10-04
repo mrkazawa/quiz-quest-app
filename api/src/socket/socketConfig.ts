@@ -36,32 +36,10 @@ function initializeSocket(server: HttpServer, sessionMiddleware: any): TypedServ
     sessionMiddleware(socket.request, (socket.request as any).res || {}, next);
   });
 
-  // Connection rate limiting
-  const connectionCounts = new Map<string, number>();
-  
-  io.use((socket: TypedSocket, next) => {
-    const ip = socket.handshake.address;
-    const count = connectionCounts.get(ip) || 0;
-    
-    if (count > 10) { // Max 10 connections per IP
-      return next(new Error('Too many connections from this IP'));
-    }
-    
-    connectionCounts.set(ip, count + 1);
-    
-    // Clean up after disconnect
-    socket.on('disconnect', () => {
-      const currentCount = connectionCounts.get(ip) || 0;
-      const newCount = currentCount - 1;
-      if (newCount <= 0) {
-        connectionCounts.delete(ip);
-      } else {
-        connectionCounts.set(ip, newCount);
-      }
-    });
-    
-    next();
-  });
+  // Note: IP-based rate limiting removed for classroom use
+  // In classroom environments, all students connect from the same IP (school router)
+  // Room codes and teacher authentication provide sufficient access control
+  // If abuse becomes an issue, implement per-room connection limits instead
 
   // Connection handler
   io.on('connection', (socket: TypedSocket) => {

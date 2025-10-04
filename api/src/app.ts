@@ -95,8 +95,8 @@ class App {
       this.app.set('trust proxy', 1);
     }
     
-    // General rate limiting
-    this.app.use(rateLimits.general);
+    // General rate limiting - REMOVED for prototype/classroom use
+    // this.app.use(rateLimits.general);
     
     // Body parsing middleware with size limits
     this.app.use(express.json({ limit: '10mb' }));
