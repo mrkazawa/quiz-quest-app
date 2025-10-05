@@ -411,11 +411,54 @@ export default new UserService();
 
 ---
 
+## 🎓 Why This Pattern?
+
+### Testability Without Duplication
+
+Previously, we considered creating separate test files for services. However, that approach had significant drawbacks:
+
+**❌ Problems with Duplicate Files:**
+- Code duplication and maintenance burden
+- Sync issues between production and test versions
+- Confusion about which file to use when
+- More files to maintain and keep consistent
+
+**✅ Solution: Singleton Pattern with Test Helpers:**
+- Single source of truth for each service
+- Tests can create fresh instances when needed
+- Test helpers are public but clearly marked
+- Production code uses singleton exports
+- Zero duplication, maximum flexibility
+
+### Testing Strategy
+
+**For Services:**
+- Export both the class and singleton instance
+- Provide test helper methods (clearAll, cleanup, getCount)
+- Use constructor params for test flexibility
+- Guard file system operations with NODE_ENV checks
+
+**In Tests:**
+```typescript
+// Option 1: Use singleton and clear between tests
+beforeEach(() => QuizService.clearAll());
+afterEach(() => QuizService.cleanup());
+
+// Option 2: Create fresh instance per test
+let service: QuizService;
+beforeEach(() => {
+  service = new QuizService('./test-data', false);
+});
+afterEach(() => service.cleanup());
+```
+
+---
+
 ## 📚 Related Documentation
 
-- [`TESTABILITY_REFACTORING.md`](./TESTABILITY_REFACTORING.md) - Why we don't use duplicate files
-- [`TEST_IMPLEMENTATION_SUMMARY.md`](./TEST_IMPLEMENTATION_SUMMARY.md) - Testing overview
-- [`tests/README.md`](./tests/README.md) - How to run tests
+- [`../tests/README.md`](../tests/README.md) - Complete testing guide
+- [`../README.md`](../README.md) - API documentation
+- [`../../docs/DEVELOPMENT.md`](../../docs/DEVELOPMENT.md) - Development guide
 
 ---
 

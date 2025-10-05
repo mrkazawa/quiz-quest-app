@@ -177,7 +177,17 @@ NODE_ENV=production                     # Environment mode
 
 ## Documentation
 
-For detailed usage instructions, deployment guides, and API documentation, see:
+### 📚 For Users
+- **[User Guide](docs/USER_GUIDE.md)** - Complete guide for teachers and students
+- **[Setup Guide](docs/SETUP.md)** - Installation and configuration
 
-- **[SETUP.md](docs/SETUP.md)** - Setup and installation guide
-- **[USER_GUIDE.md](docs/USER_GUIDE.md)** - Complete user guide for teachers and students
+### 🚀 For Deployment
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - All deployment scenarios (Docker, IP, Domain, Tunneling)
+
+### 💻 For Developers
+- **[Development Guide](docs/DEVELOPMENT.md)** - Architecture, testing, best practices
+- **[API Documentation](api/README.md)** - REST API and Socket.IO reference
+- **[Test Documentation](api/tests/README.md)** - Testing guide
+
+### 🐳 For Docker
+- **[Docker Guide](docker/README.md)** - Container deployment options

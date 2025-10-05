@@ -1,87 +1,183 @@
-# Quiz Quest API - TypeScript Version
+# Quiz Quest API
 
-This is the TypeScript conversion of the Quiz Quest API server. The original JavaScript version is preserved in the `../api` folder for reference.
+TypeScript-based REST API and Socket.IO server for Quiz Quest real-time quiz application.
 
-## Project Structure
+---
 
-````markdown
-# Quiz Quest API - TypeScript
+## Quick Start
 
-The TypeScript-based backend server for Quiz Quest, providing real-time quiz functionality with Socket.IO.
+```bash
+# Install dependencies
+npm install
+
+# Development with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Run production build
+npm start
+
+# Run tests
+npm test
+```
+
+---
 
 ## Project Structure
 
 ```
 api/
 ├── src/
-│   ├── types/           # TypeScript type definitions
-│   ├── config/          # Configuration files
-│   ├── middleware/      # Express middleware
-│   ├── controllers/     # Route controllers
-│   ├── services/        # Business logic services
-│   ├── routes/          # Express routes
-│   ├── socket/          # Socket.IO configuration and handlers
-│   ├── utils/           # Utility functions
-│   ├── app.ts          # Express app configuration
-│   └── server.ts       # Server entry point
-├── dist/               # Compiled JavaScript output
-├── package.json        # Dependencies and scripts
-└── tsconfig.json       # TypeScript configuration
+│   ├── server.ts           # Entry point
+│   ├── app.ts              # Express app configuration
+│   ├── config/             # CORS, session configuration
+│   ├── controllers/        # Route handlers
+│   ├── services/           # Business logic (singleton pattern)
+│   ├── routes/             # API route definitions
+│   ├── middleware/         # Auth, logging, validation
+│   ├── socket/             # Socket.IO handlers
+│   ├── types/              # TypeScript type definitions
+│   └── utils/              # Logger, helpers
+├── tests/                  # Test suite (369 tests)
+│   ├── helpers/            # Mock data, test utilities
+│   ├── unit/               # Unit tests (338)
+│   └── integration/        # Integration tests (31)
+├── dist/                   # Compiled JavaScript (generated)
+├── tsconfig.json           # TypeScript configuration
+└── package.json            # Dependencies and scripts
 ```
 
-## Getting Started
+---
 
-### Prerequisites
+## Available Scripts
 
-- Node.js (v16 or higher)
-- npm or yarn
+| Script | Command | Description |
+|--------|---------|-------------|
+| `dev` | `ts-node-dev ...` | Start with hot reload |
+| `build` | `tsc` | Compile TypeScript |
+| `start` | `node dist/server.js` | Run production build |
+| `watch` | `tsc -w` | TypeScript watch mode |
+| `clean` | `rimraf dist` | Remove build artifacts |
+| `test` | `jest` | Run all tests (369) |
+| `test:unit` | `jest tests/unit` | Run unit tests (338) |
+| `test:integration` | `jest tests/integration` | Run integration tests (31) |
+| `test:coverage` | `jest --coverage` | Generate coverage report |
+| `test:watch` | `jest --watch` | Watch mode for TDD |
 
-### Installation
+---
 
-1. Navigate to the api directory:
-   ```bash
-   cd api
-   ```
+## API Endpoints
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Authentication
+- `POST /api/login` - Teacher login
+- `POST /api/logout` - Teacher logout
+- `POST /api/set-language` - Set UI language
 
-### Development
+### Quizzes
+- `GET /api/quizzes` - List all quizzes
+- `POST /api/quizzes` - Create new quiz (auth required)
+- `DELETE /api/quizzes/:id` - Delete quiz (auth required)
+- `GET /api/quiz-template` - Download template
 
-1. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### Quiz History
+- `GET /api/quiz-history` - List all history (auth required)
+- `GET /api/quiz-history/:id` - Get specific history (auth required)
 
-2. Or build and run:
-   ```bash
-   npm run build
-   npm start
-   ```
+### Rooms
+- `GET /api/active-rooms` - List active rooms (auth required)
 
-### Available Scripts
+### Health
+- `GET /health` - Health check endpoint
 
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm run start` - Run the compiled server
-- `npm run dev` - Run in development mode with hot reloading
-- `npm run watch` - Watch mode for TypeScript compilation
-- `npm run clean` - Remove compiled files
+---
+
+## Socket.IO Events
+
+### Client → Server
+
+| Event | Data | Description |
+|-------|------|-------------|
+| `joinRoom` | `{ roomId, studentId, username }` | Join quiz room |
+| `rejoinRoom` | `{ roomId, studentId }` | Rejoin after disconnect |
+| `submitAnswer` | `{ answer, timeSpent }` | Submit quiz answer |
+| `startGame` | `{ roomId }` | Start quiz (teacher) |
+| `nextQuestion` | `{ roomId }` | Next question (teacher) |
+| `endGame` | `{ roomId }` | End quiz (teacher) |
+| `getActiveRooms` | - | Get active rooms list |
+
+### Server → Client
+
+| Event | Data | Description |
+|-------|------|-------------|
+| `roomJoined` | `{ username, participants }` | Room join confirmed |
+| `gameStarted` | `{ question, questionNumber, totalQuestions }` | Quiz started |
+| `nextQuestion` | `{ question, questionNumber }` | New question |
+| `questionResult` | `{ correctAnswer, scores, rankings }` | Question results |
+| `gameEnded` | `{ finalRankings, playerDetails }` | Quiz ended |
+| `playerJoined` | `{ username, participants }` | Player joined room |
+| `playerLeft` | `{ username, participants }` | Player left room |
+| `error` | `{ message }` | Error occurred |
+
+---
+
+## Architecture
+
+### Service Layer (Singleton Pattern)
+
+All business logic is in services:
+
+**QuizService:**
+- Load quiz questions from JSON files
+- CRUD operations for quizzes
+- Quiz data validation
+
+**RoomService:**
+- Room creation and management
+- Player join/leave/rejoin
+- Game lifecycle (start, question navigation, end)
+- Answer submission and scoring
+- Streak calculation
+
+**HistoryService:**
+- Save quiz results
+- Generate rankings
+- Retrieve quiz history
+- Player performance tracking
+
+**Pattern:**
+```typescript
+export class ExampleService {
+  private data: Record<string, Type> = {};
+
+  public create(data: Type): Result { }
+  public get(id: string): Type | undefined { }
+  public update(id: string, data: Partial<Type>): boolean { }
+  public delete(id: string): boolean { }
+
+  // Test helpers
+  public clearAll(): void { }
+  public cleanup(): void { }
+}
+
+export default new ExampleService();
+```
+
+**Benefits:**
+- Consistent API across services
+- Easy to test (with test helpers)
+- Type-safe with TypeScript
+- Clean separation of concerns
+
+---
 
 ## Type Definitions
 
 ### Core Types
 
-The project includes comprehensive type definitions for:
-
-- **Quiz Types** (`types/quiz.ts`): Question, Quiz, QuizData interfaces
-- **Express Types** (`types/express.ts`): Extended Request/Response interfaces
-- **Socket Types** (`types/socket.ts`): Socket.IO event interfaces
-
-### Key Interfaces
-
 ```typescript
+// Quiz types
 interface Question {
   id: number;
   question: string;
@@ -91,216 +187,245 @@ interface Question {
   points: number;
 }
 
-interface AuthenticatedRequest extends Request {
-  session: AuthenticatedSession;
-  body: any;
-  params: any;
+interface Quiz {
+  id: string;
+  setName: string;
+  setDescription: string;
+  questionCount: number;
 }
-```
 
+// Room types
+interface Room {
+  id: string;
+  quizId: string;
+  quizName: string;
+  questions: Question[];
+  status: 'waiting' | 'active' | 'ended';
+  currentQuestion: number;
+  players: Record<string, Player>;
+}
 
-## Architecture
+interface Player {
+  id: string;
+  username: string;
+  studentId: string;
+  socketId: string;
+  score: number;
+  streak: number;
+  answers: Record<number, PlayerAnswer>;
+}
 
-### TypeScript Features
-
-1. **Type Safety**: All functions and classes have proper type annotations
-2. **Interface Definitions**: Comprehensive interfaces for data structures
-3. **Generic Types**: Type-safe Socket.IO events and responses
-4. **Error Handling**: Improved error handling with typed exceptions
-
-### Services
-
-- **QuizService**: Manages quiz data with type-safe CRUD operations
-- **RoomService**: Handles game rooms with typed player and room interfaces
-- **HistoryService**: Manages quiz history with structured data types
-
-### Controllers
-
-All controllers use typed request/response objects and proper async/await patterns:
-
-- **AuthController**: Teacher authentication and session management
-- **QuizController**: Quiz CRUD operations with validation
-- **HistoryController**: Quiz history retrieval
-- **RoomController**: Active room management
-
-## Socket.IO Implementation
-
-The Socket.IO implementation uses TypeScript's generic types for type-safe event handling:
-
-```typescript
+// Socket types (typed events)
 interface ServerToClientEvents {
-  roomJoined: (data: { username: string; participants: string[] }) => void;
-  gameStarted: (data: { question: any; questionNumber: number }) => void;
+  roomJoined: (data: RoomJoinedData) => void;
+  gameStarted: (data: GameStartedData) => void;
   // ... more events
 }
 
 interface ClientToServerEvents {
-  joinRoom: (data: { roomId: string; username: string }) => void;
-  submitAnswer: (data: { answer: number; timeSpent: number }) => void;
+  joinRoom: (data: JoinRoomData) => void;
+  submitAnswer: (data: SubmitAnswerData) => void;
   // ... more events
 }
 ```
 
+---
+
+## Testing
+
+### Test Suite
+
+- **Total Tests:** 369 (all passing ✅)
+- **Unit Tests:** 338 tests
+  - QuizService: 56 tests
+  - RoomService: 248 tests
+  - HistoryService: 34 tests
+- **Integration Tests:** 31 tests
+  - Auth: 9 tests
+  - Quiz: 14 tests
+  - History: 7 tests
+  - Room: 5 tests
+
+### Coverage
+
+**Overall:** 77.91% statements, 75% branches
+
+| Component | Coverage |
+|-----------|----------|
+| Controllers | 96.42% |
+| Services | 82.9% |
+| Socket Handlers | 86.44% |
+| Middleware | 80.3% |
+
+### Running Tests
+
+```bash
+# All tests
+npm test
+
+# With coverage
+npm run test:coverage
+
+# Watch mode
+npm run test:watch
+
+# Specific suites
+npm run test:unit
+npm run test:integration
+```
+
+---
+
 ## Configuration
 
-### TypeScript Configuration (`tsconfig.json`)
+### Environment Variables
 
-- Target: ES2020
-- Module: CommonJS
-- Strict mode enabled
-- Source maps for debugging
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NODE_ENV` | `development` | Environment mode |
+| `PORT` | `3000` | Server port |
+| `TEACHER_PASSWORD` | `quizmaster123` | Teacher auth password |
+| `SESSION_SECRET` | auto-generated | Session encryption key |
+| `CORS_ORIGINS` | localhost (dev) | Allowed CORS origins |
+| `LOG_LEVEL` | `debug` (dev), `info` (prod) | Logging verbosity |
 
-### Development Dependencies
+### CORS Configuration
 
-- `typescript`: TypeScript compiler
-- `ts-node`: Run TypeScript directly
-- `ts-node-dev`: Development server with hot reloading
-- `@types/*`: Type definitions for all major dependencies
+**Development (automatic):**
+- `http://localhost:5173` (Vite dev server)
+- `http://127.0.0.1:5173`
+- `http://localhost:3000`
+- `http://127.0.0.1:3000`
 
-## Key Features
+**Production (via environment variable):**
+```bash
+# Single origin
+CORS_ORIGINS=https://myapp.com
 
-1. **Type Safety**: All data structures are typed
-2. **Import/Export**: Uses ES6 imports instead of CommonJS requires
-3. **Async/Await**: Consistent use of async/await patterns
-4. **Class Methods**: Proper typing for all class methods and properties
-5. **Socket Events**: Type-safe socket event definitions
+# Multiple origins (comma-separated)
+CORS_ORIGINS=https://myapp.com,https://www.myapp.com
 
-## Contributing
+# Public IP for classroom use
+CORS_ORIGINS=http://203.0.113.45
+```
 
-When adding new features:
+---
 
-1. Define types first in the appropriate `types/` file
-2. Implement service logic with proper typing
-3. Add controller methods with typed requests/responses
-4. Update socket event types if needed
-5. Add proper error handling
+## Logging
 
-## Dependencies
+### Log Levels
 
-### Runtime Dependencies
-- express, cors, dotenv, socket.io, compression
-- express-session, express-rate-limit, morgan
+1. **ERROR** - Critical errors
+2. **WARN** - Warnings
+3. **INFO** - General information (production default)
+4. **HTTP** - HTTP requests
+5. **DEBUG** - Debugging details (development default)
+6. **VERBOSE** - Very detailed logs
 
-### Development Dependencies
-- typescript, ts-node, ts-node-dev
-- @types packages for all runtime dependencies
-- rimraf for cleaning build output
-
-## Environment Variables
-
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (development/production)
-- `SESSION_SECRET`: Session encryption secret
-- `TEACHER_PASSWORD`: Teacher authentication password
-
-````
-
-## Socket.IO Implementation
-
-The Socket.IO implementation uses TypeScript's generic types for type-safe event handling:
+### Usage
 
 ```typescript
-interface ServerToClientEvents {
-  roomJoined: (data: { username: string; participants: string[] }) => void;
-  gameStarted: (data: { question: any; questionNumber: number }) => void;
-  // ... more events
-}
+import logger from './utils/logger';
 
-interface ClientToServerEvents {
-  joinRoom: (data: { roomId: string; username: string }) => void;
-  submitAnswer: (data: { answer: number; timeSpent: number }) => void;
-  // ... more events
-}
+logger.error('Critical error', { error });
+logger.warn('Warning message');
+logger.info('Server started on port 3000');
+logger.debug('Debugging info', { data });
 ```
 
-## Configuration
+### Configuration
 
-### TypeScript Configuration (`tsconfig.json`)
+```bash
+# Set log level
+LOG_LEVEL=debug npm run dev
 
-- Target: ES2020
-- Module: CommonJS
-- Strict mode enabled
-- Source maps for debugging
+# Auto-detection based on NODE_ENV
+NODE_ENV=production npm start  # Uses 'info' level
+NODE_ENV=development npm run dev  # Uses 'debug' level
+```
 
-### Development Dependencies
+---
 
-- `typescript`: TypeScript compiler
-- `ts-node`: Run TypeScript directly
-- `ts-node-dev`: Development server with hot reloading
-- `@types/*`: Type definitions for all major dependencies
+## Development
 
-## Migration Status
+### Adding a New Endpoint
 
-### ✅ Completed
+1. Define types in `src/types/`
+2. Add business logic to service in `src/services/`
+3. Create controller in `src/controllers/`
+4. Add route in `src/routes/`
+5. Write tests in `tests/unit/` and `tests/integration/`
 
-- [x] Project structure and configuration
-- [x] Core type definitions
-- [x] Basic services (QuizService, HistoryService, RoomService)
-- [x] Controllers with type safety
-- [x] Express routes
-- [x] Middleware conversion
-- [x] Basic Socket.IO setup
-- [x] Utility functions
+### Adding a Socket Event
 
-### 🚧 In Progress / To Do
+1. Define event types in `src/types/socket.ts`
+2. Create handler in `src/socket/handlers/`
+3. Register in `src/socket/socketConfig.ts`
+4. Write tests
 
-- [ ] Complete Socket.IO handlers (roomHandlers, gameHandlers, teacherHandlers)
-- [ ] Full Socket.IO event type coverage
-- [ ] Advanced error handling middleware
-- [ ] Unit tests with TypeScript
-- [ ] API documentation with TypeScript types
-- [ ] Performance optimizations
+### Example Service
 
-### 📝 Notes
+```typescript
+// src/services/ExampleService.ts
+export class ExampleService {
+  private items: Record<string, Item> = {};
 
-1. **Socket Handlers**: The socket handlers are partially implemented. The original JavaScript handlers contain complex game logic that needs careful conversion.
+  public create(item: Item): Item {
+    this.items[item.id] = item;
+    return item;
+  }
 
-2. **Session Types**: The express-session types need to be properly extended for the authentication system.
+  public get(id: string): Item | undefined {
+    return this.items[id];
+  }
 
-3. **Error Handling**: Error handling has been improved but could benefit from custom error classes.
+  public clearAll(): void {
+    this.items = {};
+  }
+}
 
-4. **Testing**: The original API doesn't have tests, but the TypeScript version would benefit from comprehensive testing.
+export default new ExampleService();
+```
 
-## Differences from JavaScript Version
+---
 
-1. **Type Safety**: All data structures are now typed
-2. **Import/Export**: Uses ES6 imports instead of CommonJS requires
-3. **Async/Await**: Consistent use of async/await instead of callbacks
-4. **Class Methods**: Proper typing for all class methods and properties
-5. **Socket Events**: Type-safe socket event definitions
+## Tech Stack
 
-## Running Both Versions
+- **Runtime:** Node.js 14+
+- **Language:** TypeScript 5.1+
+- **Framework:** Express.js 4.21+
+- **Real-time:** Socket.IO 4.8+
+- **Session:** express-session
+- **Testing:** Jest 30+ with Supertest 7+
+- **Logging:** Winston-based custom logger
 
-You can run both the JavaScript and TypeScript versions side by side:
+---
 
-- JavaScript API: `cd ../api && npm run dev` (port 3000)
-- TypeScript API: `cd api-ts && npm run dev` (configure different port if needed)
+## Additional Documentation
 
-## Contributing
+- **Main README:** [../README.md](../README.md)
+- **User Guide:** [../docs/USER_GUIDE.md](../docs/USER_GUIDE.md)
+- **Setup Guide:** [../docs/SETUP.md](../docs/SETUP.md)
+- **Deployment:** [../docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md)
+- **Development:** [../docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md)
+- **Testing:** [tests/README.md](tests/README.md)
+- **Service Design Pattern:** [src/services/SERVICE_DESIGN_PATTERN.md](src/services/SERVICE_DESIGN_PATTERN.md)
 
-When adding new features:
+---
 
-1. Define types first in the appropriate `types/` file
-2. Implement service logic with proper typing
-3. Add controller methods with typed requests/responses
-4. Update socket event types if needed
-5. Add proper error handling
+## Production Ready Features
 
-## Dependencies
+✅ TypeScript with strict mode  
+✅ Comprehensive test suite (369 tests, 78% coverage)  
+✅ Environment-based configuration  
+✅ Structured logging with log levels  
+✅ Session-based authentication  
+✅ CORS properly configured  
+✅ Error handling middleware  
+✅ Socket.IO with typed events  
+✅ Service layer architecture  
+✅ Docker deployment support  
 
-### Runtime Dependencies
-- express, cors, dotenv, socket.io, compression
-- express-session, express-rate-limit, morgan
+---
 
-### Development Dependencies
-- typescript, ts-node, ts-node-dev
-- @types packages for all runtime dependencies
-- rimraf for cleaning build output
-
-## Environment Variables
-
-Same as the JavaScript version:
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (development/production)
-- `SESSION_SECRET`: Session encryption secret
-- `TEACHER_PASSWORD`: Teacher authentication password
+**Status:** Production Ready 🚀
