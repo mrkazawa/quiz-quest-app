@@ -56,8 +56,16 @@ interface RoomData {
   quizId: string;
 }
 
-class HistoryService {
+/**
+ * HistoryService - Manages quiz completion history and results
+ * Supports both production use and in-memory testing
+ */
+export class HistoryService {
   private quizHistory: Record<string, QuizHistory> = {};
+
+  constructor() {
+    // No initialization needed - history is stored on demand
+  }
 
   public saveQuizHistory(roomId: string, roomData: RoomData, quizName: string): QuizHistory {
     console.log(`💾 Saving quiz history for room ${roomId} with ${Object.keys(roomData.players).length} players`);
@@ -155,6 +163,27 @@ class HistoryService {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Get count of history entries (useful for testing and monitoring)
+   */
+  public getHistoryCount(): number {
+    return Object.keys(this.quizHistory).length;
+  }
+
+  /**
+   * Clear all history from memory (useful for testing)
+   */
+  public clearAllHistory(): void {
+    this.quizHistory = {};
+  }
+
+  /**
+   * Cleanup resources (useful for testing)
+   */
+  public cleanup(): void {
+    this.clearAllHistory();
   }
 }
 

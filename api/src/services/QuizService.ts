@@ -2,25 +2,35 @@ import fs from 'fs';
 import path from 'path';
 import { Quiz, QuizData, QuizSummary, CreateQuizResult, DeleteQuizResult, Question } from '../types/quiz';
 
-class QuizService {
+/**
+ * QuizService - Manages quiz data and operations
+ * Supports both file-based persistence and in-memory testing
+ */
+export class QuizService {
   private questionSets: Record<string, Quiz> = {};
-  private fileWatchCache = new Map<string, number>(); // Cache for file modification times
+  private fileWatchCache = new Map<string, number>();
+  private questionsDir: string;
+  private watcher?: fs.FSWatcher;
 
-  constructor() {
-    this.loadQuestions();
+  constructor(questionsDir?: string, autoLoad: boolean = true) {
+    this.questionsDir = questionsDir || path.join(__dirname, '../../../questions');
     
-    // Set up file watching for automatic reload in development
-    if (process.env.NODE_ENV !== 'production') {
-      this.setupFileWatcher();
+    if (autoLoad) {
+      this.loadQuestions();
+      
+      // Set up file watching for automatic reload in development
+      if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+        this.setupFileWatcher();
+      }
     }
   }
 
   private setupFileWatcher(): void {
-    const questionsDir = path.join(__dirname, '../../../questions');
+    const questionsDir = this.questionsDir;
     
     try {
       if (fs.existsSync(questionsDir)) {
-        fs.watch(questionsDir, (eventType, filename) => {
+        this.watcher = fs.watch(questionsDir, (eventType, filename) => {
           if (filename && filename.endsWith('.json')) {
             console.log(`📁 Quiz file ${filename} changed, reloading...`);
             setTimeout(() => this.loadQuestions(), 100); // Debounce
@@ -32,8 +42,8 @@ class QuizService {
     }
   }
 
-  private loadQuestions(): void {
-    const questionsDir = path.join(__dirname, '../../../questions');
+  public loadQuestions(): void {
+    const questionsDir = this.questionsDir;
 
     try {
       if (fs.existsSync(questionsDir)) {
@@ -76,7 +86,7 @@ class QuizService {
 
         console.log(`📊 Loaded ${Object.keys(this.questionSets).length} quiz sets`);
       } else {
-        console.error('❌ Questions directory does not exist');
+        console.warn('⚠️ Questions directory does not exist:', questionsDir);
       }
     } catch (error) {
       console.error('❌ Error loading questions:', error);
@@ -100,6 +110,9 @@ class QuizService {
   }
 
   public createQuiz(quizData: QuizData): CreateQuizResult {
+    // Validate quiz data first
+    this.validateQuizData(quizData);
+
     // Generate unique quiz ID from the name
     const baseId = quizData.setName.toLowerCase()
       .replace(/[^a-z0-9\s]/g, '') // Remove special characters
@@ -124,15 +137,17 @@ class QuizService {
       createdAt: new Date().toISOString()
     };
 
-    // Save to file for persistence
-    this.saveQuizToFile(quizId, quizData);
+    // Save to file for persistence (skip in test environment)
+    if (process.env.NODE_ENV !== 'test') {
+      this.saveQuizToFile(quizId, quizData);
+    }
 
     return { quizId, message: `Quiz "${quizData.setName}" created successfully` };
   }
 
   private saveQuizToFile(quizId: string, quizData: QuizData): void {
     try {
-      const questionsDir = path.join(__dirname, '../../../questions');
+      const questionsDir = this.questionsDir;
 
       if (!fs.existsSync(questionsDir)) {
         fs.mkdirSync(questionsDir, { recursive: true });
@@ -166,13 +181,15 @@ class QuizService {
     // Remove from memory
     delete this.questionSets[quizId];
 
-    // Delete the file from disk
-    const questionsDir = path.join(__dirname, '../../../questions');
-    const filePath = path.join(questionsDir, `${quizId}.json`);
+    // Delete the file from disk (skip in test environment)
+    if (process.env.NODE_ENV !== 'test') {
+      const questionsDir = this.questionsDir;
+      const filePath = path.join(questionsDir, `${quizId}.json`);
 
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`🗑️ Deleted quiz file: ${filePath}`);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log(`🗑️ Deleted quiz file: ${filePath}`);
+      }
     }
 
     return { message: `Quiz "${quizName}" deleted successfully` };
@@ -227,6 +244,30 @@ class QuizService {
     }
 
     return true;
+  }
+
+  /**
+   * Add a quiz directly to memory (useful for testing or in-memory quizzes)
+   */
+  public addQuizToMemory(quiz: Quiz): void {
+    this.questionSets[quiz.id] = quiz;
+  }
+
+  /**
+   * Clear all quizzes from memory (useful for testing)
+   */
+  public clearAllQuizzes(): void {
+    this.questionSets = {};
+  }
+
+  /**
+   * Cleanup resources (file watchers, etc.)
+   */
+  public cleanup(): void {
+    if (this.watcher) {
+      this.watcher.close();
+      this.watcher = undefined;
+    }
   }
 }
 

@@ -104,9 +104,17 @@ interface QuestionResults {
   }>;
 }
 
-class RoomService {
+/**
+ * RoomService - Manages quiz rooms and game sessions
+ * Supports both production use and in-memory testing
+ */
+export class RoomService {
   private rooms: Record<string, Room> = {};
   private teacherSessions: Record<string, string> = {};
+
+  constructor() {
+    // No initialization needed - rooms are created on demand
+  }
 
   public createRoom(quizId: string, teacherId: string, questionSet: QuestionSet): string {
     // Generate a unique 6-digit numeric room code
@@ -471,6 +479,38 @@ class RoomService {
     }, timeLimit * 1000);
     
     room.timer = timer;
+  }
+
+  /**
+   * Get all rooms (useful for testing and monitoring)
+   */
+  public getRoomsCount(): number {
+    return Object.keys(this.rooms).length;
+  }
+
+  /**
+   * Clear all rooms from memory (useful for testing)
+   */
+  public clearAllRooms(): void {
+    // Clear all timers first
+    Object.values(this.rooms).forEach((room) => {
+      if (room.timer) {
+        clearTimeout(room.timer);
+      }
+      if (room.deletionTimer) {
+        clearTimeout(room.deletionTimer);
+      }
+    });
+    
+    this.rooms = {};
+    this.teacherSessions = {};
+  }
+
+  /**
+   * Cleanup resources (timers, etc.)
+   */
+  public cleanup(): void {
+    this.clearAllRooms();
   }
 }
 
