@@ -1,39 +1,3 @@
-import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
-
-let rateLimit: any;
-
-try {
-  rateLimit = require('express-rate-limit');
-} catch (error) {
-  logger.warn('express-rate-limit not available, using no-op middleware');
-  rateLimit = () => (req: Request, res: Response, next: NextFunction) => next();
-}
-
-// Rate limiting configuration
-const createRateLimit = (windowMs: number, max: number, message: string) => rateLimit({
-  windowMs,
-  max,
-  message: { error: message },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Different rate limits for different endpoints
-export const rateLimits = {
-  // General API rate limit
-  general: createRateLimit(15 * 60 * 1000, 100, 'Too many requests, please try again later'),
-  
-  // Stricter limits for auth endpoints
-  auth: createRateLimit(15 * 60 * 1000, 10, 'Too many authentication attempts'),
-  
-  // Room creation limit
-  roomCreation: createRateLimit(5 * 60 * 1000, 3, 'Too many room creation attempts'),
-  
-  // Quiz creation limit
-  quizCreation: createRateLimit(10 * 60 * 1000, 5, 'Too many quiz creation attempts'),
-};
-
 // Input validation helpers
 export const validateString = (value: any, fieldName: string, minLength: number = 1, maxLength: number = 255): string => {
   if (!value || typeof value !== 'string') {
@@ -64,7 +28,6 @@ export const validateRoomCode = (roomCode: any): string => {
 };
 
 export default {
-  rateLimits,
   validateString,
   validateNumber,
   validateRoomCode,

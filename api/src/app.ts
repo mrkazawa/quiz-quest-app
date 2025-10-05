@@ -18,7 +18,7 @@ const socketConfig = socketConfigModule.default;
 import { TypedServer } from './types/socket';
 
 // Try to load optional middleware
-let compression: any, requestLogger: any, securityHeaders: any, healthCheck: any, rateLimits: any;
+let compression: any, requestLogger: any, securityHeaders: any, healthCheck: any;
 
 try {
   compression = require('compression');
@@ -36,19 +36,6 @@ try {
   requestLogger = (req: Request, res: Response, next: NextFunction) => next();
   securityHeaders = (req: Request, res: Response, next: NextFunction) => next();
   healthCheck = (req: Request, res: Response) => res.json({ status: 'ok' });
-}
-
-try {
-  const validation = require('./middleware/validation');
-  rateLimits = validation.rateLimits;
-} catch (e) {
-  console.warn('⚠️ Validation middleware not available');
-  rateLimits = {
-    general: (req: Request, res: Response, next: NextFunction) => next(),
-    auth: (req: Request, res: Response, next: NextFunction) => next(),
-    quizCreation: (req: Request, res: Response, next: NextFunction) => next(),
-    roomCreation: (req: Request, res: Response, next: NextFunction) => next(),
-  };
 }
 
 // Import routes
@@ -94,9 +81,6 @@ class App {
     if (process.env.NODE_ENV === 'production') {
       this.app.set('trust proxy', 1);
     }
-    
-    // General rate limiting - REMOVED for prototype/classroom use
-    // this.app.use(rateLimits.general);
     
     // Body parsing middleware with size limits
     this.app.use(express.json({ limit: '10mb' }));

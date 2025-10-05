@@ -10,7 +10,6 @@ Middleware is responsible for:
 - ✅ Authentication and authorization
 - ✅ Request logging
 - ✅ Input validation
-- ✅ Rate limiting
 - ✅ Security headers
 - ✅ Error handling
 - ❌ **NOT** business logic (that belongs in services)
@@ -24,7 +23,7 @@ Middleware is responsible for:
 middleware/
 ├── auth.ts          # Authentication middleware
 ├── logging.ts       # Request logging, security headers, health check
-└── validation.ts    # Input validation helpers, rate limiting
+└── validation.ts    # Input validation helpers
 ```
 
 ---
@@ -45,10 +44,10 @@ app.use(requestLogger);           // 7. HTTP request logging
 // Health check (no auth)
 app.get('/health', healthCheck);  // 8. Health check endpoint
 
-// Routes with rate limiting
-app.use('/api/auth', rateLimits.auth, authRoutes);
-app.use('/api/quiz', rateLimits.quizCreation, quizRoutes);
-app.use('/api/rooms', rateLimits.roomCreation, roomRoutes);
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/quiz', quizRoutes);
+app.use('/api/rooms', roomRoutes);
 app.use('/api/history', historyRoutes);
 
 // Static files (last)
@@ -181,46 +180,7 @@ app.get('/health', healthCheck);
 
 ## ✅ Validation Middleware
 
-### `validation.ts` - Input Validation & Rate Limiting
-
-#### Rate Limiting
-
-Prevents abuse by limiting request frequency.
-
-**Available Limiters:**
-
-```typescript
-rateLimits.general       // 100 requests per 15 minutes
-rateLimits.auth          // 10 requests per 15 minutes
-rateLimits.roomCreation  // 3 requests per 5 minutes
-rateLimits.quizCreation  // 5 requests per 10 minutes
-```
-
-**Usage in Routes:**
-```typescript
-// In app.ts
-app.use('/api/auth', rateLimits.auth, authRoutes);
-app.use('/api/quiz', rateLimits.quizCreation, quizRoutes);
-app.use('/api/rooms', rateLimits.roomCreation, roomRoutes);
-```
-
-**Configuration:**
-```typescript
-const createRateLimit = (windowMs, max, message) => rateLimit({
-  windowMs,              // Time window in milliseconds
-  max,                   // Max requests per window
-  message: { error },    // Error message when limit exceeded
-  standardHeaders: true, // Send rate limit headers
-  legacyHeaders: false   // Don't send X-RateLimit-* headers
-});
-```
-
-**Response when limit exceeded:**
-```json
-{
-  "error": "Too many requests, please try again later"
-}
-```
+### `validation.ts` - Input Validation
 
 #### Validation Helpers
 
@@ -401,15 +361,15 @@ const skipLog = (req, res) => {
 Handle missing dependencies gracefully.
 
 ```typescript
-let rateLimit: any;
+let compression: any;
 
 try {
-  rateLimit = require('express-rate-limit');
+  compression = require('compression');
 } catch (error) {
-  logger.warn('Rate limiting not available');
+  logger.warn('Compression not available');
   
   // Fallback: No-op middleware
-  rateLimit = () => (req, res, next) => next();
+  compression = () => (req, res, next) => next();
 }
 ```
 
