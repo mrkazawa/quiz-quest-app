@@ -12,6 +12,7 @@ services:
       - TEACHER_PASSWORD=${TEACHER_PASSWORD:-admin}
       - LOCALHOST_RUN_ENABLED=true
       - LOCALHOST_RUN_PORT=3000
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://*.lhr.life}
     volumes:
       # Mount questions directory for custom quiz content
       - ../questions:/app/questions:ro

@@ -13,6 +13,7 @@ services:
       - SERVEO_ENABLED=true
       - SERVEO_SUBDOMAIN=${SERVEO_SUBDOMAIN:-}
       - SERVEO_PORT=3000
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://*.serveo.net}
     volumes:
       # Mount questions directory for custom quiz content
       - ../questions:/app/questions:ro
