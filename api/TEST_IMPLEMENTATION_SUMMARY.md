@@ -9,7 +9,7 @@
 
 ## 🎯 Testing Strategy
 
-We're implementing tests in 5 phases to maximize success rate and minimize risk:
+We're implementing tests in **6 phases** to maximize success rate and minimize risk:
 
 ### ✅ **Phase 1-2: Service Layer Tests** (COMPLETED)
 - **Goal:** Test core business logic with highest ROI
@@ -18,27 +18,53 @@ We're implementing tests in 5 phases to maximize success rate and minimize risk:
   - HistoryService: **100%** ✅
   - RoomService: **91.5%** ✅
   - QuizService: **69.5%** ✅
+- **Estimated Tests:** 117 tests ✅
 
-### 📋 **Phase 3: Controller Tests** (NEXT)
-- Test HTTP request/response handling
-- QuizController, RoomController, AuthController, HistoryController
-- Mock services, test error handling
+### 📋 **Phase 3: Controller Unit Tests** (NEXT)
+- **Goal:** Test HTTP request/response handling in isolation
+- **Components:**
+  - `QuizController` - CRUD operations for quiz management
+  - `RoomController` - Room creation and management via REST
+  - `AuthController` - Teacher authentication
+  - `HistoryController` - Quiz history retrieval
+- **Approach:** Mock services, test error handling, validate responses
+- **Estimated Tests:** 30-40 tests
+- **Priority:** High (controllers are the API interface)
 
-### 📋 **Phase 4: Integration Tests**
-- Test complete API endpoints with supertest
-- Verify request/response flow
-- Test authentication and session management
+### 📋 **Phase 4: Middleware & Utility Tests**
+- **Goal:** Test request processing and helper functions
+- **Components:**
+  - `auth.ts` - Teacher authentication middleware
+  - `validation.ts` - Input validation functions
+  - `logging.ts` - Request/response logging
+  - `helpers.ts` - Utility functions (generateRoomCode, validateQuizData, etc.)
+  - `errorMonitor.ts` - Error handling and async wrappers
+  - `logger.ts` - Logger functionality
+- **Approach:** Unit test each function, mock dependencies
+- **Estimated Tests:** 25-35 tests
+- **Priority:** High (affects all requests)
 
 ### 📋 **Phase 5: Socket Handler Tests**
-- Test real-time Socket.IO functionality
-- roomHandlers, gameHandlers, teacherHandlers
-- Mock socket connections
+- **Goal:** Test real-time Socket.IO functionality
+- **Components:**
+  - `roomHandlers.ts` - Student join/leave room (2 handlers)
+  - `gameHandlers.ts` - Quiz gameplay (4 handlers: start, submit, next, rankings)
+  - `teacherHandlers.ts` - Teacher room management (4 handlers: create, join, info, delete)
+- **Approach:** Mock Socket.IO, test event handlers, verify emits
+- **Estimated Tests:** 40-50 tests
+- **Priority:** High (critical for real-time features)
 
-### 📋 **Phase 6: Middleware & Utility Tests**
-- Test auth middleware
-- Test logging middleware
-- Test validation middleware
-- Test helper utilities
+### 📋 **Phase 6: Integration Tests**
+- **Goal:** Test complete API flows end-to-end
+- **Components:**
+  - REST API endpoints with supertest
+  - Authentication flow
+  - Quiz CRUD operations
+  - Room management flow
+  - History retrieval
+- **Approach:** Test complete request/response cycles, real database operations
+- **Estimated Tests:** 20-30 tests
+- **Priority:** Medium (validates everything works together)
 
 ---
 
@@ -425,7 +451,40 @@ All refactorings maintain backward compatibility:
 
 ---
 
-**Next Phase:** Controller Tests  
-**Estimated Time:** 1-2 hours  
-**Expected Tests:** 30-40  
-**Expected Coverage:** 30%+ overall
+## 🎯 Revised Next Steps
+
+### Phase 3: Controller Unit Tests (NEXT)
+- **Files:** QuizController, RoomController, AuthController, HistoryController
+- **Estimated Tests:** 37-48 tests
+- **Estimated Time:** 4-6 hours
+- **Target Coverage:** 90%+ controllers, 30%+ overall
+
+### Phase 4: Middleware & Utility Tests
+- **Files:** auth, validation, logging, helpers, errorMonitor, logger
+- **Estimated Tests:** 39-49 tests
+- **Estimated Time:** 3-5 hours
+- **Target Coverage:** 85%+ middleware/utils, 45%+ overall
+
+### Phase 5: Socket Handler Tests
+- **Files:** roomHandlers, gameHandlers, teacherHandlers (10 event handlers)
+- **Estimated Tests:** 42-50 tests
+- **Estimated Time:** 6-8 hours
+- **Target Coverage:** 80%+ socket handlers, 60%+ overall
+
+### Phase 6: Integration Tests (includes Route Testing)
+- **Files:** Quiz, Room/Game, Auth, History flows
+- **Routes tested:** All 11 API routes (quiz, room, auth, history)
+- **Estimated Tests:** 20-25 tests
+- **Estimated Time:** 4-6 hours
+- **Target Coverage:** 70%+ overall
+- **Note:** Routes tested via integration tests (not unit tests) - see [`ROUTE_TESTING_STRATEGY.md`](./ROUTE_TESTING_STRATEGY.md)
+
+**Total Estimated Tests:** ~255-289 tests  
+**Total Estimated Time:** 17-25 hours  
+**Final Target Coverage:** 70%+ overall
+
+---
+
+📋 **Related Documentation:**
+- [`TEST_PLAN_REVISED.md`](./TEST_PLAN_REVISED.md) - Complete detailed breakdown of all phases
+- [`ROUTE_TESTING_STRATEGY.md`](./ROUTE_TESTING_STRATEGY.md) - Why routes are tested in Phase 6
