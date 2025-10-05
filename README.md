@@ -112,7 +112,7 @@ quiz-quest/
 │   └── template-quiz.json
 ├── package.json            # Root package management
 ├── Dockerfile             # Docker containerization
-└── docker-compose.yml     # Docker deployment configuration
+└── docker compose.yml     # Docker deployment configuration
 ```
 
 ### Key Components
@@ -153,21 +153,36 @@ npm start
 npm run dev
 ```
 
-### Docker Deployment
+### Docker Deployment (Recommended)
 
 ```bash
-# Build and run
-docker-compose up --build
-
-# Check logs for Serveo public URL
-docker-compose logs app
+# Interactive menu with all Docker operations
+cd docker
+./manage.sh
 ```
 
-The application will be available at `http://localhost:3000` or via the generated Serveo public URL.
+**The interactive menu provides:**
+- ✅ Build & push Docker images
+- ✅ Run deployments (native, localhost.run, serveo)
+- ✅ View logs and check status
+- ✅ Stop and cleanup
+- ✅ Generate secrets and create .env
+
+**Individual scripts are also available:**
+```bash
+cd docker
+./run-native.sh       # Native deployment
+./run-localhost-run.sh # localhost.run tunnel
+./run-serveo.sh       # Serveo.net tunnel
+```
+
+The application will be available at `http://localhost:3000` or via the generated public URL.
+
+For complete Docker documentation, see [`docker/README.md`](docker/README.md).
 
 ## Configuration
 
-Environment variables can be configured via `.env` file or docker-compose:
+Environment variables can be configured via `.env` file or docker compose:
 
 ```env
 TEACHER_PASSWORD=your_secure_password    # Default: quizmaster123

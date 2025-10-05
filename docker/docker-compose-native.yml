@@ -10,8 +10,9 @@ services:
     environment:
       - NODE_ENV=production
       - TEACHER_PASSWORD=${TEACHER_PASSWORD:-admin}
+      - SESSION_SECRET=${SESSION_SECRET:-}
       - PORT=3000
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
     volumes:
       # Mount questions directory for custom quiz content
       - ../questions:/app/questions:ro

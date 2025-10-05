@@ -10,9 +10,11 @@ services:
     environment:
       - NODE_ENV=production
       - TEACHER_PASSWORD=${TEACHER_PASSWORD:-admin}
+      - SESSION_SECRET=${SESSION_SECRET:-}
       - SERVEO_ENABLED=true
       - SERVEO_SUBDOMAIN=${SERVEO_SUBDOMAIN:-}
       - SERVEO_PORT=3000
+      - BEHIND_PROXY=true
       - CORS_ORIGINS=${CORS_ORIGINS:-https://*.serveo.net}
     volumes:
       # Mount questions directory for custom quiz content

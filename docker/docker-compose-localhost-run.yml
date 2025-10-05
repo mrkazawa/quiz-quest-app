@@ -10,8 +10,10 @@ services:
     environment:
       - NODE_ENV=production
       - TEACHER_PASSWORD=${TEACHER_PASSWORD:-admin}
+      - SESSION_SECRET=${SESSION_SECRET:-}
       - LOCALHOST_RUN_ENABLED=true
       - LOCALHOST_RUN_PORT=3000
+      - BEHIND_PROXY=true
       - CORS_ORIGINS=${CORS_ORIGINS:-https://*.lhr.life}
     volumes:
       # Mount questions directory for custom quiz content

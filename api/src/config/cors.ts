@@ -14,6 +14,7 @@ const devOrigins = [
 //   - With domain: "https://yourdomain.com,https://www.yourdomain.com"
 //   - With public IP: "http://123.45.67.89,http://123.45.67.89:3000"
 //   - Mixed: "http://192.168.1.100,https://mysite.com"
+//   - Wildcards: "https://*.lhr.life,https://*.serveo.net"
 const prodOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
   : [];
@@ -23,10 +24,29 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [...prodOrigins] // Production: only use specified origins
   : [...devOrigins, ...prodOrigins]; // Development: allow both
 
+// Function to check if origin matches (supports wildcards)
+const originMatcher = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  // Allow requests with no origin (like mobile apps or curl requests)
+  if (!origin) return callback(null, true);
+  
+  // Check if origin is in allowed list
+  const isAllowed = allowedOrigins.some(allowedOrigin => {
+    if (allowedOrigin.includes('*')) {
+      // Handle wildcard matching
+      const pattern = allowedOrigin.replace(/\*/g, '.*');
+      const regex = new RegExp(`^${pattern}$`);
+      return regex.test(origin);
+    }
+    return origin === allowedOrigin;
+  });
+  
+  callback(null, isAllowed);
+};
+
 const corsConfig: CorsOptions = {
-  origin: allowedOrigins,
+  origin: process.env.NODE_ENV === 'production' ? originMatcher : allowedOrigins,
   credentials: true,
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 };
 

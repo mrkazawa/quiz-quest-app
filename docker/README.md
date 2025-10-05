@@ -1,323 +1,188 @@
-# Quiz Quest Docker Hub Deployments
+# Docker Deployment
 
-This directory contains Docker configurations for deploying Quiz Quest using a pre-built image from Docker Hub. The image `mrkazawa/quiz-quest-app` is built once and pushed to Docker Hub, then used across multiple deployment scenarios.
+> **👉 To get started: `./manage.sh`**
 
-## 📁 Directory Structure
+Complete Docker deployment configurations for Quiz Quest using pre-built images from Docker Hub.
+
+## Quick Start
+
+Run the interactive menu:
+
+```bash
+./manage.sh
+```
+
+This provides all Docker operations:
+- Build & push Docker images
+- Run deployments (native, localhost.run, serveo)
+- View logs and check status
+- Generate secrets and manage environment
+- Stop and cleanup deployments
+
+## Deployment Options
+
+Quiz Quest supports three deployment modes:
+
+### 1. Native Deployment
+
+Direct deployment without tunneling. Use when you have:
+- Public IP address
+- Port forwarding configured
+- Domain name pointed to your server
+
+```bash
+./run-native.sh
+# or via menu: option 4
+```
+
+**Access:** `http://your-ip:3000`
+
+### 2. localhost.run Tunnel
+
+Automatic HTTPS tunnel without configuration.
+
+```bash
+./run-localhost-run.sh
+# or via menu: option 5
+```
+
+**Access:** `https://random-subdomain.lhr.life` (provided in logs)
+
+### 3. Serveo.net Tunnel
+
+SSH-based tunnel with custom subdomain support.
+
+```bash
+./run-serveo.sh
+# or via menu: option 6
+```
+
+**Access:** `https://your-subdomain.serveo.net`
+
+## Directory Structure
 
 ```
 docker/
-├── README.md                       # This documentation
-├── Dockerfile                      # Production Dockerfile for building the image
-├── build.sh                       # Script to build the Docker image
-├── push.sh                        # Script to push image to Docker Hub
-├── nginx.conf                     # Nginx configuration for native deployment
-├── docker-compose-native.yml      # Native deployment (no tunneling)
-├── docker-compose-serveo.yml      # Serveo.net tunneling deployment
-└── docker-compose-localhost-run.yml # localhost.run tunneling deployment
+├── README.md                          # This file
+├── NOTES.md                           # Technical notes
+│
+├── manage.sh                          # Interactive management menu
+├── build.sh                           # Build Docker image
+├── push.sh                            # Push to Docker Hub
+│
+├── run-native.sh                      # Native deployment script
+├── run-localhost-run.sh               # localhost.run deployment
+├── run-serveo.sh                      # Serveo.net deployment
+│
+├── Dockerfile                         # Production image definition
+├── nginx.conf                         # Nginx reverse proxy config
+│
+├── docker-compose-native.yml          # Native config
+├── docker-compose-localhost-run.yml   # localhost.run config
+└── docker-compose-serveo.yml          # Serveo.net config
 ```
 
-## 🏗️ Building and Publishing
+## Environment Variables
 
-### Build the Image Locally
+Required:
 
 ```bash
-cd docker/
-./build.sh
+TEACHER_PASSWORD=your_password      # Teacher login password
+SESSION_SECRET=random_64_hex        # Session encryption key
+NODE_ENV=production                 # Environment mode
 ```
 
-### Push to Docker Hub
+Optional:
 
 ```bash
-cd docker/
-./push.sh
+BEHIND_PROXY=true                   # Set for tunneling deployments
+CORS_ORIGINS=https://*.lhr.life     # CORS allowed origins
 ```
 
-**Note:** Update `DOCKER_USERNAME` in the scripts to match your Docker Hub username.
-
-## 🚀 Deployment Options
-
-### 1. Native Deployment (Recommended for Production)
-
-**Use case:** Production servers with proper domain/IP access, cloud deployments, VPS hosting.
+Generate SESSION_SECRET:
 
 ```bash
-# Standard deployment
-docker-compose -f docker-compose-native.yml up -d
-
-# With Nginx reverse proxy (recommended for production)
-docker-compose -f docker-compose-native.yml --profile with-nginx up -d
-
-# With custom password
-TEACHER_PASSWORD=your-secret-password docker-compose -f docker-compose-native.yml up -d
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-**Features:**
+## Common Tasks
 
-- ✅ Uses pre-built Docker Hub image
-- ✅ Non-root user for security
-- ✅ Health checks and resource limits
-- ✅ Optional Nginx reverse proxy with SSL ready
-- ✅ Production-grade configuration
-- ✅ Fast deployment (no build time)
-
-### 2. Serveo.net Tunneling
-
-**Use case:** Development, testing, sharing from local machines or servers behind NAT/firewall.
+### View Logs
 
 ```bash
-# Basic Serveo deployment
-docker-compose -f docker-compose-serveo.yml up -d
-
-# With custom subdomain (requires SSH key setup)
-SERVEO_SUBDOMAIN=myquiz docker-compose -f docker-compose-serveo.yml up -d
-
-# View logs to see the generated URL
-docker-compose -f docker-compose-serveo.yml logs -f
+./manage.sh  # Option 8
+# or
+docker compose -f docker-compose-native.yml logs -f
 ```
 
-**Features:**
-
-- ✅ Uses pre-built Docker Hub image
-- ✅ Automatic HTTPS via Serveo.net
-- ✅ No firewall/NAT configuration needed
-- ✅ Custom subdomain support (with SSH keys)
-- ✅ Persistent tunnel with auto-reconnect
-
-### 3. localhost.run Tunneling
-
-**Use case:** Quick testing, temporary sharing, one-time demonstrations.
+### Check Status
 
 ```bash
-# Deploy with localhost.run
-docker-compose -f docker-compose-localhost-run.yml up -d
-
-# View logs to get the generated URL
-docker-compose -f docker-compose-localhost-run.yml logs -f
+./manage.sh  # Option 9
+# or
+docker compose -f docker-compose-native.yml ps
 ```
 
-**Features:**
-
-- ✅ Uses pre-built Docker Hub image
-- ✅ Quick setup, no configuration needed
-- ✅ Automatic HTTPS
-- ✅ No account required
-- ⚠️ Random URLs (not persistent)
-
-## 🔧 Environment Variables
-
-All deployments support these environment variables:
-
-| Variable             | Default      | Description                   |
-| -------------------- | ------------ | ----------------------------- |
-| `NODE_ENV`           | `production` | Node.js environment           |
-| `TEACHER_PASSWORD`   | `admin`      | Password for teacher login    |
-| `PORT`               | `3000`       | Application port              |
-| `SERVEO_SUBDOMAIN`   | _(empty)_    | Custom Serveo subdomain       |
-| `SERVEO_PORT`        | `3000`       | Port for Serveo tunnel        |
-| `LOCALHOST_RUN_PORT` | `3000`       | Port for localhost.run tunnel |
-
-## 📊 Comparison Table
-
-| Feature              | Native          | Serveo               | localhost.run |
-| -------------------- | --------------- | -------------------- | ------------- |
-| **Production Ready** | ✅ Best         | ⚠️ Dev/Test          | ⚠️ Demo only  |
-| **Setup Complexity** | Medium          | Low                  | Minimal       |
-| **Custom Domain**    | ✅ Full control | ⚠️ Subdomain         | ❌ Random     |
-| **HTTPS/SSL**        | ✅ Your certs   | ✅ Automatic         | ✅ Automatic  |
-| **Performance**      | ✅ Direct       | ⚠️ Tunneled          | ⚠️ Tunneled   |
-| **Reliability**      | ✅ High         | ⚠️ Depends on tunnel | ⚠️ Limited    |
-| **Behind Firewall**  | ❌ Needs config | ✅ Works             | ✅ Works      |
-| **Cost**             | Server cost     | Free                 | Free          |
-
-## 🛠️ Advanced Usage
-
-### Using Your Own Docker Hub Repository
-
-1. **Update the scripts:**
-
-   ```bash
-   # Edit build.sh and push.sh
-   export DOCKER_USERNAME="your-dockerhub-username"
-   ```
-
-2. **Update docker-compose files:**
-
-   ```bash
-   # Replace 'mrkazawa/quiz-quest-app' with 'your-username/quiz-quest-app'
-   sed -i 's/mrkazawa\/quiz-quest-app/your-username\/quiz-quest-app/g' docker-compose-*.yml
-   ```
-
-3. **Build and push your image:**
-   ```bash
-   ./build.sh
-   ./push.sh
-   ```
-
-### Production Deployment with Custom Settings
+### Stop Deployment
 
 ```bash
-# Create environment file
-cat > .env << EOF
-NODE_ENV=production
-TEACHER_PASSWORD=your-ultra-secure-password
-PORT=3000
-EOF
-
-# Deploy with environment file
-docker-compose -f docker-compose-native.yml --env-file .env up -d
+./manage.sh  # Option 7
+# or
+docker compose -f docker-compose-native.yml down
 ```
 
-### SSL/HTTPS Setup (Native Deployment)
-
-1. **Obtain SSL certificates** (Let's Encrypt, CloudFlare, etc.)
-2. **Update nginx.conf** with your domain and certificate paths
-3. **Mount certificate volumes** in docker-compose.yml:
-   ```yaml
-   volumes:
-     - ./ssl-certs:/etc/ssl/certs:ro
-   ```
-4. **Uncomment HTTPS server block** in nginx.conf
-
-### Monitoring and Logs
+### Full Cleanup
 
 ```bash
-# View application logs
-docker-compose -f docker-compose-native.yml logs -f quiz-quest-native
-
-# View all logs including Nginx (with nginx profile)
-docker-compose -f docker-compose-native.yml logs -f
-
-# Monitor resource usage
-docker stats $(docker-compose -f docker-compose-native.yml ps -q)
-
-# View tunnel logs (for Serveo/localhost.run)
-docker-compose -f docker-compose-serveo.yml logs -f
-docker-compose -f docker-compose-localhost-run.yml logs -f
+./manage.sh  # Option 10
 ```
 
-## 🔒 Security Considerations
+## Troubleshooting
 
-### Native Deployment
+### Session/Login Issues
 
-- ✅ Run as non-root user
-- ✅ Resource limits configured
-- ✅ Rate limiting via Nginx
-- ✅ Security headers
-- ⚠️ Update TEACHER_PASSWORD
-- ⚠️ Use HTTPS in production
+1. Ensure `SESSION_SECRET` is set (64+ hex chars)
+2. For tunneling, set `BEHIND_PROXY=true`
+3. Check CORS origins match your URL
 
-### Tunnel Deployments
+See `NOTES.md` for detailed fixes.
 
-- ⚠️ Publicly accessible URLs
-- ⚠️ No rate limiting by default
-- ⚠️ Consider IP restrictions
-- ✅ HTTPS provided by tunnel service
-
-## 🚨 Troubleshooting
-
-### Common Issues
-
-**Image not found on Docker Hub:**
+### Network Errors
 
 ```bash
-# Verify image exists
-docker pull mrkazawa/quiz-quest-app:latest
-
-# Or build locally if needed
-./build.sh
+./manage.sh  # Option 10 (cleanup), then redeploy
 ```
 
-**Tunnel not connecting:**
+### Port In Use
 
 ```bash
-# Check logs for tunnel services
-docker-compose -f docker-compose-serveo.yml logs -f
-docker-compose -f docker-compose-localhost-run.yml logs -f
-
-# Restart with fresh container
-docker-compose -f docker-compose-serveo.yml down && docker-compose -f docker-compose-serveo.yml up -d
+sudo lsof -i :3000
+./manage.sh  # Option 7 (stop all)
 ```
 
-**Health check failing:**
+## Docker Compose v2
+
+This project uses Docker Compose v2:
 
 ```bash
-# Check if app is starting properly
-docker-compose -f docker-compose-native.yml exec quiz-quest-native npm start
-
-# View detailed health check logs
-docker inspect quiz-quest-native | grep -A 10 Health
+docker compose up -d    # Correct (v2)
+docker-compose up -d    # Old (v1)
 ```
 
-**Permission denied errors:**
+## Production Checklist
 
-```bash
-# Ensure proper file ownership for questions directory
-sudo chown -R 1001:1001 ../questions/
+- [ ] Set strong `TEACHER_PASSWORD`
+- [ ] Generate secure `SESSION_SECRET`
+- [ ] Configure `CORS_ORIGINS`
+- [ ] Set `NODE_ENV=production`
+- [ ] Test deployment
+- [ ] Configure firewall
+- [ ] Set up SSL/TLS
+- [ ] Verify sessions work
 
-# Check if scripts are executable in the image
-docker-compose -f docker-compose-native.yml exec quiz-quest-native ls -la scripts/
-```
+## Resources
 
-**Docker Hub authentication issues:**
-
-```bash
-# Login to Docker Hub
-docker login
-
-# Verify credentials
-docker info | grep Username
-```
-
-## 📝 Migration from Legacy Docker Setup
-
-If upgrading from the root-level Dockerfile:
-
-1. **Pull the pre-built image** (no need to build locally):
-
-   ```bash
-   docker pull mrkazawa/quiz-quest-app:latest
-   ```
-
-2. **Choose your deployment type** (native recommended)
-
-3. **Use new compose commands**:
-
-   ```bash
-   # Old way
-   docker-compose up -d
-
-   # New way (choose one)
-   docker-compose -f docker/docker-compose-native.yml up -d
-   docker-compose -f docker/docker-compose-serveo.yml up -d
-   docker-compose -f docker/docker-compose-localhost-run.yml up -d
-   ```
-
-## ⚡ Quick Start
-
-```bash
-# 1. Pull the latest image
-docker pull mrkazawa/quiz-quest-app:latest
-
-# 2. Choose your deployment method:
-
-# Native (production)
-docker-compose -f docker/docker-compose-native.yml up -d
-
-# Serveo tunneling (development/testing)
-docker-compose -f docker/docker-compose-serveo.yml up -d
-
-# localhost.run tunneling (demos)
-docker-compose -f docker/docker-compose-localhost-run.yml up -d
-```
-
-## 🎯 Recommendations
-
-- **Development/Testing:** Use `serveo` or `localhost-run`
-- **Production:** Use `native` with Nginx proxy
-- **Quick Demo:** Use `localhost-run`
-- **Persistent Public Access:** Use `native` with proper domain
-- **Behind Corporate Firewall:** Use tunneling options
-
----
-
-For more information, see the main [README.md](../README.md) and [scripts/README.md](../scripts/README.md).
+- Technical details: `NOTES.md`
+- Main project: `../README.md`
+- API docs: `../api/README.md`
+- User guide: `../docs/USER_GUIDE.md`

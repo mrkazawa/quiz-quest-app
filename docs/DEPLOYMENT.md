@@ -50,7 +50,7 @@ npm start
 ```bash
 cd docker
 CORS_ORIGINS=https://yourdomain.com \
-  docker-compose -f docker-compose-native.yml --profile with-nginx up -d
+  docker compose -f docker-compose-native.yml --profile with-nginx up -d
 ```
 
 **Access:** `https://yourdomain.com`
@@ -66,7 +66,7 @@ cd docker
 MY_IP=$(curl -s ifconfig.me)
 
 CORS_ORIGINS=http://$MY_IP \
-  docker-compose -f docker-compose-native.yml --profile with-nginx up -d
+  docker compose -f docker-compose-native.yml --profile with-nginx up -d
 ```
 
 **Access:** `http://YOUR_PUBLIC_IP`  
@@ -79,10 +79,10 @@ CORS_ORIGINS=http://$MY_IP \
 
 ```bash
 cd docker
-docker-compose -f docker-compose-serveo.yml up -d
+docker compose -f docker-compose-serveo.yml up -d
 
 # Check logs for your public URL
-docker-compose -f docker-compose-serveo.yml logs -f
+docker compose -f docker-compose-serveo.yml logs -f
 # Look for: "Forwarding HTTP traffic from https://yourname.serveo.net"
 ```
 
@@ -95,10 +95,10 @@ docker-compose -f docker-compose-serveo.yml logs -f
 
 ```bash
 cd docker
-docker-compose -f docker-compose-localhost-run.yml up -d
+docker compose -f docker-compose-localhost-run.yml up -d
 
 # Check logs for your public URL
-docker-compose -f docker-compose-localhost-run.yml logs -f
+docker compose -f docker-compose-localhost-run.yml logs -f
 # Look for: "Your site is available at https://abc123.lhr.life"
 ```
 
@@ -196,13 +196,13 @@ cd docker
 # With domain
 CORS_ORIGINS=https://yourdomain.com \
 TEACHER_PASSWORD=mysecret \
-  docker-compose -f docker-compose-native.yml --profile with-nginx up -d
+  docker compose -f docker-compose-native.yml --profile with-nginx up -d
 
 # With public IP
 MY_IP=$(curl -s ifconfig.me)
 CORS_ORIGINS=http://$MY_IP \
 TEACHER_PASSWORD=mysecret \
-  docker-compose -f docker-compose-native.yml --profile with-nginx up -d
+  docker compose -f docker-compose-native.yml --profile with-nginx up -d
 ```
 
 **Ports:**
@@ -218,7 +218,7 @@ docker ps
 curl http://localhost/health
 
 # View logs
-docker-compose -f docker-compose-native.yml logs -f
+docker compose -f docker-compose-native.yml logs -f
 ```
 
 ---
@@ -231,12 +231,12 @@ docker-compose -f docker-compose-native.yml logs -f
 cd docker
 
 # Basic deployment (random subdomain)
-docker-compose -f docker-compose-serveo.yml up -d
+docker compose -f docker-compose-serveo.yml up -d
 
 # Custom subdomain (requires SSH key setup)
 SERVEO_SUBDOMAIN=myquiz \
 CORS_ORIGINS=https://myquiz.serveo.net \
-  docker-compose -f docker-compose-serveo.yml up -d
+  docker compose -f docker-compose-serveo.yml up -d
 ```
 
 **Features:**
@@ -253,10 +253,10 @@ CORS_ORIGINS=https://myquiz.serveo.net \
 
 ```bash
 cd docker
-docker-compose -f docker-compose-localhost-run.yml up -d
+docker compose -f docker-compose-localhost-run.yml up -d
 
 # Get the generated URL from logs
-docker-compose -f docker-compose-localhost-run.yml logs | grep "available at"
+docker compose -f docker-compose-localhost-run.yml logs | grep "available at"
 ```
 
 **Features:**
@@ -302,7 +302,7 @@ echo "Your public IP: $MY_IP"
 # Deploy with Nginx (port 80)
 CORS_ORIGINS=http://$MY_IP \
 TEACHER_PASSWORD=mypassword \
-  docker-compose -f docker-compose-native.yml --profile with-nginx up -d
+  docker compose -f docker-compose-native.yml --profile with-nginx up -d
 
 # Students visit: http://YOUR_PUBLIC_IP
 ```
@@ -348,8 +348,8 @@ docker exec quiz-quest-native env | grep CORS
 # Then CORS_ORIGINS must be: http://203.0.113.45
 
 # 2. Restart with correct CORS
-docker-compose down
-CORS_ORIGINS=http://YOUR_ACTUAL_IP docker-compose up -d
+docker compose down
+CORS_ORIGINS=http://YOUR_ACTUAL_IP docker compose up -d
 
 # 3. Check for typos (http vs https, trailing slash)
 ```
@@ -387,19 +387,42 @@ curl http://YOUR_PUBLIC_IP/health
    ```bash
    docker ps
    # If not listed, check logs:
-   docker-compose logs
+   docker compose logs
    ```
 
 ---
 
 ### Cookie/Session Not Working
 
-**Problem:** Login works but session doesn't persist
+**Problem:** Login works but session doesn't persist, or works in development but not production
 
-**Cause:** Missing `credentials: include` in frontend or CORS mismatch
+**Common Causes:**
 
-**Solutions:**
-1. **Frontend:** Ensure fetch/axios includes credentials:
+1. **Production HTTPS/Secure Cookie Issue**
+   - **Symptom:** Works with `NODE_ENV=development`, fails with `NODE_ENV=production`
+   - **Cause:** Session cookies require HTTPS in production, but Docker may use HTTP internally
+   - **Solution:** Set `BEHIND_PROXY=true` environment variable
+   ```bash
+   # For localhost.run or serveo.net
+   BEHIND_PROXY=true docker compose -f docker-compose-localhost-run.yml up -d
+   
+   # For Nginx reverse proxy
+   BEHIND_PROXY=true docker compose -f docker-compose-native.yml --profile with-nginx up -d
+   ```
+
+2. **Missing SESSION_SECRET**
+   - **Symptom:** Sessions work but get invalidated on container restart
+   - **Cause:** Auto-generated session secret changes each restart
+   - **Solution:** Set persistent `SESSION_SECRET`
+   ```bash
+   # Generate a secret
+   node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+   
+   # Use it in deployment
+   SESSION_SECRET=your-generated-secret-here docker compose up -d
+   ```
+
+3. **Missing credentials in frontend:**
    ```javascript
    // Fetch API
    fetch('http://api-url/api/login', {
@@ -414,14 +437,29 @@ curl http://YOUR_PUBLIC_IP/health
    })
    ```
 
-2. **CORS:** Verify origin is explicitly listed (not wildcard)
+4. **CORS mismatch:** Verify origin is explicitly listed
    ```bash
-   # Good
-   CORS_ORIGINS=http://203.0.113.45
+   # Good - exact match
+   CORS_ORIGINS=http://203.0.113.45:3000
+   
+   # Good - wildcard for tunneling
+   CORS_ORIGINS=https://*.lhr.life
 
-   # Bad (won't work with credentials)
+   # Bad - won't work with credentials
    CORS_ORIGINS=*
    ```
+
+**Quick Fix for Docker Production:**
+```bash
+# 1. Generate session secret
+SESSION_SECRET=$(node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+
+# 2. Deploy with proper configuration
+SESSION_SECRET=$SESSION_SECRET \
+BEHIND_PROXY=true \
+CORS_ORIGINS=https://your-url \
+  docker compose -f docker-compose-localhost-run.yml up -d
+```
 
 ---
 
@@ -429,7 +467,7 @@ curl http://YOUR_PUBLIC_IP/health
 
 **Check logs:**
 ```bash
-docker-compose logs -f
+docker compose logs -f
 ```
 
 **Common causes:**
@@ -437,13 +475,13 @@ docker-compose logs -f
    ```bash
    # Check what's using port 3000
    sudo lsof -i :3000
-   # Kill it or change PORT in docker-compose
+   # Kill it or change PORT in docker compose
    ```
 
 2. **Missing environment variables:**
    ```bash
    # Ensure CORS_ORIGINS is set if in production
-   docker-compose -f docker-compose-native.yml config
+   docker compose -f docker-compose-native.yml config
    ```
 
 3. **Memory issues:**
@@ -466,7 +504,7 @@ docker-compose logs -f
    df -h
    ```
 
-2. **Increase Docker limits** (in docker-compose.yml):
+2. **Increase Docker limits** (in docker compose.yml):
    ```yaml
    deploy:
      resources:
@@ -519,19 +557,19 @@ npm start                      # Run production build
 
 # Docker - Native
 cd docker
-CORS_ORIGINS=http://IP docker-compose -f docker-compose-native.yml --profile with-nginx up -d
-docker-compose -f docker-compose-native.yml logs -f
-docker-compose -f docker-compose-native.yml down
+CORS_ORIGINS=http://IP docker compose -f docker-compose-native.yml --profile with-nginx up -d
+docker compose -f docker-compose-native.yml logs -f
+docker compose -f docker-compose-native.yml down
 
 # Docker - Serveo
 cd docker
-docker-compose -f docker-compose-serveo.yml up -d
-docker-compose -f docker-compose-serveo.yml logs -f
+docker compose -f docker-compose-serveo.yml up -d
+docker compose -f docker-compose-serveo.yml logs -f
 
 # Docker - Localhost.run
 cd docker
-docker-compose -f docker-compose-localhost-run.yml up -d
-docker-compose -f docker-compose-localhost-run.yml logs -f
+docker compose -f docker-compose-localhost-run.yml up -d
+docker compose -f docker-compose-localhost-run.yml logs -f
 
 # Utilities
 curl ifconfig.me               # Get public IP
@@ -555,20 +593,20 @@ docker exec -it CONTAINER_ID sh  # Access container shell
 
 **For Production with Domain:**
 ```bash
-CORS_ORIGINS=https://mysite.com docker-compose -f docker-compose-native.yml --profile with-nginx up -d
+CORS_ORIGINS=https://mysite.com docker compose -f docker-compose-native.yml --profile with-nginx up -d
 ```
 
 **For Classroom with Public IP:**
 ```bash
 MY_IP=$(curl -s ifconfig.me)
-CORS_ORIGINS=http://$MY_IP docker-compose -f docker-compose-native.yml --profile with-nginx up -d
+CORS_ORIGINS=http://$MY_IP docker compose -f docker-compose-native.yml --profile with-nginx up -d
 echo "Share this with students: http://$MY_IP"
 ```
 
 **For Quick Testing:**
 ```bash
-docker-compose -f docker-compose-serveo.yml up -d
-docker-compose logs | grep "Forwarding"
+docker compose -f docker-compose-serveo.yml up -d
+docker compose logs | grep "Forwarding"
 ```
 
 That's it! Your Quiz Quest app is ready for deployment. 🚀
