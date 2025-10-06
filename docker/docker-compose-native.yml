@@ -14,8 +14,8 @@ services:
       - PORT=3000
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
     volumes:
-      # Mount questions directory for custom quiz content
-      - ../questions:/app/questions:ro
+      # Mount questions directory for custom quiz content (read-write for question creation)
+      - ../questions:/app/questions
       # Optional: persist application data
       - quiz-quest-data:/app/data
     restart: unless-stopped

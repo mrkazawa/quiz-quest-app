@@ -162,6 +162,7 @@ cd docker
 ```
 
 **The interactive menu provides:**
+
 - ✅ Build & push Docker images
 - ✅ Run deployments (native, localhost.run, serveo)
 - ✅ View logs and check status
@@ -169,6 +170,7 @@ cd docker
 - ✅ Generate secrets and create .env
 
 **Individual scripts are also available:**
+
 ```bash
 cd docker
 ./run-native.sh       # Native deployment
@@ -193,16 +195,21 @@ NODE_ENV=production                     # Environment mode
 ## Documentation
 
 ### 📚 For Users
+
 - **[User Guide](docs/USER_GUIDE.md)** - Complete guide for teachers and students
 - **[Setup Guide](docs/SETUP.md)** - Installation and configuration
 
 ### 🚀 For Deployment
+
 - **[Deployment Guide](docs/DEPLOYMENT.md)** - All deployment scenarios (Docker, IP, Domain, Tunneling)
 
 ### 💻 For Developers
+
 - **[Development Guide](docs/DEVELOPMENT.md)** - Architecture, testing, best practices
 - **[API Documentation](api/README.md)** - REST API and Socket.IO reference
 - **[Test Documentation](api/tests/README.md)** - Testing guide
 
 ### 🐳 For Docker
-- **[Docker Guide](docker/README.md)** - Container deployment options
+
+- **[Docker Deployment Guide](docs/DOCKER_DEPLOYMENT.md)** - Complete Docker deployment guide for all scenarios
+- **[Docker README](docker/README.md)** - Technical Docker documentation

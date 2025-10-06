@@ -17,8 +17,8 @@ services:
       - BEHIND_PROXY=true
       - CORS_ORIGINS=${CORS_ORIGINS:-https://*.serveo.net}
     volumes:
-      # Mount questions directory for custom quiz content
-      - ../questions:/app/questions:ro
+      # Mount questions directory for custom quiz content (read-write for question creation)
+      - ../questions:/app/questions
       # Optional: Mount SSH keys for persistent Serveo subdomain
       - ~/.ssh:/home/quizquest/.ssh:ro
     restart: unless-stopped

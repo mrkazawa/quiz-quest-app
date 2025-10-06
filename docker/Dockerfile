@@ -35,7 +35,7 @@ RUN npm run build
 FROM node:20-alpine AS production
 
 # Add required packages for tunneling support with OpenSSL compatibility
-RUN apk add --no-cache openssh-client curl openssl
+RUN apk add --no-cache openssh-client curl openssl bash
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -54,12 +54,8 @@ RUN cd api && npm ci --only=production && npm cache clean --force
 COPY --from=builder --chown=quizquest:nodejs /app/api/dist ./api/dist
 COPY --from=builder --chown=quizquest:nodejs /app/client/dist ./client/dist
 
-# Copy runtime assets (make questions optional since it's created dynamically)
-RUN mkdir -p ./questions
-COPY --chown=quizquest:nodejs scripts/ ./scripts/
-
-# Make scripts executable
-RUN chmod +x ./scripts/*.sh
+# Copy questions directory for quiz content
+COPY --chown=quizquest:nodejs questions/ ./questions/
 
 # Switch to non-root user
 USER quizquest

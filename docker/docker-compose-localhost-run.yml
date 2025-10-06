@@ -16,8 +16,8 @@ services:
       - BEHIND_PROXY=true
       - CORS_ORIGINS=${CORS_ORIGINS:-https://*.lhr.life}
     volumes:
-      # Mount questions directory for custom quiz content
-      - ../questions:/app/questions:ro
+      # Mount questions directory for custom quiz content (read-write for question creation)
+      - ../questions:/app/questions
     restart: unless-stopped
     networks:
       - quiz-quest-network
